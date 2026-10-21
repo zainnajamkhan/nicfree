@@ -120,6 +120,9 @@ struct CravingView: View {
                     .textCase(.uppercase)
                     .tracking(0.8)
                     .foregroundStyle(Palette.skyInk)
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
                     .transaction { $0.animation = nil }
                 Text(timerInterval: startedAt...Date.distantFuture, countsDown: false)
                     .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
@@ -133,9 +136,8 @@ struct CravingView: View {
     // MARK: - It passed
 
     private var passed: some View {
-        VStack(alignment: .leading, spacing: Space.l) {
-            Spacer()
-
+        PinnedActions(ground: Palette.calm) {
+            VStack(alignment: .leading, spacing: Space.l) {
             VStack(alignment: .leading, spacing: Space.s) {
                 Text("You waited it out.")
                     .font(Typeface.title)
@@ -158,11 +160,10 @@ struct CravingView: View {
                     }
                 }
             }
-
-            Spacer()
-
+            }
+            .padding(.vertical, Space.l)
+        } actions: {
             PrimaryButton("Done") { save() }
-                .padding(.bottom, Space.l)
         }
     }
 
@@ -171,9 +172,8 @@ struct CravingView: View {
     /// Asked here rather than during onboarding, and only after something went well.
     /// Asking on first launch trades a permanent refusal for a moment of convenience.
     private var primer: some View {
-        VStack(alignment: .leading, spacing: Space.m) {
-            Spacer()
-
+        PinnedActions(ground: Palette.calm) {
+            VStack(alignment: .leading, spacing: Space.m) {
             Text("Should we mark the milestones?")
                 .font(Typeface.title)
                 .foregroundStyle(Palette.ink)
@@ -182,9 +182,9 @@ struct CravingView: View {
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
-
-            Spacer()
-
+            }
+            .padding(.vertical, Space.l)
+        } actions: {
             VStack(spacing: Space.s) {
                 PrimaryButton("Yes") {
                     Task {
@@ -194,7 +194,6 @@ struct CravingView: View {
                 }
                 SecondaryButton("Not now") { dismiss() }
             }
-            .padding(.bottom, Space.l)
         }
     }
 

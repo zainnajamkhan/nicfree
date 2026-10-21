@@ -27,10 +27,38 @@ final class CairnUITests: XCTestCase {
         button.tap()
     }
 
+    /// A store that will not open must say so, not fall silently into onboarding.
+    @MainActor
+    func testDamagedStoreIsExplained() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-simulateDamagedStore"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Your saved history could not be opened"].waitForExistence(timeout: 5))
+        snap("00 damaged store")
+        tap(app, "Carry on without saving")
+        XCTAssertTrue(app.staticTexts["What do you use?"].waitForExistence(timeout: 5))
+    }
+
     @MainActor
     func testPouchUserFirstRun() throws {
         let app = XCUIApplication()
         app.launch()
+        try firstRun(app)
+    }
+
+    /// The same walk at the largest accessibility text size, where layouts break first.
+    @MainActor
+    func testFirstRunAtLargestText() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        try firstRun(app, prefix: "XXXL ")
+    }
+
+    @MainActor
+    private func firstRun(_ app: XCUIApplication, prefix: String = "") throws {
+        let snap: (String) -> Void = { self.snap(prefix + $0) }
 
         // Onboarding offers pouches, not only vaping.
         XCTAssertTrue(app.staticTexts["What do you use?"].waitForExistence(timeout: 5))

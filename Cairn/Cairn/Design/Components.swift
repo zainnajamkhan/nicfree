@@ -210,6 +210,31 @@ struct StoneProgress: View {
     }
 }
 
+// MARK: - Pinned actions
+
+/// Content that scrolls above buttons that never move. Centred vertically when it fits,
+/// scrollable when it does not, so at the largest text sizes nothing is pushed off screen.
+struct PinnedActions<Content: View, Actions: View>: View {
+    var ground: Color = Palette.ground
+    @ViewBuilder var content: Content
+    @ViewBuilder var actions: Actions
+
+    var body: some View {
+        GeometryReader { proxy in
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .leading)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            actions
+                .padding(.vertical, Space.s)
+                .background(ground)
+        }
+    }
+}
+
 // MARK: - Screen scaffold
 
 /// Every screen sits on the same ground with the same margins. The craving screen passes

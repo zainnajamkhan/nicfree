@@ -31,27 +31,34 @@ struct OnboardingView: View {
 
     var body: some View {
         Screen {
-            VStack(alignment: .leading, spacing: Space.l) {
-                StoneProgress(total: Step.allCases.count, current: step.rawValue)
-                    .padding(.top, Space.xl)
+            // The step scrolls and the button is pinned, so at the largest text sizes the
+            // button can never be pushed off the bottom of the screen.
+            ScrollView {
+                VStack(alignment: .leading, spacing: Space.l) {
+                    StoneProgress(total: Step.allCases.count, current: step.rawValue)
+                        .padding(.top, Space.xl)
 
-                Group {
-                    switch step {
-                    case .form: formStep
-                    case .amount: amountStep
-                    case .date: dateStep
-                    case .reasons: reasonsStep
-                    case .ready: readyStep
+                    Group {
+                        switch step {
+                        case .form: formStep
+                        case .amount: amountStep
+                        case .date: dateStep
+                        case .reasons: reasonsStep
+                        case .ready: readyStep
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer(minLength: Space.l)
-
-                PrimaryButton(step == .ready ? "Start" : "Continue", action: advance)
-                    .padding(.bottom, Space.l)
+                .padding(.bottom, Space.l)
+                .animation(.smooth(duration: 0.3), value: step)
             }
-            .animation(.smooth(duration: 0.3), value: step)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                PrimaryButton(step == .ready ? "Start" : "Continue", action: advance)
+                    .padding(.vertical, Space.s)
+                    .background(Palette.ground)
+            }
         }
     }
 

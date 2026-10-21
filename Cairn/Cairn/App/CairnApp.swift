@@ -8,19 +8,27 @@
 import SwiftUI
 import SwiftData
 
+extension EnvironmentValues {
+    /// True when the saved history could not be opened and the app is running on a
+    /// temporary in-memory store.
+    @Entry var storeIsTemporary = false
+}
+
 @main
 struct CairnApp: App {
     private let container: ModelContainer
+    private let storeIsTemporary: Bool
     @State private var store = PurchaseStore()
 
     init() {
-        container = Self.makeContainer()
+        (container, storeIsTemporary) = Self.makeContainer()
     }
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(store)
+                .environment(\.storeIsTemporary, storeIsTemporary)
                 .task { await store.start() }
         }
         .modelContainer(container)
@@ -35,18 +43,24 @@ struct CairnApp: App {
     ///
     /// CloudKit is intentionally absent until the developer account is active. It is
     /// added as a mirror in slice 5, never as the source of truth.
-    private static func makeContainer() -> ModelContainer {
+    private static func makeContainer() -> (ModelContainer, isTemporary: Bool) {
         let schema = Schema([Habit.self, DayRecord.self, CravingEvent.self])
 
         let onDisk = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        if let container = try? ModelContainer(for: schema, configurations: [onDisk]) {
-            return container
+        #if DEBUG
+        // Lets a UI test walk the damaged-store path without damaging anything.
+        let simulateDamage = ProcessInfo.processInfo.arguments.contains("-simulateDamagedStore")
+        #else
+        let simulateDamage = false
+        #endif
+        if !simulateDamage, let container = try? ModelContainer(for: schema, configurations: [onDisk]) {
+            return (container, false)
         }
 
-        // TODO: slice 6 — surface this state to the user rather than degrading silently.
+        // Home says so, so nobody logs a week of days that are never written down.
         let inMemory = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
-            return try ModelContainer(for: schema, configurations: [inMemory])
+            return (try ModelContainer(for: schema, configurations: [inMemory]), true)
         } catch {
             fatalError("Could not create an in-memory container: \(error)")
         }

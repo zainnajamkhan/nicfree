@@ -13,6 +13,7 @@ import SwiftData
 /// giving in than to sit with it, and that belongs in the hierarchy rather than in a
 /// sentence telling someone off.
 struct HomeView: View {
+    @Environment(\.storeIsTemporary) private var storeIsTemporary
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
     @Query(sort: \CravingEvent.occurredAt) private var cravings: [CravingEvent]
@@ -54,6 +55,7 @@ struct HomeView: View {
             if let habit, let stats {
                 ScrollView {
                     VStack(spacing: Space.m) {
+                        if storeIsTemporary { temporaryStoreNotice }
                         chips(stats: stats, habit: habit)
                         sproutCard(stats: stats, habit: habit)
                         WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
@@ -188,6 +190,23 @@ struct HomeView: View {
             ProgressView(value: Double(free), total: Double(next))
                 .progressViewStyle(LeafProgressStyle())
         }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Plain about what is happening and what it means, without alarm. Never red.
+    private var temporaryStoreNotice: some View {
+        VStack(alignment: .leading, spacing: Space.xs) {
+            Text("Your saved history could not be opened")
+                .font(.system(.body, design: .rounded, weight: .heavy))
+                .foregroundStyle(Palette.sunInk)
+            Text("Nothing logged right now will be kept. Close NicFree fully and open it again. NicFree has not deleted anything.")
+                .font(Typeface.row)
+                .foregroundStyle(Palette.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Space.m)
+        .background(Palette.sunQuiet, in: RoundedRectangle(cornerRadius: Radius.button))
         .accessibilityElement(children: .combine)
     }
 
