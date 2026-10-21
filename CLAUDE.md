@@ -1,7 +1,13 @@
-# Cairn — working agreement
+# Nicfree — working agreement
 
-An iOS app for quitting vaping. Loaded at the start of every session. This file holds only
-what changes behaviour; the reasoning lives in `docs/`.
+An iOS app for quitting vaping and nicotine pouches. Loaded at the start of every session.
+This file holds only what changes behaviour; the reasoning lives in `docs/`.
+
+**The product is Nicfree.** `Cairn` is the code name and stays in the Xcode project, target,
+module, file headers and docs. Never rename those. Anything a user can see says Nicfree.
+
+**v1 scope and dates live in `LAUNCH.md`.** Read it first. Anything not in v1 goes on its
+later list rather than into the code.
 
 ## Where things are
 
@@ -10,6 +16,7 @@ what changes behaviour; the reasoning lives in `docs/`.
 | `docs/ARCHITECTURE.md` | Code structure, data model, the derived layer, conventions |
 | `docs/FLOWS.md` | Every user flow, and what each one writes to the store |
 | `docs/DECISIONS.md` | Every non obvious decision and why. **Read before changing behaviour** |
+| `LAUNCH.md` | v1 scope, daily plan to submission, fix list, open decisions |
 | `BLUEPRINT.md` | Market research, competitor findings, positioning |
 | `PLAN.md` | Slice plan, dependencies, monetization, go to market |
 | `VISUAL-DIRECTION.html` | The design system, rendered. Open in a browser |

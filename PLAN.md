@@ -1,5 +1,8 @@
 # Cairn — implementation plan
 
+> **Superseded for v1:** scope and dates now live in `LAUNCH.md`. This file stays the full
+> product plan. The product name is now Nicfree; Cairn is the code name.
+
 Engineering companion to `BLUEPRINT.md`, which holds the research and the positioning.
 Visual direction is a separate published document; this file is what we build from.
 

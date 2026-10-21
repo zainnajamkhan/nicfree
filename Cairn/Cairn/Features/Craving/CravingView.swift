@@ -154,7 +154,7 @@ struct CravingView: View {
                 .font(.system(.title, design: .serif))
                 .foregroundStyle(Palette.ink)
 
-            Text("A short note at a day, three days, a week, a month. Nothing else, ever. Cairn will never nudge you for not opening it, because there is nothing to keep up with.")
+            Text("A short note at a day, three days, a week, a month. Nothing else, ever. Nicfree will never nudge you for not opening it, because there is nothing to keep up with.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)

@@ -126,7 +126,7 @@ struct OnboardingView: View {
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             question("That is everything.")
-            Text("There is nothing to check in to. A day you do not open Cairn counts as a day free, so come back only when you need to.")
+            Text("There is nothing to check in to. A day you do not open Nicfree counts as a day free, so come back only when you need to.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
         }
