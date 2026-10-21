@@ -1,7 +1,7 @@
-# Cairn — implementation plan
+# NicFree — implementation plan
 
 > **Superseded for v1:** scope and dates now live in `LAUNCH.md`. This file stays the full
-> product plan. The product name is now Nicfree; Cairn is the code name.
+> product plan. The product was renamed from Cairn to NicFree on 2026-10-22.
 
 Engineering companion to `BLUEPRINT.md`, which holds the research and the positioning.
 Visual direction is a separate published document; this file is what we build from.
@@ -81,8 +81,8 @@ Because the project uses file system synchronized groups, folder location determ
 target membership. Creating subfolders is free and needs no Xcode bookkeeping.
 
 ```
-Cairn/Cairn/
-  App/            CairnApp, ModelContainer, root navigation
+NicFree/NicFree/
+  App/            NicFreeApp, ModelContainer, root navigation
   Models/         Habit, DayRecord, CravingEvent
   Core/
     Stats/        QuitStats            (pure, tested)
@@ -95,8 +95,8 @@ Cairn/Cairn/
   Features/
     Onboarding/ Home/ Craving/ Slip/ History/ Insights/ Settings/ Paywall/
   Resources/      Assets, Localizable.xcstrings, PrivacyInfo.xcprivacy
-CairnWidgets/     widget extension target
-CairnTests/
+NicFreeWidgets/     widget extension target
+NicFreeTests/
 ```
 
 All derived numbers live in pure types with no framework dependency, so they are
@@ -316,6 +316,6 @@ recorded today. Built in slice 3, since it needs craving history to be worth any
 
 - Price confirmation at 9.99 USD.
 - Bundle identifier and a domain for the required support URL.
-- Reserve the name Cairn in App Store Connect as soon as enrollment clears.
+- Reserve the name NicFree in App Store Connect as soon as enrollment clears.
 - CloudKit is blocked until the paid account is active, which gates slice 5.
 - Whether Arabic ships at launch or in the first update.

@@ -1,4 +1,4 @@
-# Nicfree v1 launch plan
+# NicFree v1 launch plan
 
 **Finish line: submitted to App Store review by Tue Nov 3, 2026.** Wed Nov 4 is buffer.
 Downloads, revenue and reviews are not the goal of these two weeks. Shipping is.
@@ -37,11 +37,11 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Tone test that fails on banned words
 - [x] Plural fixes ("1 free day", not "1 free days")
 - [x] UI test that walks a pouch user through first run, a craving, a slip, every tab and the paywall
-- [ ] Damaged store message (TODO in `CairnApp.swift`)
+- [ ] Damaged store message (TODO in `NicFreeApp.swift`)
 - [ ] App icon
 - [ ] VoiceOver and largest Dynamic Type pass
-- [ ] Rename project to NicFree (waiting for Xcode to be closed)
-- [ ] Bundle ID (Zain's decision; `com.app.Cairn` is a placeholder)
+- [x] Rename project to NicFree
+- [ ] Bundle ID (Zain's decision; `com.app.NicFree` is a placeholder)
 
 ## In v1
 
@@ -59,13 +59,12 @@ Exception: one Lock Screen widget on Mon Nov 2, **only** if every other v1 item 
 
 | Decision | Deadline | Recommendation |
 |---|---|---|
-| Bundle ID. It is `com.app.Cairn`, a placeholder, and it **cannot change after the first upload** | Fri Oct 23 | `com.<your-domain>.nicfree` |
+| Bundle ID. It is `com.app.NicFree`, a placeholder, and it **cannot change after the first upload** | Fri Oct 23 | `com.<your-domain>.nicfree` |
 | Support URL (Apple requires one) | Sun Nov 1 | A one-page site: what the app does, an email, the privacy policy |
 | Price | Mon Oct 26 | $9.99 one-time, as planned |
-| Trademark check on "Nicfree" | Fri Oct 23 | Search USPTO for live marks in apps/health before reserving the name |
+| Trademark check on "NicFree" | Fri Oct 23 | Search USPTO for live marks in apps/health before reserving the name |
 
-Done: name changed to **Nicfree** (display name and user-facing strings; the Xcode project,
-target and module stay `Cairn`).
+Done: renamed to **NicFree** everywhere, project included.
 
 ## Daily plan
 
@@ -90,7 +89,7 @@ Weekdays are about 2 hours, weekends 4 to 5.
 
 ## Listing (draft, finalised Sun Nov 1)
 
-- **Name:** Nicfree: Quit Vape & Pouches
+- **Name:** NicFree: Quit Vape & Pouches
 - **Keyword targets** (from the Oct 21 App Store check): "nicotine pouch" and "quit zyn"
   have no established app (the biggest real pouch app has 420 ratings). "vape tracker" is
   winnable. "quit vaping" and "quit smoking" are crowded, so don't lead with them.

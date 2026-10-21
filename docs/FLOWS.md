@@ -19,7 +19,7 @@ prompt.
 3. **When did you stop** — defaults to today, past dates allowed, future dates not.
 4. **Why** — up to three reasons in their own words. The highest value screen in the app:
    these come back during a craving, which is the only time they matter.
-5. **Ready** — teaches the core mechanic in one sentence: a day you do not open Cairn
+5. **Ready** — teaches the core mechanic in one sentence: a day you do not open NicFree
    counts as a day free.
 
 **Writes:** one `Habit` on finish. Nicotine content per unit is inferred from the unit type
@@ -54,7 +54,7 @@ is competing with the thing that caused the craving.
 - **I vaped** → hands the held seconds to Home, which raises the slip sheet.
   Styled as an ordinary secondary action, never as a failure.
 - **Primer.** On the first ride out, if notification permission is undetermined, an honest
-  explanation of what we send and a plain statement that Cairn will never nudge you for not
+  explanation of what we send and a plain statement that NicFree will never nudge you for not
   opening it. Asked here rather than at onboarding, because asking on first launch trades a
   permanent refusal for a moment of convenience.
 

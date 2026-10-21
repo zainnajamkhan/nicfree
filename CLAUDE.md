@@ -1,10 +1,10 @@
-# Nicfree — working agreement
+# NicFree — working agreement
 
 An iOS app for quitting vaping and nicotine pouches. Loaded at the start of every session.
 This file holds only what changes behaviour; the reasoning lives in `docs/`.
 
-**The product is Nicfree.** `Cairn` is the code name and stays in the Xcode project, target,
-module, file headers and docs. Never rename those. Anything a user can see says Nicfree.
+**The product is NicFree**, everywhere: the Xcode project, targets, module, types and every
+screen. It was called Cairn until 2026-10-22, which is why older commits say Cairn.
 
 **v1 scope and dates live in `LAUNCH.md`.** Read it first. Anything not in v1 goes on its
 later list rather than into the code.
@@ -21,7 +21,7 @@ later list rather than into the code.
 | `PLAN.md` | Slice plan, dependencies, monetization, go to market |
 | `VISUAL-DIRECTION.html` | The design system, rendered. Open in a browser |
 
-Code lives in `Cairn/`, an Xcode project. Tests in `Cairn/CairnTests/`.
+Code lives in `NicFree/`, an Xcode project. Tests in `NicFree/NicFreeTests/`.
 
 ## Product rules that are not preferences
 

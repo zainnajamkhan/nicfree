@@ -11,8 +11,8 @@ SwiftUI and no SwiftData import.** Those types are the only thing with real unit
 because a wrong hero number would destroy trust in everything else the app says.
 
 ```
-Cairn/Cairn/
-  App/          CairnApp (ModelContainer), RootView (onboarding vs home)
+NicFree/NicFree/
+  App/          NicFreeApp (ModelContainer), RootView (onboarding vs home)
   Models/       Habit, DayRecord, CravingEvent, and the enums
   Core/
     Stats/      QuitStats, QuitStatsSeries        ← pure, tested
@@ -22,7 +22,7 @@ Cairn/Cairn/
   Design/       Theme (tokens), Components, FlowLayout
   Features/     Onboarding, Home, Craving, Slip, History
   Resources/    Assets, Localizable.xcstrings
-CairnTests/     QuitStatsTests, CravingInsightsTests
+NicFreeTests/     QuitStatsTests, CravingInsightsTests
 ```
 
 Folder location determines target membership, because the project uses file system
@@ -85,7 +85,7 @@ Local first. The device is the source of truth; CloudKit is a mirror, added in s
 the paid developer account is active. No accounts, so there is no login state that can
 orphan data.
 
-`CairnApp.makeContainer()` deliberately does not `fatalError` on a failed store. The app's
+`NicFreeApp.makeContainer()` deliberately does not `fatalError` on a failed store. The app's
 entire value is an accumulated record, so a crash loop is the worst available outcome: the
 user cannot even open the app to export what they have. It falls back to an in memory
 container so the app still launches.
