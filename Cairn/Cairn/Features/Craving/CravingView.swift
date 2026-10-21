@@ -12,7 +12,7 @@ import SwiftData
 /// because being on your phone is itself one of the most common vaping triggers and this
 /// screen is competing with the thing that caused it.
 ///
-/// Both exits are neutral. "I vaped" is styled as an ordinary secondary action, not as a
+/// Both exits are neutral. "I used" is styled as an ordinary secondary action, not as a
 /// failure, and it hands the hold time to the slip sheet so the effort is still counted.
 struct CravingView: View {
     @Environment(\.dismiss) private var dismiss
@@ -76,7 +76,7 @@ struct CravingView: View {
 
             VStack(spacing: Space.s) {
                 PrimaryButton("It passed") { finishResisted() }
-                SecondaryButton("I vaped") { finishUsed() }
+                SecondaryButton("I used") { finishUsed() }
             }
             .padding(.bottom, Space.l)
         }
@@ -120,6 +120,7 @@ struct CravingView: View {
                     .textCase(.uppercase)
                     .tracking(0.8)
                     .foregroundStyle(Palette.skyInk)
+                    .transaction { $0.animation = nil }
                 Text(timerInterval: startedAt...Date.distantFuture, countsDown: false)
                     .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
                     .foregroundStyle(Palette.ink)

@@ -67,7 +67,7 @@ struct PathView: View {
                     .textCase(.uppercase)
                     .tracking(1.0)
                     .foregroundStyle(Palette.onAccent.opacity(0.8))
-                Text("\(free) free days")
+                Text(String(inflecting: "^[\(free) free day](inflect: true)"))
                     .font(Typeface.title)
                     .foregroundStyle(Palette.onAccent)
             }
@@ -156,13 +156,13 @@ struct PathView: View {
     private func title(for milestone: Int) -> String {
         milestone >= 365
             ? String(localized: "1 year")
-            : String(localized: "\(milestone) days")
+            : String(inflecting: "^[\(milestone) day](inflect: true)")
     }
 
     private func subtitle(for state: Stage, milestone: Int, free: Int) -> String {
         switch state {
         case .reached: String(localized: "Reached")
-        case .next: String(localized: "\(milestone - free) free days to go")
+        case .next: String(inflecting: "^[\(milestone - free) free day](inflect: true) to go")
         case .later: String(localized: "Later")
         }
     }

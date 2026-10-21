@@ -26,16 +26,22 @@ every product call. Claude never compiles (see `CLAUDE.md`).
 **Built:** onboarding, Home, craving flow, slip log, History with year grid, milestone
 notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catalog, unit tests.
 
-**Not built, needed for v1:**
-- Pouch path in onboarding. The model supports `.pouch`, but onboarding asks "What do you
-  vape?" and saves every user as `.vape`
-- Settings screen
-- Insights screen (the paid feature; the engine exists, the view does not)
-- StoreKit 2 unlock, paywall, restore
-- `PrivacyInfo.xcprivacy` (missing it means automatic rejection)
-- App icon
-- Damaged store message (TODO in `CairnApp.swift`)
-- Tone test that fails the build on banned words
+**Progress (Oct 22, Claude building and testing):**
+- [x] Sprout redesign: tokens, chunky buttons, mascot, Home, Path tab, Craving
+- [x] Pouch path in onboarding; vape-only wording made neutral ("I used", "Just a little")
+- [x] Weekly spend replaces cost per unit (works in any currency, optional)
+- [x] Settings screen: reasons, quit date, weekly spend, notifications, privacy line
+- [x] Insights screen (paid), trigger ranking added to `CravingInsights` with a test
+- [x] StoreKit 2 unlock, paywall, restore, History gating; local `NicFree.storekit` + shared scheme
+- [x] `PrivacyInfo.xcprivacy`: no tracking, nothing collected
+- [x] Tone test that fails on banned words
+- [x] Plural fixes ("1 free day", not "1 free days")
+- [x] UI test that walks a pouch user through first run, a craving, a slip, every tab and the paywall
+- [ ] Damaged store message (TODO in `CairnApp.swift`)
+- [ ] App icon
+- [ ] VoiceOver and largest Dynamic Type pass
+- [ ] Rename project to NicFree (waiting for Xcode to be closed)
+- [ ] Bundle ID (Zain's decision; `com.app.Cairn` is a placeholder)
 
 ## In v1
 

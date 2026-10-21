@@ -48,7 +48,7 @@ enum UsageIntensity: String, CaseIterable, Sendable {
 
     var title: LocalizedStringResource {
         switch self {
-        case .fewPuffs: "A couple of puffs"
+        case .fewPuffs: "Just a little"
         case .several: "Several times"
         case .usual: "My usual amount"
         case .moreThanUsual: "More than usual"

@@ -43,6 +43,22 @@ struct SlipLogView: View {
     // MARK: - Form
 
     private var form: some View {
+        ScrollView {
+            fields
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            PrimaryButton("Save", action: save)
+                .disabled(intensity == nil)
+                .opacity(intensity == nil ? 0.4 : 1)
+                .padding(.vertical, Space.s)
+                .background(Palette.ground)
+        }
+    }
+
+    /// The Save button lives outside the scroll view so it can never be pushed below the
+    /// bottom of a half-height sheet by larger text or more chips.
+    private var fields: some View {
         VStack(alignment: .leading, spacing: Space.l) {
             VStack(alignment: .leading, spacing: Space.m) {
                 SectionLabel("How much?")
@@ -66,14 +82,8 @@ struct SlipLogView: View {
                     }
                 }
             }
-
-            Spacer(minLength: Space.m)
-
-            PrimaryButton("Save", action: save)
-                .disabled(intensity == nil)
-                .opacity(intensity == nil ? 0.4 : 1)
-                .padding(.bottom, Space.l)
         }
+        .padding(.bottom, Space.m)
     }
 
     // MARK: - Confirmation

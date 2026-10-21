@@ -16,8 +16,12 @@ struct OnboardingView: View {
 
     @State private var step: Step = .form
     @State private var unit: ConsumptionUnit = .disposable
-    @State private var unitsPerWeek: Double = 3
-    @State private var costPerUnit: Double = 25
+    /// Per week for vaping, per day for pouches. Each is how people actually describe it.
+    @State private var amount: Double = 3
+    /// What a week of it costs, in the user's own currency. Asked as a weekly total
+    /// because nobody knows the price of one pouch, and no default works in every
+    /// currency. Empty means no money estimate, which Home simply leaves out.
+    @State private var weeklySpend: Double?
     @State private var quitDate: Date = Date()
     @State private var reasons: [String] = ["", "", ""]
 
@@ -55,41 +59,47 @@ struct OnboardingView: View {
 
     private var formStep: some View {
         VStack(alignment: .leading, spacing: Space.l) {
-            question("What do you vape?")
+            question("What do you use?")
 
-            VStack(spacing: Space.s) {
+            VStack(alignment: .leading, spacing: Space.s) {
+                SectionLabel("Vape")
                 choice("Disposables", unit: .disposable)
                 choice("Pods or cartridges", unit: .pod)
                 choice("Refillable, by the millilitre", unit: .millilitre)
+
+                SectionLabel("Pouches")
+                    .padding(.top, Space.s)
+                choice("Nicotine pouches", unit: .pouch)
             }
         }
     }
 
     private var amountStep: some View {
         VStack(alignment: .leading, spacing: Space.l) {
-            question("Roughly how much, in a week?")
-            aside("A rough number is fine. It only shapes the money estimate, never the day count.")
+            question(perDay ? "Roughly how many, in a day?" : "Roughly how much, in a week?")
+            aside("Rough numbers are fine. They only shape the money estimate, never the day count.")
 
             VStack(spacing: Space.m) {
-                Stepper(value: $unitsPerWeek, in: 1...100, step: 1) {
+                Stepper(value: $amount, in: 1...(perDay ? 60 : 100), step: 1) {
                     HStack {
-                        Text("Per week").foregroundStyle(Palette.inkSoft)
+                        Text(perDay ? "Per day" : "Per week").foregroundStyle(Palette.inkSoft)
                         Spacer()
-                        Text(unitsPerWeek.formatted(.number.precision(.fractionLength(0))))
+                        Text(amount.formatted(.number.precision(.fractionLength(0))))
                             .monospacedDigit()
                     }
                     .font(Typeface.row)
                 }
 
-                Stepper(value: $costPerUnit, in: 1...500, step: 1) {
-                    HStack {
-                        Text("Cost of one").foregroundStyle(Palette.inkSoft)
-                        Spacer()
-                        Text(costPerUnit.formatted(.currency(code: currencyCode).precision(.fractionLength(0))))
-                            .monospacedDigit()
-                    }
-                    .font(Typeface.row)
+                HStack {
+                    Text("Spent in a week").foregroundStyle(Palette.inkSoft)
+                    Spacer()
+                    TextField("Optional", value: $weeklySpend, format: .currency(code: currencyCode).precision(.fractionLength(0)))
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .monospacedDigit()
+                        .frame(maxWidth: 160)
                 }
+                .font(Typeface.row)
             }
         }
     }
@@ -148,7 +158,7 @@ struct OnboardingView: View {
 
     private func choice(_ title: LocalizedStringKey, unit value: ConsumptionUnit) -> some View {
         Button {
-            unit = value
+            select(value)
         } label: {
             HStack {
                 Text(title).font(Typeface.row).foregroundStyle(Palette.ink)
@@ -174,6 +184,20 @@ struct OnboardingView: View {
             .background(RoundedRectangle(cornerRadius: Radius.button).fill(Palette.surface))
     }
 
+    private var unitsPerWeek: Double { perDay ? amount * 7 : amount }
+
+    /// Pouches are counted per day; vaping per week.
+    private var perDay: Bool { unit == .pouch }
+
+    /// Changing between vaping and pouches changes what a sensible starting amount is,
+    /// so the defaults reset rather than carrying over a number from the other one.
+    private func select(_ value: ConsumptionUnit) {
+        let wasPerDay = perDay
+        unit = value
+        guard perDay != wasPerDay else { return }
+        amount = perDay ? 8 : 3
+    }
+
     private var currencyCode: String {
         Locale.current.currency?.identifier ?? "USD"
     }
@@ -190,10 +214,10 @@ struct OnboardingView: View {
 
     private func finish() {
         let habit = Habit(
-            form: .vape,
+            form: unit == .pouch ? .pouch : .vape,
             unit: unit,
             baselineUnitsPerWeek: unitsPerWeek,
-            costPerUnit: costPerUnit,
+            costPerUnit: (weeklySpend ?? 0) / unitsPerWeek,
             nicotineMgPerUnit: unit.defaultNicotineMg,
             currencyCode: currencyCode,
             quitStartedAt: quitDate,

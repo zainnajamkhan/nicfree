@@ -23,8 +23,7 @@ struct RootView: View {
     }
 }
 
-/// Home, the milestone path, and the record. Insights joins as a fourth tab with the
-/// purchase, since it is the paid screen.
+/// Home, the milestone path, the record, and the paid Insights screen.
 private struct MainTabs: View {
     var body: some View {
         TabView {
@@ -36,6 +35,9 @@ private struct MainTabs: View {
 
             NavigationStack { HistoryView() }
                 .tabItem { Label("History", systemImage: "calendar") }
+
+            NavigationStack { InsightsView() }
+                .tabItem { Label("Insights", systemImage: "chart.bar.fill") }
         }
         .tint(Palette.accent)
     }
@@ -43,5 +45,6 @@ private struct MainTabs: View {
 
 #Preview {
     RootView()
+        .environment(PurchaseStore())
         .modelContainer(for: [Habit.self, DayRecord.self, CravingEvent.self], inMemory: true)
 }

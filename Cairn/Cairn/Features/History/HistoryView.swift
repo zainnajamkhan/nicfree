@@ -10,9 +10,12 @@ import Charts
 /// The record, in three readings: every day at a glance, the total over time, and the
 /// individual events.
 ///
-/// TODO: slice 4 — the grid and full browsing become the paid unlock. Everything here is
-/// open while there is no purchase to make.
+/// Free: the last seven days of events. Paid: the year grid, the total over time, and
+/// every event.
 struct HistoryView: View {
+    @Environment(PurchaseStore.self) private var store
+    @State private var showingPaywall = false
+
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
     @Query(sort: \CravingEvent.occurredAt, order: .reverse) private var cravings: [CravingEvent]
@@ -34,8 +37,16 @@ struct HistoryView: View {
             if let stats {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Space.xl) {
-                        gridSection(stats)
-                        chartSection(stats)
+                        if store.isUnlocked {
+                            gridSection(stats)
+                            chartSection(stats)
+                        } else {
+                            LockedCard(
+                                title: "Your full history",
+                                detail: "Every day since you stopped on one grid, and your total drawn over time. The last seven days are below."
+                            ) { showingPaywall = true }
+                            .padding(.top, Space.m)
+                        }
                         timelineSection
                     }
                     .padding(.horizontal, Space.l)
@@ -43,6 +54,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingPaywall) { PaywallView() }
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
         .tint(Palette.accent)
@@ -63,7 +75,7 @@ struct HistoryView: View {
                     "Days free",
                     value: String(localized: "\(stats.lifetimeFreeDays) of \(stats.totalDaysTracked)")
                 )
-                StatRow("Longest run", value: String(localized: "\(stats.longestRun) days"))
+                StatRow("Longest run", value: String(inflecting: "^[\(stats.longestRun) day](inflect: true)"))
             }
         }
         .padding(.top, Space.m)
@@ -125,7 +137,7 @@ struct HistoryView: View {
             }
             .frame(height: 170)
             .accessibilityLabel("Total days free over time")
-            .accessibilityValue("\(stats.lifetimeFreeDays) days")
+            .accessibilityValue(String(inflecting: "^[\(stats.lifetimeFreeDays) day](inflect: true)"))
         }
     }
 
@@ -188,7 +200,7 @@ struct HistoryView: View {
                 id: "slip-\(record.day.timeIntervalSince1970)",
                 date: record.day,
                 isSlip: true,
-                title: String(localized: "Vaped"),
+                title: String(localized: "Used"),
                 detail: record.intensity.map { String(localized: $0.title) }
             )
         }
@@ -206,7 +218,11 @@ struct HistoryView: View {
             )
         }
 
-        return (slips + held).sorted { $0.date > $1.date }.prefix(40).map { $0 }
+        let all = (slips + held).sorted { $0.date > $1.date }
+        guard !store.isUnlocked else { return Array(all.prefix(40)) }
+
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Calendar.current.startOfDay(for: Date())) ?? .distantPast
+        return all.filter { $0.date >= weekAgo }
     }
 
     private struct TimelineEntry: Identifiable {

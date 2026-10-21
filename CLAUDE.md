@@ -63,8 +63,10 @@ Breaking any of these breaks the product, not just a screen.
 
 ## Build
 
-- **The developer compiles. Never run `xcodebuild` or `swift build`.** Make the change,
-  say what needs verifying, hand off.
+- **Claude builds and tests.** Since 2026-10-22 Zain wants Claude to compile, run tests and keep
+  working through `LAUNCH.md`, and he evaluates at the end. Always pass `-derivedDataPath` pointing
+  at the scratchpad so a build never fights an open Xcode window. Zain still owns the on-device
+  check and every product call.
 - The project uses **file system synchronized groups**: folder location *is* target
   membership. Put a file in the right folder and it is in the right target. Never edit
   target membership by hand.

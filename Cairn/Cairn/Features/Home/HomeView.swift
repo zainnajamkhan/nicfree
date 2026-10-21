@@ -21,6 +21,7 @@ struct HomeView: View {
     @State private var showingCraving = false
     @State private var pendingSlip = false
     @State private var pendingHoldSeconds = 0
+    @State private var showingSettings = false
 
     private var habit: Habit? { habits.first }
 
@@ -66,9 +67,12 @@ struct HomeView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingSettings) {
+            if let habit { SettingsView(habit: habit) }
+        }
         .sheet(isPresented: $loggingSlip, onDismiss: { pendingHoldSeconds = 0 }) {
             SlipLogView(existing: todaysRecord, day: today, heldOutSeconds: pendingHoldSeconds)
-                .presentationDetents([.medium])
+                .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showingCraving, onDismiss: {
             if pendingSlip {
@@ -114,21 +118,37 @@ struct HomeView: View {
                 ink: Palette.skyInk,
                 label: "Cravings beaten"
             )
-            StatChip(
-                symbol: "dollarsign.circle.fill",
-                value: money,
-                fill: Palette.sunQuiet,
-                tint: Palette.sun,
-                ink: Palette.sunInk,
-                label: "Not spent"
-            )
+            // No spend given in onboarding means no estimate, rather than a zero that
+            // reads like nothing was saved.
+            if habit.baselineDailyCost > 0 {
+                StatChip(
+                    symbol: "dollarsign.circle.fill",
+                    value: money,
+                    fill: Palette.sunQuiet,
+                    tint: Palette.sun,
+                    ink: Palette.sunInk,
+                    label: "Not spent"
+                )
+            }
+
+            Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.callout.weight(.bold))
+                    .foregroundStyle(Palette.inkSoft)
+                    .frame(width: 44, height: 44)
+                    .background(Palette.surface, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Settings")
         }
     }
 
     private func sproutCard(stats: QuitStats, habit: Habit) -> some View {
         let free = stats.lifetimeFreeDays
         let line = ObservationEngine.daily(stats: stats, habit: habit, cravings: insights)?.text
-            ?? String(localized: "\(free) free days, and that number only goes up.")
+            ?? String(inflecting: "^[\(free) free day](inflect: true), and that number only goes up.")
 
         return VStack(spacing: Space.m) {
             Text(line)
@@ -141,7 +161,7 @@ struct HomeView: View {
                 .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.button))
 
             Sprout(freeDays: free)
-                .frame(height: 150)
+                .frame(height: 180)
 
             if let next = MilestoneScheduler.milestones.first(where: { $0 > free }) {
                 nextMilestone(free: free, next: next)
@@ -157,7 +177,7 @@ struct HomeView: View {
     private func nextMilestone(free: Int, next: Int) -> some View {
         VStack(spacing: Space.s - 2) {
             HStack {
-                Text("Next: \(next) days")
+                Text(String(inflecting: "Next: ^[\(next) day](inflect: true)"))
                 Spacer()
                 Text("\(next - free) to go")
                     .foregroundStyle(Palette.inkSoft)

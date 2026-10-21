@@ -1,0 +1,31 @@
+{
+  "identifier": "6C2E7B4A-3F1D-4C8E-9B2A-5D7E1F0A9C31",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "9.99",
+      "familyShareable": true,
+      "internalID": "6755120001",
+      "localizations": [
+        {
+          "description": "Insights and your full history. One purchase, no subscription.",
+          "displayName": "NicFree Unlock",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "nicfree.unlock",
+      "referenceName": "NicFree Unlock",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_askToBuyEnabled": false,
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

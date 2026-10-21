@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct CairnApp: App {
     private let container: ModelContainer
+    @State private var store = PurchaseStore()
 
     init() {
         container = Self.makeContainer()
@@ -19,6 +20,8 @@ struct CairnApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(store)
+                .task { await store.start() }
         }
         .modelContainer(container)
     }

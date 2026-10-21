@@ -43,6 +43,20 @@ struct CravingInsightsTests {
 
     // MARK: - Totals
 
+    @Test("Triggers rank by count, ties broken by name, untagged cravings ignored")
+    func triggerRankingOrder() {
+        let subject = insights([
+            event(daysAgo: 4, trigger: "stress"),
+            event(daysAgo: 3, trigger: "phone"),
+            event(daysAgo: 2, trigger: "phone"),
+            event(daysAgo: 2, trigger: "coffee"),
+            event(daysAgo: 1)
+        ])
+
+        #expect(subject.triggerRanking.map(\.trigger) == ["phone", "coffee", "stress"])
+        #expect(subject.triggerRanking.map(\.count) == [2, 1, 1])
+    }
+
     @Test("The average covers only cravings that were ridden out")
     func averageExcludesGivenIn() {
         let subject = insights([

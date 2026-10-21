@@ -71,6 +71,17 @@ struct CravingInsights {
         return (best.key, best.value)
     }
 
+    /// Every trigger with how often it came up, most frequent first. Ties break by name
+    /// so the order is stable between launches.
+    var triggerRanking: [(trigger: String, count: Int)] {
+        let counts = events.compactMap(\.trigger).reduce(into: [String: Int]()) { tally, trigger in
+            tally[trigger, default: 0] += 1
+        }
+        return counts
+            .sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+            .map { (trigger: $0.key, count: $0.value) }
+    }
+
     /// The hour of day most cravings arrive in, as a 0 to 23 value.
     var riskiestHour: Int? {
         let counts = events.reduce(into: [Int: Int]()) { tally, event in
