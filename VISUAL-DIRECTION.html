@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<title>Cairn — visual direction</title>
+
+<style>
+  /* ---- tokens: pale granite ground, lichen accent, weathered clay for slips ---- */
+  :root {
+    --ground: #EDEEE9;
+    --surface: #F7F7F3;
+    --sunk: #E3E5DE;
+    --ink: #1C2226;
+    --ink-soft: #59636A;
+    --ink-faint: #8B948B;
+    --hairline: #D5D8D0;
+    --accent: #57755C;
+    --accent-quiet: #A8BCA9;
+    --clay: #8A6C60;
+    --clay-quiet: #C7B0A5;
+
+    --serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #12171A;
+      --surface: #191F23;
+      --sunk: #0D1114;
+      --ink: #E4E2DA;
+      --ink-soft: #949D9F;
+      --ink-faint: #6B747A;
+      --hairline: #262D32;
+      --accent: #8FA98F;
+      --accent-quiet: #3C4B3E;
+      --clay: #A8887A;
+      --clay-quiet: #4A3A34;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #12171A;
+    --surface: #191F23;
+    --sunk: #0D1114;
+    --ink: #E4E2DA;
+    --ink-soft: #949D9F;
+    --ink-faint: #6B747A;
+    --hairline: #262D32;
+    --accent: #8FA98F;
+    --accent-quiet: #3C4B3E;
+    --clay: #A8887A;
+    --clay-quiet: #4A3A34;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #EDEEE9;
+    --surface: #F7F7F3;
+    --sunk: #E3E5DE;
+    --ink: #1C2226;
+    --ink-soft: #59636A;
+    --ink-faint: #8B948B;
+    --hairline: #D5D8D0;
+    --accent: #57755C;
+    --accent-quiet: #A8BCA9;
+    --clay: #8A6C60;
+    --clay-quiet: #C7B0A5;
+  }
+
+  /* ---- page ---- */
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: clamp(3rem, 9vw, 7rem) 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4.5rem;
+  }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.75rem, 9vw, 4.25rem);
+    line-height: 1.02;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0.5rem 0 0;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    font-family: var(--serif);
+    font-size: 1.3125rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 1.5rem 0 0;
+    text-wrap: balance;
+  }
+
+  p { margin: 0; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  section > .label { margin-bottom: -0.5rem; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--hairline);
+    margin: 0;
+  }
+
+  /* ---- principles: a stacked stack, like the object ---- */
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .principle {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    gap: 1rem;
+    padding: 1.125rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .stone {
+    width: 1.75rem;
+    height: 0.5rem;
+    border-radius: 3px;
+    background: var(--accent-quiet);
+    margin-top: 0.55rem;
+  }
+  .principle:nth-child(2) .stone { width: 1.4rem; }
+  .principle:nth-child(3) .stone { width: 1.1rem; }
+  .principle:nth-child(4) .stone { width: 0.8rem; }
+  .principle p { font-size: 1rem; }
+
+  /* ---- palette ---- */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.75rem;
+  }
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+  .chip {
+    height: 4.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+  }
+  .swatch .name {
+    font-size: 0.8125rem;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .swatch .use {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+  }
+
+  .note {
+    border-left: 2px solid var(--clay);
+    padding-left: 1.125rem;
+    color: var(--ink-soft);
+    font-size: 1rem;
+  }
+
+  /* ---- type specimens ---- */
+  .specimens { display: flex; flex-direction: column; gap: 1.5rem; }
+  .specimen {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .specimen:last-child { border-bottom: 0; padding-bottom: 0; }
+  .spec-hero {
+    font-family: var(--sans);
+    font-size: 4.5rem;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .spec-title { font-family: var(--serif); font-size: 1.75rem; font-weight: 400; }
+  .spec-body { font-size: 1.0625rem; }
+  .spec-mono {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .spec-meta { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-faint); }
+
+  /* ---- phone mockups ---- */
+  .gallery {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding: 0.25rem 1.5rem 1.5rem;
+    margin: 0 -1.5rem;
+    scroll-snap-type: x mandatory;
+  }
+  .phone {
+    flex: 0 0 auto;
+    width: 17.5rem;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .screen {
+    height: 34rem;
+    border-radius: 2.25rem;
+    border: 1px solid var(--hairline);
+    background: var(--surface);
+    padding: 2rem 1.375rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .caption { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-faint); padding-left: 0.25rem; }
+
+  .s-label {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .s-hero {
+    font-size: 4.75rem;
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.25rem;
+  }
+  .s-sub { font-size: 0.875rem; color: var(--ink-soft); }
+  .s-rows { display: flex; flex-direction: column; gap: 0; margin-top: auto; }
+  .s-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.6875rem 0;
+    border-top: 1px solid var(--hairline);
+    font-size: 0.875rem;
+  }
+  .s-row span:first-child { color: var(--ink-soft); }
+  .s-row span:last-child { font-variant-numeric: tabular-nums; }
+
+  .s-button {
+    margin-top: 1.25rem;
+    background: var(--accent);
+    color: var(--surface);
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  :root[data-theme="dark"] .s-button,
+  .s-button { color: var(--sunk); }
+  .s-quiet {
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--ink-faint);
+    padding-top: 0.875rem;
+  }
+
+  /* craving */
+  .breath {
+    width: 9.5rem;
+    height: 9.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--accent-quiet);
+    background: var(--accent-quiet);
+    opacity: 0.45;
+    margin: 0 auto;
+    animation: breathe 8s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.86); }
+    50% { transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .breath { animation: none; transform: scale(0.95); }
+  }
+  .s-timer {
+    font-size: 2.25rem;
+    font-weight: 500;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .s-reason {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    color: var(--ink);
+    text-align: center;
+    padding: 0 0.5rem;
+  }
+  .s-pair { display: flex; flex-direction: column; gap: 0.625rem; margin-top: auto; }
+  .s-secondary {
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    padding: 0.875rem;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  /* chips */
+  .s-chips { display: flex; flex-wrap: wrap; gap: 0.4375rem; }
+  .s-chip {
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+  .s-chip.on {
+    border-color: transparent;
+    background: var(--accent-quiet);
+    color: var(--ink);
+  }
+  .s-question { font-size: 0.9375rem; font-weight: 600; margin-top: 1.25rem; }
+  .s-question:first-child { margin-top: 0; }
+  .s-confirm {
+    margin-top: auto;
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    color: var(--accent);
+    line-height: 1.4;
+  }
+
+  /* grid */
+  .s-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.25rem;
+    margin: 1rem 0;
+  }
+  .cell { aspect-ratio: 1; border-radius: 2px; background: var(--accent-quiet); }
+  .cell.used { background: var(--clay-quiet); border-radius: 50%; }
+  .cell.none { background: var(--sunk); }
+  .legend { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--ink-faint); }
+  .legend span { display: flex; align-items: center; gap: 0.375rem; }
+  .key { width: 0.625rem; height: 0.625rem; border-radius: 2px; background: var(--accent-quiet); }
+  .key.used { background: var(--clay-quiet); border-radius: 50%; }
+
+  /* insights bars */
+  .s-bar { display: flex; flex-direction: column; gap: 0.3125rem; padding: 0.5rem 0; }
+  .s-bar-top { display: flex; justify-content: space-between; font-size: 0.8125rem; }
+  .s-bar-top span:last-child { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .track { height: 0.3125rem; border-radius: 999px; background: var(--sunk); overflow: hidden; }
+  .fill { height: 100%; border-radius: 999px; background: var(--accent); }
+  .s-evidence {
+    font-family: var(--serif);
+    font-size: 1.1875rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ---- not building ---- */
+  .against { display: flex; flex-direction: column; gap: 0; }
+  .against div {
+    padding: 0.8125rem 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 1rem;
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .against div:first-child { border-top: 1px solid var(--hairline); }
+  .against .no {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--clay);
+  }
+  .against p { color: var(--ink-soft); }
+
+  a { color: var(--accent); }
+  a:focus-visible, .s-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="label">Visual direction</div>
+    <h1>Cairn</h1>
+    <p class="lede">A trail marker you add one stone to and never take one from. The interface has one job: to be trustworthy on a bad day.</p>
+  </header>
+
+  <section>
+    <div class="label">Principles</div>
+    <div class="principles">
+      <div class="principle">
+        <div class="stone"></div>
+        <p><strong>One idea per screen.</strong> The home screen answers a single question and nothing else competes with the answer.</p>
+      </div>
+      <div class="principle">
+        <div class="stone"></div>
+        <p><strong>Nothing celebrates.</strong> No confetti, no badges, no fanfare. An app that cheers loudly has nothing decent to say when things go wrong, and that is the day that matters.</p>
+      </div>
+      <div class="principle">
+        <div class="stone"></div>
+        <p><strong>Typography instead of decoration.</strong> The hero number is the only large element in the app. Everything else recedes.</p>
+      </div>
+      <div class="principle">
+        <div class="stone"></div>
+        <p><strong>A slip is never red.</strong> Red is alarm, and alarm is shame. Slips are recorded in weathered clay, the colour of something noted rather than something failed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">Palette</div>
+    <h2>Wet slate, lichen, weathered clay</h2>
+    <p>Drawn from the object the app is named after rather than from health app convention. The neutrals carry a cold blue bias so that the single green accent reads as chosen rather than decorative.</p>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="chip" style="background: var(--ground)"></div>
+        <div class="name">Ground</div>
+        <div class="use">granite / slate</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background: var(--ink)"></div>
+        <div class="name">Ink</div>
+        <div class="use">bone / deep slate</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background: var(--accent)"></div>
+        <div class="name">Lichen</div>
+        <div class="use">accent, free days</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background: var(--clay)"></div>
+        <div class="name">Clay</div>
+        <div class="use">used days</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background: var(--ink-faint)"></div>
+        <div class="name">Faint</div>
+        <div class="use">labels, meta</div>
+      </div>
+    </div>
+    <p class="note">Both themes get equal care. Calm reads more naturally in the dark, but a quit app is opened in daylight at a desk as often as at midnight, so neither theme is an afterthought.</p>
+  </section>
+
+  <section>
+    <div class="label">Type</div>
+    <h2>Three roles, no more</h2>
+    <p>Set in the platform's own faces. The system serif carries anything that needs to sound like a person talking, which is exactly the copy that matters most: their own reasons, and the line after a slip.</p>
+    <div class="specimens">
+      <div class="specimen">
+        <div class="spec-hero">63</div>
+        <div class="spec-meta">SF Pro · 500 · tabular · tight tracking · the only large element in the app</div>
+      </div>
+      <div class="specimen">
+        <div class="spec-title">Logged. Your total is unchanged.</div>
+        <div class="spec-meta">New York · 400 · every sentence written to a person, not a user</div>
+      </div>
+      <div class="specimen">
+        <div class="spec-body">Your cravings last four minutes on average, and you have ridden out ten of the last twelve.</div>
+        <div class="spec-meta">SF Pro Text · 400 · body and interface</div>
+      </div>
+      <div class="specimen">
+        <div class="spec-mono">Vape free</div>
+        <div class="spec-meta">SF Mono · uppercase · 0.16em · labels and data only</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">Screens</div>
+    <h2>Five screens carry the whole app</h2>
+    <p>Rendered in the real palette and the real type, so this page is a working proof of the system rather than a description of it. Scroll sideways.</p>
+
+    <div class="gallery">
+
+      <div class="phone">
+        <div class="screen">
+          <div class="s-label">Vape free</div>
+          <div class="s-hero">63</div>
+          <div class="s-sub">days, all time</div>
+          <div class="s-rows">
+            <div class="s-row"><span>Current run</span><span>4 days</span></div>
+            <div class="s-row"><span>Longest run</span><span>21 days</span></div>
+            <div class="s-row"><span>Not spent</span><span>AED 1,890</span></div>
+          </div>
+          <div class="s-button">I'm having a craving</div>
+          <div class="s-quiet">Log a slip</div>
+        </div>
+        <div class="caption">Home · the slip link is deliberately small</div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="s-label">Breathe out</div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.75rem;">
+            <div class="breath"></div>
+            <div class="s-timer">2:47</div>
+            <div class="s-reason">“So I can climb four flights without stopping halfway.”</div>
+          </div>
+          <div class="s-pair">
+            <div class="s-button">It passed</div>
+            <div class="s-secondary">I vaped</div>
+          </div>
+        </div>
+        <div class="caption">Craving · their words, not ours</div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="s-question">How much?</div>
+          <div class="s-chips">
+            <div class="s-chip">A couple of puffs</div>
+            <div class="s-chip on">Several times</div>
+            <div class="s-chip">My usual amount</div>
+            <div class="s-chip">More than usual</div>
+          </div>
+          <div class="s-question">What set it off?</div>
+          <div class="s-chips">
+            <div class="s-chip on">On my phone</div>
+            <div class="s-chip">Stress</div>
+            <div class="s-chip">After a meal</div>
+            <div class="s-chip">Coffee</div>
+            <div class="s-chip">Driving</div>
+            <div class="s-chip">Bored</div>
+          </div>
+          <div class="s-confirm">Logged. Your total is unchanged.</div>
+        </div>
+        <div class="caption">Slip · two taps, no counting</div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="s-label">This year</div>
+          <div class="s-grid" id="grid"></div>
+          <div class="legend">
+            <span><i class="key"></i>free</span>
+            <span><i class="key used"></i>used</span>
+          </div>
+          <div class="s-rows">
+            <div class="s-row"><span>Days free</span><span>63 of 67</span></div>
+            <div class="s-row"><span>Longest run</span><span>21 days</span></div>
+          </div>
+        </div>
+        <div class="caption">History · used days differ in shape as well as tone</div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="s-label">Your cravings</div>
+          <div class="s-evidence" style="margin-top: 0.75rem;">They last <strong>4m 12s</strong> on average, and you rode out <strong>10 of the last 12</strong>.</div>
+          <div class="s-label" style="margin-top: 1.25rem;">What sets them off</div>
+          <div style="margin-top: 0.5rem;">
+            <div class="s-bar">
+              <div class="s-bar-top"><span>On my phone</span><span>8</span></div>
+              <div class="track"><div class="fill" style="width: 100%"></div></div>
+            </div>
+            <div class="s-bar">
+              <div class="s-bar-top"><span>Stress</span><span>5</span></div>
+              <div class="track"><div class="fill" style="width: 62%"></div></div>
+            </div>
+            <div class="s-bar">
+              <div class="s-bar-top"><span>After a meal</span><span>3</span></div>
+              <div class="track"><div class="fill" style="width: 38%"></div></div>
+            </div>
+            <div class="s-bar">
+              <div class="s-bar-top"><span>Driving</span><span>1</span></div>
+              <div class="track"><div class="fill" style="width: 13%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="caption">Insights · personal evidence, not reassurance</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="label">Motion and feel</div>
+    <h2>Slow, and almost absent</h2>
+    <p>One animation exists in the whole app: the breathing circle on the craving screen, eight seconds per cycle, which is a paced breathing exercise rather than an ornament. It stops entirely under Reduce Motion and becomes a count.</p>
+    <p>Numbers change with a numeric transition rather than a bounce. Haptics are a single soft tap, and the success haptic is never used for logging a slip, because a system sound that means "well done" firing at that moment would be grotesque.</p>
+  </section>
+
+  <section>
+    <div class="label">Deliberately absent</div>
+    <h2>What we are not building</h2>
+    <div class="against">
+      <div><span class="no">No</span><p>Streaks as the hero. The number that matters cannot reset.</p></div>
+      <div><span class="no">No</span><p>Daily check in. A free day is the absence of a record, so silence counts in your favour.</p></div>
+      <div><span class="no">No</span><p>Community or chat. QuitNow's own users call theirs unmoderated and hostile, and one developer cannot police it.</p></div>
+      <div><span class="no">No</span><p>Badges, levels, mascots or confetti. That territory belongs to Kwit and it is the wrong promise.</p></div>
+      <div><span class="no">No</span><p>Subscription, countdown timers or fake discounts. One price, stated once.</p></div>
+      <div><span class="no">No</span><p>Accounts, analytics or third party code. Nothing leaves the device except your own iCloud.</p></div>
+      <div><span class="no">No</span><p>Health claims without a source. QuitNow ships one that is wrong by fifteen years.</p></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Deterministic sample year: 67 days tracked, 4 of them used.
+  const used = new Set([12, 27, 44, 45]);
+  const grid = document.getElementById("grid");
+  for (let i = 0; i < 70; i++) {
+    const cell = document.createElement("div");
+    cell.className = i >= 67 ? "cell none" : used.has(i) ? "cell used" : "cell";
+    grid.appendChild(cell);
+  }
+</script>
+</body>
+</html>
