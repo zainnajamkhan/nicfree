@@ -16,10 +16,28 @@ struct RootView: View {
             if habits.isEmpty {
                 OnboardingView()
             } else {
-                HomeView()
+                MainTabs()
             }
         }
         .animation(.smooth(duration: 0.4), value: habits.isEmpty)
+    }
+}
+
+/// Home, the milestone path, and the record. Insights joins as a fourth tab with the
+/// purchase, since it is the paid screen.
+private struct MainTabs: View {
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem { Label("Home", systemImage: "house.fill") }
+
+            PathView()
+                .tabItem { Label("Path", systemImage: "point.topleft.down.to.point.bottomright.curvepath.fill") }
+
+            NavigationStack { HistoryView() }
+                .tabItem { Label("History", systemImage: "calendar") }
+        }
+        .tint(Palette.accent)
     }
 }
 

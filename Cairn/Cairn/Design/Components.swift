@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - Label
 
-/// Monospaced, uppercase, widely tracked. Labels and data only, never sentences.
+/// Small, heavy, uppercase. Labels and data only, never sentences.
 struct SectionLabel: View {
     private let text: LocalizedStringKey
 
@@ -18,13 +18,42 @@ struct SectionLabel: View {
     var body: some View {
         Text(text)
             .font(Typeface.label)
-            .tracking(1.6)
+            .tracking(1.0)
             .textCase(.uppercase)
             .foregroundStyle(Palette.inkFaint)
     }
 }
 
 // MARK: - Buttons
+
+/// A solid edge under the button that it presses down into.
+private struct ChunkyStyle: ButtonStyle {
+    let fill: Color
+    let edge: Color
+    let foreground: Color
+
+    private let depth: CGFloat = 5
+
+    func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed
+        configuration.label
+            .font(Typeface.button)
+            .textCase(.uppercase)
+            .tracking(0.4)
+            .foregroundStyle(foreground)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 58)
+            .background(fill, in: RoundedRectangle(cornerRadius: Radius.button))
+            .offset(y: pressed ? depth - 1 : 0)
+            .background(
+                RoundedRectangle(cornerRadius: Radius.button)
+                    .fill(edge)
+                    .offset(y: depth)
+            )
+            .padding(.bottom, depth)
+            .animation(.easeOut(duration: 0.08), value: pressed)
+    }
+}
 
 struct PrimaryButton: View {
     private let title: LocalizedStringKey
@@ -36,15 +65,8 @@ struct PrimaryButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Space.m)
-                .background(Palette.accent, in: RoundedRectangle(cornerRadius: Radius.button))
-                .foregroundStyle(Palette.sunk)
-        }
-        .buttonStyle(.plain)
+        Button(action: action) { Text(title) }
+            .buttonStyle(ChunkyStyle(fill: Palette.accent, edge: Palette.accentDeep, foreground: Palette.onAccent))
     }
 }
 
@@ -60,12 +82,12 @@ struct SecondaryButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.subheadline)
+                .font(Typeface.row)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Space.m)
+                .frame(minHeight: 50)
                 .background(
                     RoundedRectangle(cornerRadius: Radius.button)
-                        .stroke(Palette.hairline, lineWidth: 1)
+                        .stroke(Palette.hairline, lineWidth: 2)
                 )
                 .foregroundStyle(Palette.inkSoft)
         }
@@ -75,7 +97,7 @@ struct SecondaryButton: View {
 
 // MARK: - Stat row
 
-/// Hairline above, label left, value right. Never competes with the hero.
+/// Label left, value right. Used in Settings-style lists.
 struct StatRow: View {
     private let title: LocalizedStringKey
     private let value: String
@@ -100,6 +122,36 @@ struct StatRow: View {
     }
 }
 
+// MARK: - Stat chip
+
+/// A rounded pill with an icon and one number. Home shows three of them.
+struct StatChip: View {
+    let symbol: String
+    let value: String
+    let fill: Color
+    let tint: Color
+    let ink: Color
+    let label: LocalizedStringKey
+
+    var body: some View {
+        HStack(spacing: Space.xs + 2) {
+            Image(systemName: symbol)
+                .font(.callout.weight(.bold))
+                .foregroundStyle(tint)
+            Text(value)
+                .font(Typeface.chip)
+                .foregroundStyle(ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity, minHeight: 40)
+        .background(fill, in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(value)
+    }
+}
+
 // MARK: - Chip
 
 struct Chip: View {
@@ -116,15 +168,16 @@ struct Chip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.subheadline)
-                .padding(.horizontal, Space.m * 0.8)
-                .padding(.vertical, Space.s)
+                .font(Typeface.row)
+                .padding(.horizontal, Space.m * 0.9)
+                .padding(.vertical, Space.s + 2)
                 .background(
                     Group {
                         if isOn {
                             Capsule().fill(Palette.accentQuiet)
+                                .overlay(Capsule().stroke(Palette.leaf, lineWidth: 2))
                         } else {
-                            Capsule().stroke(Palette.hairline, lineWidth: 1)
+                            Capsule().stroke(Palette.hairline, lineWidth: 2)
                         }
                     }
                 )
@@ -135,10 +188,10 @@ struct Chip: View {
     }
 }
 
-// MARK: - Stone progress
+// MARK: - Onboarding progress
 
-/// Onboarding progress as a stack of stones rather than dots, because that is the object
-/// the app is named after and it is the one place a motif earns its keep.
+/// Onboarding progress as a row of rounded bars. The name is kept from the earlier
+/// design so the call site does not move.
 struct StoneProgress: View {
     let total: Int
     let current: Int
@@ -146,9 +199,9 @@ struct StoneProgress: View {
     var body: some View {
         HStack(spacing: Space.xs + 2) {
             ForEach(0..<total, id: \.self) { index in
-                RoundedRectangle(cornerRadius: Radius.stone)
-                    .fill(index <= current ? Palette.accentQuiet : Palette.hairline)
-                    .frame(width: index == current ? 22 : 14, height: 5)
+                Capsule()
+                    .fill(index <= current ? Palette.leaf : Palette.hairline)
+                    .frame(height: 10)
                     .animation(.smooth(duration: 0.35), value: current)
             }
         }
@@ -159,14 +212,15 @@ struct StoneProgress: View {
 
 // MARK: - Screen scaffold
 
-/// Every screen sits on the ground colour with the same generous margins. One idea per
-/// screen means the padding does as much work as the type.
+/// Every screen sits on the same ground with the same margins. The craving screen passes
+/// its own calmer ground.
 struct Screen<Content: View>: View {
+    var ground: Color = Palette.ground
     @ViewBuilder var content: Content
 
     var body: some View {
         ZStack {
-            Palette.ground.ignoresSafeArea()
+            ground.ignoresSafeArea()
             content
                 .padding(.horizontal, Space.l)
         }

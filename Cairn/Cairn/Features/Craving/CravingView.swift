@@ -33,7 +33,7 @@ struct CravingView: View {
     private enum Phase { case riding, passed, primer }
 
     var body: some View {
-        Screen {
+        Screen(ground: Palette.calm) {
             switch phase {
             case .riding: riding
             case .passed: passed
@@ -50,22 +50,26 @@ struct CravingView: View {
     // MARK: - Riding it out
 
     private var riding: some View {
-        VStack(spacing: Space.xl) {
+        VStack(spacing: Space.l) {
             Spacer()
 
             breathing
 
-            Text(timerInterval: startedAt...Date.distantFuture, countsDown: false)
-                .font(.system(size: 34, weight: .medium).monospacedDigit())
-                .foregroundStyle(Palette.ink)
-                .accessibilityHidden(true)
-
             if let reason {
-                Text(verbatim: "“\(reason)”")
-                    .font(Typeface.voice)
-                    .foregroundStyle(Palette.ink)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    SectionLabel("Your reason")
+                    Text(verbatim: "“\(reason)”")
+                        .font(Typeface.voice)
+                        .foregroundStyle(Palette.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(Space.m)
+                .background(Palette.ground, in: RoundedRectangle(cornerRadius: Radius.card))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.card)
+                        .stroke(Palette.calmRing, lineWidth: 2)
+                )
             }
 
             Spacer()
@@ -78,32 +82,51 @@ struct CravingView: View {
         }
     }
 
-    /// The only animation in the app, and it is a paced breathing exercise rather than an
-    /// ornament: four seconds in, four seconds out.
+    /// A paced breathing exercise rather than an ornament: four seconds in, four seconds
+    /// out. The elapsed time sits in the middle so the whole screen is one object.
     @ViewBuilder
     private var breathing: some View {
         if reduceMotion {
-            VStack(spacing: Space.m) {
-                Circle()
-                    .fill(Palette.accentQuiet)
-                    .opacity(0.5)
-                    .frame(width: 150, height: 150)
-                SectionLabel("Breathe slowly")
-            }
+            breathingRings(inhaling: true, label: "Breathe slowly", animated: false)
         } else {
             PhaseAnimator([true, false]) { inhaling in
-                VStack(spacing: Space.m) {
-                    Circle()
-                        .fill(Palette.accentQuiet)
-                        .opacity(0.5)
-                        .frame(width: 160, height: 160)
-                        .scaleEffect(inhaling ? 1 : 0.82)
-                    SectionLabel(inhaling ? "Breathe in" : "Breathe out")
-                }
+                breathingRings(inhaling: inhaling, label: inhaling ? "Breathe in" : "Breathe out", animated: true)
             } animation: { _ in
                 .easeInOut(duration: 4)
             }
         }
+    }
+
+    private func breathingRings(inhaling: Bool, label: LocalizedStringKey, animated: Bool) -> some View {
+        let scale: CGFloat = animated ? (inhaling ? 1 : 0.84) : 1
+
+        return ZStack {
+            Circle()
+                .fill(Palette.calmRing)
+                .frame(width: 250, height: 250)
+                .scaleEffect(scale)
+            Circle()
+                .fill(Palette.calmRingDeep)
+                .frame(width: 190, height: 190)
+                .scaleEffect(scale)
+            Circle()
+                .fill(Palette.ground)
+                .frame(width: 132, height: 132)
+                .shadow(color: Palette.calmRingDeep, radius: 0, y: 6)
+
+            VStack(spacing: 2) {
+                Text(label)
+                    .font(Typeface.label)
+                    .textCase(.uppercase)
+                    .tracking(0.8)
+                    .foregroundStyle(Palette.skyInk)
+                Text(timerInterval: startedAt...Date.distantFuture, countsDown: false)
+                    .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Palette.ink)
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(height: 260)
     }
 
     // MARK: - It passed
@@ -114,7 +137,7 @@ struct CravingView: View {
 
             VStack(alignment: .leading, spacing: Space.s) {
                 Text("You waited it out.")
-                    .font(.system(.title, design: .serif))
+                    .font(Typeface.title)
                     .foregroundStyle(Palette.ink)
                 Text(durationText)
                     .font(Typeface.voice)
@@ -151,7 +174,7 @@ struct CravingView: View {
             Spacer()
 
             Text("Should we mark the milestones?")
-                .font(.system(.title, design: .serif))
+                .font(Typeface.title)
                 .foregroundStyle(Palette.ink)
 
             Text("A short note at a day, three days, a week, a month. Nothing else, ever. Nicfree will never nudge you for not opening it, because there is nothing to keep up with.")

@@ -85,7 +85,7 @@ struct SlipLogView: View {
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
             Text("Your total is unchanged.")
-                .font(.system(.title2, design: .serif))
+                .font(Typeface.title)
                 .foregroundStyle(Palette.accent)
         }
         .multilineTextAlignment(.center)

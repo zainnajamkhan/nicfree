@@ -59,6 +59,28 @@ than an ornament. No confetti, ever.
 
 **The success haptic is never used for logging a slip.**
 
+**Sprout replaced the calm look (2026-10-22).** The app is now bright, rounded and playful,
+in the spirit of Duolingo: chunky buttons, stat chips, a mascot, a milestone path. The earlier
+"calm, not Kwit" and "one animation only" decisions are superseded. What did not change is
+every product rule in CLAUDE.md. Playful is fine; shaming is not.
+
+**The mascot never wilts, frowns or reacts to a slip.** It only gains leaves as free days add
+up (1 leaf, 2 at 3 days, 3 at 7, 4 at 30). A mascot that looked sad on a slip day would be
+shaming with a face, which is the same as red.
+
+**Borrowed from Duolingo: the fun. Not borrowed: the streak.** No streak counter, no streak
+freeze, no "don't break it" copy. Every number on Home only grows: free days, cravings beaten,
+money not spent. Used days stay clay rounded squares, never red, and differ in shape from
+free circles.
+
+**Home's free-day number is now a chip, not a giant hero.** The hero rule (cumulative, cannot
+decrease) still holds, and the chip is first and labelled for VoiceOver as "Free days, all
+time". Revisit if the number should be larger.
+
+**Palette tokens keep their old names.** `ground`, `ink`, `accent`, `clay` and the rest
+stayed so every screen restyled from `Theme.swift` alone. New tokens: `accentDeep`,
+`onAccent`, `leaf`, `sky*`, `sun*`, `calm*`, `pot*`.
+
 ## Technical
 
 **No third party packages.** Avoids supply chain risk, keeps launch fast, removes third

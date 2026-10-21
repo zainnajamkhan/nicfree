@@ -6,7 +6,7 @@
 import SwiftUI
 import SwiftData
 
-/// One question, answered once, with nothing competing for the answer.
+/// Three numbers that only grow, a sprout that grows with them, and one big button.
 ///
 /// The asymmetry at the bottom is deliberate: riding out a craving is a large primary
 /// button, logging a slip is a small quiet link. It should never be easier to record
@@ -21,8 +21,6 @@ struct HomeView: View {
     @State private var showingCraving = false
     @State private var pendingSlip = false
     @State private var pendingHoldSeconds = 0
-
-    @ScaledMetric(relativeTo: .largeTitle) private var heroSize: CGFloat = 76
 
     private var habit: Habit? { habits.first }
 
@@ -51,30 +49,22 @@ struct HomeView: View {
     private var todaysRecord: DayRecord? { usedDays.first { $0.day == today } }
 
     var body: some View {
-        NavigationStack {
-            Screen {
-                if let habit, let stats {
-                    VStack(alignment: .leading, spacing: 0) {
-                        hero(stats)
-                        observation(stats: stats, habit: habit)
-
-                        Spacer(minLength: Space.xl)
-
-                        rows(stats: stats, habit: habit)
-                        actions
+        Screen {
+            if let habit, let stats {
+                ScrollView {
+                    VStack(spacing: Space.m) {
+                        chips(stats: stats, habit: habit)
+                        sproutCard(stats: stats, habit: habit)
+                        WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
                     }
+                    .padding(.top, Space.m)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    actions
+                        .background(Palette.ground)
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink { HistoryView() } label: {
-                        Image(systemName: "square.grid.3x3")
-                            .foregroundStyle(Palette.inkSoft)
-                    }
-                    .accessibilityLabel("History")
-                }
-            }
-            .toolbarBackground(.hidden, for: .navigationBar)
         }
         .sheet(isPresented: $loggingSlip, onDismiss: { pendingHoldSeconds = 0 }) {
             SlipLogView(existing: todaysRecord, day: today, heldOutSeconds: pendingHoldSeconds)
@@ -103,73 +93,204 @@ struct HomeView: View {
 
     // MARK: - Pieces
 
-    private func hero(_ stats: QuitStats) -> some View {
-        VStack(alignment: .leading, spacing: Space.xs) {
-            SectionLabel("Vape free")
+    private func chips(stats: QuitStats, habit: Habit) -> some View {
+        let money = stats.moneySaved(dailyCost: habit.baselineDailyCost)
+            .formatted(.currency(code: habit.currencyCode).precision(.fractionLength(0)))
 
-            Text(stats.lifetimeFreeDays, format: .number)
-                .font(Typeface.hero(min(heroSize, 108)))
-                .foregroundStyle(Palette.ink)
-                .contentTransition(.numericText())
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-
-            Text("days, all time")
-                .font(.subheadline)
-                .foregroundStyle(Palette.inkSoft)
-        }
-        .padding(.top, Space.xxl)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(stats.lifetimeFreeDays) days vape free, all time")
-        .accessibilityAddTraits(.isHeader)
-    }
-
-    @ViewBuilder
-    private func observation(stats: QuitStats, habit: Habit) -> some View {
-        if let observation = ObservationEngine.daily(stats: stats, habit: habit, cravings: insights) {
-            Text(observation.text)
-                .font(Typeface.voice)
-                .foregroundStyle(Palette.inkSoft)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, Space.l)
-        }
-    }
-
-    private func rows(stats: QuitStats, habit: Habit) -> some View {
-        VStack(spacing: 0) {
-            StatRow("Current run", value: dayCount(stats.currentRun))
-            StatRow("Longest run", value: dayCount(stats.longestRun))
-            StatRow(
-                "Not spent",
-                value: stats.moneySaved(dailyCost: habit.baselineDailyCost)
-                    .formatted(.currency(code: habit.currencyCode).precision(.fractionLength(0)))
+        return HStack(spacing: Space.s) {
+            StatChip(
+                symbol: "leaf.fill",
+                value: stats.lifetimeFreeDays.formatted(),
+                fill: Palette.accentQuiet,
+                tint: Palette.accent,
+                ink: Palette.ink,
+                label: "Free days, all time"
+            )
+            StatChip(
+                symbol: "shield.fill",
+                value: insights.resistedCount.formatted(),
+                fill: Palette.skyQuiet,
+                tint: Palette.sky,
+                ink: Palette.skyInk,
+                label: "Cravings beaten"
+            )
+            StatChip(
+                symbol: "dollarsign.circle.fill",
+                value: money,
+                fill: Palette.sunQuiet,
+                tint: Palette.sun,
+                ink: Palette.sunInk,
+                label: "Not spent"
             )
         }
+    }
+
+    private func sproutCard(stats: QuitStats, habit: Habit) -> some View {
+        let free = stats.lifetimeFreeDays
+        let line = ObservationEngine.daily(stats: stats, habit: habit, cravings: insights)?.text
+            ?? String(localized: "\(free) free days, and that number only goes up.")
+
+        return VStack(spacing: Space.m) {
+            Text(line)
+                .font(Typeface.voiceSmall)
+                .foregroundStyle(Palette.ink)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(Space.m - 2)
+                .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.button))
+
+            Sprout(freeDays: free)
+                .frame(height: 150)
+
+            if let next = MilestoneScheduler.milestones.first(where: { $0 > free }) {
+                nextMilestone(free: free, next: next)
+            }
+        }
+        .padding(Space.m + 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.card)
+                .stroke(Palette.hairline, lineWidth: 2)
+        )
+    }
+
+    private func nextMilestone(free: Int, next: Int) -> some View {
+        VStack(spacing: Space.s - 2) {
+            HStack {
+                Text("Next: \(next) days")
+                Spacer()
+                Text("\(next - free) to go")
+                    .foregroundStyle(Palette.inkSoft)
+            }
+            .font(Typeface.row)
+            .foregroundStyle(Palette.ink)
+
+            ProgressView(value: Double(free), total: Double(next))
+                .progressViewStyle(LeafProgressStyle())
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private var actions: some View {
         VStack(spacing: 0) {
             PrimaryButton("I'm having a craving") { showingCraving = true }
-                .padding(.top, Space.l)
+                .padding(.horizontal, Space.l)
+                .padding(.top, Space.s)
 
             Button {
                 loggingSlip = true
             } label: {
                 Text(todaysRecord == nil ? "Log a slip" : "Edit today's slip")
-                    .font(.footnote)
+                    .font(Typeface.row)
                     .foregroundStyle(Palette.inkFaint)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, Space.m)
+                    .frame(minHeight: 44)
             }
             .buttonStyle(.plain)
         }
-        .padding(.bottom, Space.s)
+    }
+}
+
+// MARK: - Week row
+
+/// The last seven days. A free day is a filled circle, a used day is a rounded square in
+/// clay, so the two differ in shape as well as tone. Today shows as an open ring because
+/// the day is not over.
+private struct WeekRow: View {
+    let stats: QuitStats
+    let usedDays: Set<Date>
+
+    private enum Mark { case free, used, today, before }
+
+    private struct Entry: Identifiable {
+        let id: Date
+        let label: String
+        let spoken: String
+        let mark: Mark
     }
 
-    private func dayCount(_ value: Int) -> String {
-        value == 1
-            ? String(localized: "1 day")
-            : String(localized: "\(value) days")
+    private var entries: [Entry] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let start = calendar.startOfDay(for: stats.quitStartedAt)
+
+        return (0..<7).reversed().compactMap { offset in
+            guard let day = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
+            let mark: Mark
+            if usedDays.contains(day) {
+                mark = .used
+            } else if day == today {
+                mark = .today
+            } else if day < start {
+                mark = .before
+            } else {
+                mark = .free
+            }
+            return Entry(
+                id: day,
+                label: day.formatted(.dateTime.weekday(.narrow)),
+                spoken: day.formatted(.dateTime.weekday(.wide)),
+                mark: mark
+            )
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(entries) { entry in
+                VStack(spacing: Space.xs) {
+                    Text(entry.label)
+                        .font(Typeface.label)
+                        .foregroundStyle(Palette.inkSoft)
+                    mark(entry.mark)
+                        .frame(width: 34, height: 34)
+                }
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(entry.spoken), \(spokenState(entry.mark))")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func mark(_ mark: Mark) -> some View {
+        switch mark {
+        case .free:
+            Circle().fill(Palette.leaf)
+        case .used:
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Palette.clayQuiet)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.clay, lineWidth: 2))
+        case .today:
+            Circle().stroke(Palette.leaf, lineWidth: 3)
+        case .before:
+            Circle().fill(Palette.hairline).scaleEffect(0.5)
+        }
+    }
+
+    private func spokenState(_ mark: Mark) -> String {
+        switch mark {
+        case .free: String(localized: "free")
+        case .used: String(localized: "used")
+        case .today: String(localized: "today so far")
+        case .before: String(localized: "before you started")
+        }
+    }
+}
+
+// MARK: - Progress style
+
+struct LeafProgressStyle: ProgressViewStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Palette.sunk)
+                Capsule()
+                    .fill(Palette.leaf)
+                    .frame(width: proxy.size.width * (configuration.fractionCompleted ?? 0))
+            }
+        }
+        .frame(height: 14)
     }
 }
 

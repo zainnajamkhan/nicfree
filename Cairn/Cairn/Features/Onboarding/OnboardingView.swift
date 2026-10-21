@@ -136,7 +136,7 @@ struct OnboardingView: View {
 
     private func question(_ text: LocalizedStringKey) -> some View {
         Text(text)
-            .font(.system(.title, design: .serif))
+            .font(Typeface.title)
             .foregroundStyle(Palette.ink)
     }
 
