@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Runs every NicFree test: unit tests first, then UI tests, as two separate passes.
+# Runs every NicFree test in three separate passes: unit, purchase, then UI.
 #
 # They are kept apart on purpose. The UI tests open the paywall through the scheme's
 # StoreKit configuration, and that state on the simulator stops the purchase unit test's
@@ -29,5 +29,8 @@ run() {
     fi
 }
 
-run unit -only-testing:NicFreeTests
+run unit -only-testing:NicFreeTests -skip-testing:NicFreeTests/PurchaseStoreTests
+# Alone, because the StoreKit test session only loads products reliably when nothing else
+# runs in the same process.
+run purchase -only-testing:NicFreeTests/PurchaseStoreTests
 run ui -only-testing:NicFreeUITests

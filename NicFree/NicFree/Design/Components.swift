@@ -87,7 +87,7 @@ struct SecondaryButton: View {
                 .frame(minHeight: 50)
                 .background(
                     RoundedRectangle(cornerRadius: Radius.button)
-                        .stroke(Palette.hairline, lineWidth: 2)
+                        .strokeBorder(Palette.hairline, lineWidth: 2)
                 )
                 .foregroundStyle(Palette.inkSoft)
         }
@@ -175,9 +175,9 @@ struct Chip: View {
                     Group {
                         if isOn {
                             Capsule().fill(Palette.accentQuiet)
-                                .overlay(Capsule().stroke(Palette.leaf, lineWidth: 2))
+                                .overlay(Capsule().strokeBorder(Palette.leaf, lineWidth: 2))
                         } else {
-                            Capsule().stroke(Palette.hairline, lineWidth: 2)
+                            Capsule().strokeBorder(Palette.hairline, lineWidth: 2)
                         }
                     }
                 )

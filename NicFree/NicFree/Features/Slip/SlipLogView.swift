@@ -88,20 +88,22 @@ struct SlipLogView: View {
 
     // MARK: - Confirmation
 
-    /// The most important five words in the app.
+    /// The most important sentence in the app, so it stays until they have read it. It used
+    /// to vanish after 1.8 seconds, which is too fast on a bad day.
     private var confirmation: some View {
-        VStack(spacing: Space.s) {
-            Text("Logged.")
-                .font(Typeface.voice)
-                .foregroundStyle(Palette.inkSoft)
-            Text("Every free day you’ve already had is still there.")
-                .font(Typeface.title)
-                .foregroundStyle(Palette.accent)
-        }
-        .multilineTextAlignment(.center)
-        .task {
-            try? await Task.sleep(for: .seconds(1.8))
-            dismiss()
+        PinnedActions {
+            VStack(spacing: Space.s) {
+                Text("Logged.")
+                    .font(Typeface.voice)
+                    .foregroundStyle(Palette.inkSoft)
+                Text("Every free day you’ve already had is still there.")
+                    .font(Typeface.title)
+                    .foregroundStyle(Palette.accent)
+            }
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+        } actions: {
+            PrimaryButton("Done") { dismiss() }
         }
     }
 

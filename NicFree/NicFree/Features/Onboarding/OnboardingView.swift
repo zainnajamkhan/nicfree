@@ -23,7 +23,10 @@ struct OnboardingView: View {
     /// currency. Empty means no money estimate, which Home simply leaves out.
     @State private var weeklySpend: Double?
     @State private var quitDate: Date = Date()
+    @State private var dateChoice: DateChoice = .today
     @State private var reasons: [String] = ["", "", ""]
+
+    private enum DateChoice { case today, yesterday, another }
 
     private enum Step: Int, CaseIterable {
         case form, amount, date, reasons, ready
@@ -35,8 +38,22 @@ struct OnboardingView: View {
             // button can never be pushed off the bottom of the screen.
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.l) {
-                    StoneProgress(total: Step.allCases.count, current: step.rawValue)
-                        .padding(.top, Space.xl)
+                    HStack(spacing: Space.m) {
+                        if step != .form {
+                            Button(action: back) {
+                                Image(systemName: "chevron.left")
+                                    .font(.body.weight(.heavy))
+                                    .foregroundStyle(Palette.inkSoft)
+                                    .frame(width: 44, height: 44)
+                                    .background(Palette.surface, in: Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Back")
+                        }
+                        StoneProgress(total: Step.allCases.count, current: step.rawValue)
+                    }
+                    .frame(minHeight: 44)
+                    .padding(.top, Space.l)
 
                     Group {
                         switch step {
@@ -116,14 +133,24 @@ struct OnboardingView: View {
             question("When did you stop?")
             aside("Today is fine. If you stopped a while ago, all of those days count.")
 
-            DatePicker(
-                "Quit date",
-                selection: $quitDate,
-                in: ...Date(),
-                displayedComponents: .date
-            )
-            .datePickerStyle(.compact)
-            .labelsHidden()
+            VStack(spacing: Space.s) {
+                optionRow("Today", isOn: dateChoice == .today) { chooseDate(.today) }
+                optionRow("Yesterday", isOn: dateChoice == .yesterday) { chooseDate(.yesterday) }
+                optionRow(
+                    "Another day",
+                    detail: dateChoice == .another ? quitDate.formatted(.dateTime.day().month(.wide).year()) : nil,
+                    isOn: dateChoice == .another
+                ) { chooseDate(.another) }
+            }
+
+            if dateChoice == .another {
+                DatePicker("Quit date", selection: $quitDate, in: ...Date(), displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .tint(Palette.accent)
+                    .padding(Space.s)
+                    .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.card))
+            }
         }
     }
 
@@ -143,7 +170,7 @@ struct OnboardingView: View {
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             question("That is everything.")
-            Text("There is nothing to check in to. A day you do not open NicFree counts as a day free, so come back only when you need to.")
+            Text("No daily check-in. Every day counts as free unless you log a slip. If you’re away for a few days, NicFree asks about them when you’re back.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
         }
@@ -164,24 +191,44 @@ struct OnboardingView: View {
     }
 
     private func choice(_ title: LocalizedStringKey, unit value: ConsumptionUnit) -> some View {
-        Button {
-            select(value)
-        } label: {
+        optionRow(title, isOn: unit == value) { select(value) }
+    }
+
+    /// One tappable option. Selected reads as a green outline and tint, never only a tick.
+    private func optionRow(
+        _ title: LocalizedStringKey,
+        detail: String? = nil,
+        isOn: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
             HStack {
-                Text(title).font(Typeface.row).foregroundStyle(Palette.ink)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(Typeface.row).foregroundStyle(Palette.ink)
+                    if let detail {
+                        Text(detail).font(.caption.weight(.semibold)).foregroundStyle(Palette.accent)
+                    }
+                }
                 Spacer()
-                if unit == value {
-                    Image(systemName: "checkmark").foregroundStyle(Palette.accent)
+                if isOn {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Palette.accent)
                 }
             }
             .padding(Space.m)
+            .frame(minHeight: 56)
             .background(
                 RoundedRectangle(cornerRadius: Radius.button)
-                    .fill(unit == value ? Palette.accentQuiet.opacity(0.35) : Palette.surface)
+                    .fill(isOn ? Palette.accentQuiet : Palette.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.button)
+                    .strokeBorder(isOn ? Palette.leaf : .clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
-        .accessibilityAddTraits(unit == value ? [.isSelected] : [])
+        .accessibilityAddTraits(isOn ? [.isSelected] : [])
     }
 
     private func field(index: Int, placeholder: LocalizedStringKey) -> some View {
@@ -210,6 +257,25 @@ struct OnboardingView: View {
     }
 
     // MARK: - Flow
+
+    private func back() {
+        guard let previous = Step(rawValue: step.rawValue - 1) else { return }
+        step = previous
+    }
+
+    private func chooseDate(_ choice: DateChoice) {
+        dateChoice = choice
+        let today = Calendar.current.startOfDay(for: Date())
+        switch choice {
+        case .today: quitDate = Date()
+        case .yesterday: quitDate = Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today
+        case .another:
+            // Start the calendar a week back, a likelier answer than today for "another day".
+            if Calendar.current.isDateInToday(quitDate) {
+                quitDate = Calendar.current.date(byAdding: .day, value: -7, to: today) ?? today
+            }
+        }
+    }
 
     private func advance() {
         guard let next = Step(rawValue: step.rawValue + 1) else {

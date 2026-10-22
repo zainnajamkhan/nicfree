@@ -58,6 +58,32 @@ final class NicFreeUITests: XCTestCase {
         try firstRun(app)
     }
 
+    /// Back after three days away: the app asks about them once, and a picked day becomes
+    /// a slip that the total reflects.
+    @MainActor
+    func testCatchUpAfterTimeAway() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-seedScreenshotData", "-simulateAwayForUITests"]
+        app.launch()
+
+        let question = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Any nicotine since")).firstMatch
+        XCTAssertTrue(question.waitForExistence(timeout: 10))
+        snap("Catch-up 01 question")
+        let total = app.descendants(matching: .any)["Free days, all time"]
+        XCTAssertEqual(total.value as? String, "63")
+
+        tap(app, "Yes, on some days")
+        let firstDay = app.buttons.matching(NSPredicate(format: "label MATCHES %@", "^[A-Za-z]{2,4}\\.? ?[0-9]{1,2}$")).firstMatch
+        XCTAssertTrue(firstDay.waitForExistence(timeout: 3), "Expected day chips")
+        firstDay.tap()
+        snap("Catch-up 02 days")
+        tap(app, "Save")
+
+        let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: question)
+        wait(for: [gone], timeout: 5)
+        XCTAssertEqual(total.value as? String, "62")
+    }
+
     /// The same walk in dark mode, where contrast problems hide.
     @MainActor
     func testFirstRunInDarkMode() throws {
@@ -128,7 +154,12 @@ final class NicFreeUITests: XCTestCase {
         save.tap()
         XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
         snap("07b slip saved")
-        let sheetGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: save)
+        // The confirmation stays until they tap Done; it never vanishes on its own.
+        sleep(2)
+        XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].exists)
+        let done = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Done")).firstMatch
+        done.tap()
+        let sheetGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: done)
         wait(for: [sheetGone], timeout: 5)
 
         // Tabs, each checked by what is on screen rather than trusted.

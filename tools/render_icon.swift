@@ -14,7 +14,7 @@ func gray(_ hex: UInt32) -> CGColor {
     return CGColor(gray: l, alpha: 1)
 }
 
-enum Variant { case light, dark, tinted }
+enum Variant { case light, dark, tinted, launch }
 
 func leaf(_ ctx: CGContext, _ p: [CGFloat]) {
     ctx.beginPath()
@@ -25,10 +25,11 @@ func leaf(_ ctx: CGContext, _ p: [CGFloat]) {
     ctx.fillPath()
 }
 
-func render(_ variant: Variant, to url: URL) {
-    let size = 1024
+func render(_ variant: Variant, size: Int = 1024, to url: URL) {
     let space = variant == .tinted ? CGColorSpaceCreateDeviceGray() : CGColorSpaceCreateDeviceRGB()
-    let info = variant == .tinted ? CGImageAlphaInfo.none.rawValue : CGImageAlphaInfo.noneSkipLast.rawValue
+    let info = variant == .tinted ? CGImageAlphaInfo.none.rawValue
+        : variant == .launch ? CGImageAlphaInfo.premultipliedLast.rawValue
+        : CGImageAlphaInfo.noneSkipLast.rawValue
     guard let ctx = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: info) else { return }
 
     let color: (UInt32) -> CGColor = variant == .tinted ? gray : { rgb($0) }
@@ -38,13 +39,15 @@ func render(_ variant: Variant, to url: URL) {
     case .light: ctx.setFillColor(rgb(0xE9F5EA))
     case .dark: ctx.setFillColor(rgb(0x111815))
     case .tinted: ctx.setFillColor(CGColor(gray: 0, alpha: 1))
+    case .launch: ctx.setFillColor(CGColor(gray: 0, alpha: 0))   // transparent; the launch colour shows through
     }
     ctx.fill(CGRect(x: 0, y: 0, width: size, height: size))
 
     // Flip to a top-left origin and fit the 150 grid (content spans y 24...143) into the icon.
     ctx.translateBy(x: 0, y: CGFloat(size))
     ctx.scaleBy(x: 1, y: -1)
-    let scale: CGFloat = 5.6
+    // The icon leaves a margin; the launch image fills its square.
+    let scale: CGFloat = CGFloat(size) / 1024 * (variant == .launch ? 8.4 : 5.6)
     let contentCenterY: CGFloat = (24 + 143) / 2
     ctx.translateBy(x: CGFloat(size) / 2 - 75 * scale, y: CGFloat(size) / 2 - contentCenterY * scale)
     ctx.scaleBy(x: scale, y: scale)
@@ -100,4 +103,8 @@ let out = URL(fileURLWithPath: CommandLine.arguments[1])
 render(.light, to: out.appendingPathComponent("AppIcon.png"))
 render(.dark, to: out.appendingPathComponent("AppIcon-dark.png"))
 render(.tinted, to: out.appendingPathComponent("AppIcon-tinted.png"))
+// Launch screen sprout, 120 points square at 1x, 2x and 3x.
+for (scale, suffix) in [(1, ""), (2, "@2x"), (3, "@3x")] {
+    render(.launch, size: 120 * scale, to: out.appendingPathComponent("LaunchSprout\(suffix).png"))
+}
 print("rendered")

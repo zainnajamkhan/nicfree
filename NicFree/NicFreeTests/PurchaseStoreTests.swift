@@ -26,6 +26,7 @@ struct PurchaseStoreTests {
         // The test session finishes setting up asynchronously, so the first product request
         // can come back empty. Ask again briefly rather than trusting the first answer.
         let store = PurchaseStore()
+        store.debugUnlocked = false   // a switch left on in Settings would hide the result
         for _ in 0..<20 where store.product == nil {
             await store.start()
             if store.product == nil { try await Task.sleep(for: .milliseconds(250)) }

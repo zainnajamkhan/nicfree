@@ -74,7 +74,7 @@ struct CravingView: View {
                 .background(Palette.ground, in: RoundedRectangle(cornerRadius: Radius.card))
                 .overlay(
                     RoundedRectangle(cornerRadius: Radius.card)
-                        .stroke(Palette.calmRing, lineWidth: 2)
+                        .strokeBorder(Palette.calmRing, lineWidth: 2)
                 )
             }
 

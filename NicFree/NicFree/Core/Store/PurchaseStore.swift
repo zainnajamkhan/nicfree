@@ -18,7 +18,18 @@ final class PurchaseStore {
     static let unlockID = "nicfree.unlock"
 
     private(set) var product: Product?
-    private(set) var isUnlocked = false
+    /// What the App Store says this Apple Account owns.
+    private(set) var entitled = false
+
+    #if DEBUG
+    /// Debug builds only: a switch in Settings to see the paid screens without buying.
+    var debugUnlocked = UserDefaults.standard.bool(forKey: "debugUnlocked") {
+        didSet { UserDefaults.standard.set(debugUnlocked, forKey: "debugUnlocked") }
+    }
+    var isUnlocked: Bool { entitled || debugUnlocked }
+    #else
+    var isUnlocked: Bool { entitled }
+    #endif
     private(set) var isWorking = false
     var message: String?
 
@@ -29,7 +40,7 @@ final class PurchaseStore {
         #if DEBUG
         // App Store screenshots show the unlocked screens.
         if ProcessInfo.processInfo.arguments.contains("-unlockForScreenshots") {
-            isUnlocked = true
+            entitled = true
             return
         }
         #endif
@@ -105,7 +116,7 @@ final class PurchaseStore {
                 unlocked = true
             }
         }
-        isUnlocked = unlocked
+        entitled = unlocked
     }
 
     private func apply(_ result: VerificationResult<Transaction>) async {
@@ -114,7 +125,7 @@ final class PurchaseStore {
             return
         }
         if transaction.productID == Self.unlockID {
-            isUnlocked = transaction.revocationDate == nil
+            entitled = transaction.revocationDate == nil
         }
         await transaction.finish()
     }

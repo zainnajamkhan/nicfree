@@ -14,6 +14,8 @@ import SwiftData
 /// sentence telling someone off.
 struct HomeView: View {
     @Environment(\.storeIsTemporary) private var storeIsTemporary
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var context
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
     @Query(sort: \CravingEvent.occurredAt) private var cravings: [CravingEvent]
@@ -23,6 +25,9 @@ struct HomeView: View {
     @State private var pendingSlip = false
     @State private var pendingHoldSeconds = 0
     @State private var showingSettings = false
+    /// Drives the catch-up sheet by its data. A sheet opened from a separate Bool can render
+    /// with the previous, empty list of days ("Any nicotine since ?").
+    @State private var catchUp: CatchUpPrompt?
 
     private var habit: Habit? { habits.first }
 
@@ -91,10 +96,41 @@ struct HomeView: View {
         }
         // Milestones count free days, so a slip moves the next one. Rebuilding the whole
         // schedule whenever that number changes is the only way to keep them honest.
+        .sheet(item: $catchUp, onDismiss: markChecked) { prompt in
+            CatchUpView(days: prompt.days) { used in
+                for day in used { context.insert(DayRecord(day: day)) }
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { checkForMissedDays() }
+        }
         .task(id: stats?.lifetimeFreeDays ?? -1) {
             guard let stats else { return }
             await MilestoneScheduler.reschedule(freeDays: stats.lifetimeFreeDays)
         }
+    }
+
+    // MARK: - Catch-up
+
+    /// On every return to the app: if whole days went by unseen, ask about them once.
+    private func checkForMissedDays() {
+        guard let habit, catchUp == nil else { return }
+        let days = CatchUp.daysToAsk(
+            lastChecked: habit.lastCheckedThrough,
+            quitStartedAt: habit.quitStartedAt,
+            alreadyUsed: Set(usedDays.map(\.day))
+        )
+        if days.isEmpty {
+            markChecked()
+        } else {
+            catchUp = CatchUpPrompt(days: days)
+        }
+    }
+
+    /// Answered or swiped away, the days were seen; the question is not asked twice.
+    private func markChecked() {
+        habit?.lastCheckedThrough = today
     }
 
     // MARK: - Pieces
@@ -172,7 +208,7 @@ struct HomeView: View {
         .padding(Space.m + 4)
         .overlay(
             RoundedRectangle(cornerRadius: Radius.card)
-                .stroke(Palette.hairline, lineWidth: 2)
+                .strokeBorder(Palette.hairline, lineWidth: 2)
         )
     }
 
@@ -228,6 +264,11 @@ struct HomeView: View {
             .buttonStyle(.plain)
         }
     }
+}
+
+private struct CatchUpPrompt: Identifiable {
+    let id = UUID()
+    let days: [Date]
 }
 
 // MARK: - Week row
@@ -299,9 +340,9 @@ private struct WeekRow: View {
         case .used:
             RoundedRectangle(cornerRadius: 10)
                 .fill(Palette.clayQuiet)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.clay, lineWidth: 2))
+                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Palette.clay, lineWidth: 2))
         case .today:
-            Circle().stroke(Palette.leaf, lineWidth: 3)
+            Circle().strokeBorder(Palette.leaf, lineWidth: 3)
         case .before:
             Circle().fill(Palette.hairline).scaleEffect(0.5)
         }

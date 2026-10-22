@@ -11,15 +11,15 @@ import SwiftData
 /// and 38 cravings that thin out over time. DEBUG only, loaded with `-seedScreenshotData`.
 enum ScreenshotData {
 
-    static func seed(into context: ModelContext, now: Date = Date()) {
+    /// `awayDays` sets the last visit that many days back, to exercise the catch-up question.
+    static func seed(into context: ModelContext, awayDays: Int? = nil, now: Date = Date()) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
         func day(_ daysAgo: Int) -> Date {
             calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
         }
 
-        context.insert(
-            Habit(
+        let habit = Habit(
                 form: .pouch,
                 unit: .pouch,
                 baselineUnitsPerWeek: 56,
@@ -33,7 +33,8 @@ enum ScreenshotData {
                     "I do not want to need it"
                 ]
             )
-        )
+        if let awayDays { habit.lastCheckedThrough = day(awayDays) }
+        context.insert(habit)
 
         // 65 days tracked, two used, so the hero reads 63 and the next milestone is 90.
         context.insert(DayRecord(day: day(41), intensity: .fewPuffs))

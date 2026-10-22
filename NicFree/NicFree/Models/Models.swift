@@ -128,6 +128,13 @@ final class Habit {
     /// them at the moment of a craving. The strongest single intervention available.
     var reasons: [String] = []
 
+    /// The last day the app was opened, so a return after time away can ask about the days
+    /// it did not see. Optional and additive: older stores simply start without it.
+    var lastCheckedThrough: Date?
+
+    /// The opt-in evening reminder, as minutes after midnight. Nil means off, the default.
+    var eveningReminderMinute: Int?
+
     init(
         form: NicotineForm = .vape,
         unit: ConsumptionUnit = .disposable,

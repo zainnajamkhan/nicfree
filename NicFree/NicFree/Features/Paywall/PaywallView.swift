@@ -41,7 +41,7 @@ struct PaywallView: View {
                     .padding(Space.m + 4)
                     .overlay(
                         RoundedRectangle(cornerRadius: Radius.card)
-                            .stroke(Palette.hairline, lineWidth: 2)
+                            .strokeBorder(Palette.hairline, lineWidth: 2)
                     )
 
                     if let message = store.message {

@@ -57,7 +57,8 @@ Everything built, plus everything in the list above.
 ## Later (v1.1 and after)
 
 Widgets, Live Activity, Control Centre, Action Button, Siri, CloudKit sync, export,
-cigarettes and shisha in onboarding, Arabic and RTL, Apple Watch, the two-week external
+more than one product per person (pick-all-that-apply onboarding, "what did you use?" on a
+slip; decided Oct 23), cigarettes and shisha in onboarding, Arabic and RTL, Apple Watch, the two-week external
 tester round.
 
 Exception: one Lock Screen widget on Mon Nov 2, **only** if every other v1 item is done.

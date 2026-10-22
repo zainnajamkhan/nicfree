@@ -15,12 +15,14 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(PurchaseStore.self) private var store
 
     @Bindable var habit: Habit
 
     @State private var reasons: [String] = ["", "", ""]
     @State private var weeklySpend: Double?
     @State private var notifications: UNAuthorizationStatus = .notDetermined
+    @State private var reminderNote: String?
 
     var body: some View {
         NavigationStack {
@@ -29,6 +31,9 @@ struct SettingsView: View {
                 useSection
                 notificationsSection
                 aboutSection
+                #if DEBUG
+                debugSection
+                #endif
             }
             .scrollContentBackground(.hidden)
             .background(Palette.ground)
@@ -116,10 +121,18 @@ struct SettingsView: View {
                     }
                 }
             }
+
+            Toggle("Evening check-in", isOn: reminderOn)
+            if habit.eveningReminderMinute != nil {
+                DatePicker("Time", selection: reminderTime, displayedComponents: .hourAndMinute)
+            }
+            if let reminderNote {
+                Text(reminderNote).font(.footnote).foregroundStyle(Palette.inkSoft)
+            }
         } header: {
             SectionLabel("Notifications")
         } footer: {
-            Text("A short note at a day, three days, a week, a month and later. Never a reminder to open the app.")
+            Text("Milestone notes at a day, three days, a week, a month and later. The evening check-in is off unless you turn it on, and a free day never needs anything from you.")
         }
     }
 
@@ -139,12 +152,66 @@ struct SettingsView: View {
         }
     }
 
+    #if DEBUG
+    private var debugSection: some View {
+        @Bindable var store = store
+        return Section {
+            Toggle("Unlock everything", isOn: $store.debugUnlocked)
+        } header: {
+            SectionLabel("Debug builds only")
+        } footer: {
+            Text("Not in the App Store version. Shows the paid screens without buying.")
+        }
+    }
+    #endif
+
     // MARK: - Data
 
     // Hosted from the public repo zainnajamkhan/nicfree-site. The same two URLs go in App
     // Store Connect.
     private static let supportURL = URL(string: "https://zainnajamkhan.github.io/nicfree-site/")!
     private static let privacyURL = URL(string: "https://zainnajamkhan.github.io/nicfree-site/privacy.html")!
+
+    private var reminderOn: Binding<Bool> {
+        Binding(
+            get: { habit.eveningReminderMinute != nil },
+            set: { on in
+                reminderNote = nil
+                guard on else {
+                    habit.eveningReminderMinute = nil
+                    Task { await ReminderScheduler.update(minuteOfDay: nil) }
+                    return
+                }
+                Task {
+                    if await MilestoneScheduler.authorizationStatus() == .notDetermined {
+                        _ = await MilestoneScheduler.requestAuthorization()
+                    }
+                    notifications = await MilestoneScheduler.authorizationStatus()
+                    guard notifications == .authorized || notifications == .provisional else {
+                        reminderNote = String(localized: "Notifications are off for NicFree. Turn them on in iPhone Settings first.")
+                        return
+                    }
+                    habit.eveningReminderMinute = ReminderScheduler.defaultMinute
+                    await ReminderScheduler.update(minuteOfDay: ReminderScheduler.defaultMinute)
+                }
+            }
+        )
+    }
+
+    private var reminderTime: Binding<Date> {
+        Binding(
+            get: {
+                let minute = habit.eveningReminderMinute ?? ReminderScheduler.defaultMinute
+                return Calendar.current.date(bySettingHour: minute / 60, minute: minute % 60, second: 0, of: Date()) ?? Date()
+            },
+            set: { date in
+                let parts = Calendar.current.dateComponents([.hour, .minute], from: date)
+                let minute = (parts.hour ?? 20) * 60 + (parts.minute ?? 0)
+                habit.eveningReminderMinute = minute
+                Task { await ReminderScheduler.update(minuteOfDay: minute) }
+            }
+        )
+    }
 
     private var notificationLabel: String {
         switch notifications {

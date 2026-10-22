@@ -37,7 +37,8 @@ enum MilestoneScheduler {
         let center = UNUserNotificationCenter.current()
         guard await authorizationStatus() == .authorized else { return }
 
-        center.removeAllPendingNotificationRequests()
+        // Only our own requests: the evening reminder lives in the same queue.
+        center.removePendingNotificationRequests(withIdentifiers: milestones.map { "milestone-\($0)" })
 
         let today = calendar.startOfDay(for: Date())
 

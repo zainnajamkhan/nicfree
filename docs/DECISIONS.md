@@ -87,6 +87,17 @@ arithmetic and make the copy true instead: the slip confirmation says "Every fre
 already had is still there", not "Your total is unchanged", which was false on the day it
 mattered. Days already finished never lose their free status.
 
+**No required check-in, but a catch-up when you come back (2026-10-23).** A day without a
+record still counts as free, so missing a day is never a loss. Two additions close the gaps
+Zain found in testing: when the app opens after one or more full days away it asks "Any
+nicotine since <day>?" (All free / Yes, on some days, then pick the days), so forgotten slips
+can be recorded; and an opt-in evening reminder, off by default, asks how the day went. It
+never says "you have not logged".
+
+**One product per person in v1 (2026-10-23).** Mixed use (cigarettes and vapes, pouches and
+vapes) is real, but it moves to v1.1. The total is unaffected either way: a day is
+nicotine-free or it is not.
+
 ## Technical
 
 **No third party packages.** Avoids supply chain risk, keeps launch fast, removes third
