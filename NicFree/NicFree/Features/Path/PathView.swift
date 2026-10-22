@@ -48,7 +48,8 @@ struct PathView: View {
                     }
                     .scrollBounceBehavior(.basedOnSize)
                     .onAppear {
-                        if let next { proxy.scrollTo(next, anchor: .center) }
+                        // Low on screen rather than centred, so the header stays in view.
+                        if let next { proxy.scrollTo(next, anchor: UnitPoint(x: 0.5, y: 0.8)) }
                     }
                 }
             }

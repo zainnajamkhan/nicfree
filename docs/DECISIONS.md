@@ -81,6 +81,12 @@ time". Revisit if the number should be larger.
 stayed so every screen restyled from `Theme.swift` alone. New tokens: `accentDeep`,
 `onAccent`, `leaf`, `sky*`, `sun*`, `calm*`, `pot*`.
 
+**Today counts as free until a slip is logged for it (2026-10-22).** A day with no record is
+free, today included, so logging a slip today lowers the total by one. Zain chose to keep that
+arithmetic and make the copy true instead: the slip confirmation says "Every free day you've
+already had is still there", not "Your total is unchanged", which was false on the day it
+mattered. Days already finished never lose their free status.
+
 ## Technical
 
 **No third party packages.** Avoids supply chain risk, keeps launch fast, removes third

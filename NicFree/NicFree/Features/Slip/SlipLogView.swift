@@ -94,7 +94,7 @@ struct SlipLogView: View {
             Text("Logged.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
-            Text("Your total is unchanged.")
+            Text("Every free day you’ve already had is still there.")
                 .font(Typeface.title)
                 .foregroundStyle(Palette.accent)
         }

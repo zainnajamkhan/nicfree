@@ -63,6 +63,12 @@ struct NicFreeApp: App {
         let onDisk = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
+        // App Store screenshots: a fresh in-memory store with a believable history in it.
+        if arguments.contains("-seedScreenshotData"),
+           let seeded = try? ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]) {
+            ScreenshotData.seed(into: seeded.mainContext)
+            return (seeded, false)
+        }
         // Every UI test launch starts from nothing, so tests never see each other's data.
         // Checked after the damage flag below would be too late, so that flag wins here.
         if arguments.contains("-freshStoreForUITests"), !arguments.contains("-simulateDamagedStore"),

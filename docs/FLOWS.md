@@ -73,7 +73,7 @@ that day.
 trigger and any seconds held out before using. Editing an existing slip updates the record
 and does not create a second craving.
 
-Then the confirmation, held for 1.8 seconds: **"Logged. Your total is unchanged."** A soft
+Then the confirmation, held for 1.8 seconds: **"Logged. Every free day you’ve already had is still there."** A soft
 haptic. Never the success haptic, because a system sound meaning "well done" at that moment
 would be grotesque.
 

@@ -126,7 +126,7 @@ final class NicFreeUITests: XCTestCase {
         let save = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Save")).firstMatch
         XCTAssertTrue(save.isHittable, "Save must be reachable without scrolling")
         save.tap()
-        XCTAssertTrue(app.staticTexts["Your total is unchanged."].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
         snap("07b slip saved")
         let sheetGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: save)
         wait(for: [sheetGone], timeout: 5)

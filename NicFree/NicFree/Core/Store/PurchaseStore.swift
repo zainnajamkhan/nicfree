@@ -26,6 +26,13 @@ final class PurchaseStore {
     @ObservationIgnored private let logger = Logger(subsystem: "NicFree", category: "store")
 
     init() {
+        #if DEBUG
+        // App Store screenshots show the unlocked screens.
+        if ProcessInfo.processInfo.arguments.contains("-unlockForScreenshots") {
+            isUnlocked = true
+            return
+        }
+        #endif
         updates = Task { [weak self] in
             for await result in Transaction.updates {
                 await self?.apply(result)
@@ -35,6 +42,9 @@ final class PurchaseStore {
 
     /// Called once at launch. Safe to call again.
     func start() async {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-unlockForScreenshots") { return }
+        #endif
         await refreshEntitlement()
         guard product == nil else { return }
         do {
