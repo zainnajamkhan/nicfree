@@ -45,6 +45,9 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Listing copy and privacy policy drafted (`docs/LISTING.md`, `docs/PRIVACY.md`)
 - [x] Rename project to NicFree
 - [x] Bundle ID `com.zainnajamkhan.nicfree`; iOS 26.0 minimum; iPhone (portrait) and iPad
+- [x] App Store screenshots: `screenshots/iphone-6.9` and `screenshots/ipad-13`, six each (`tools/screenshots.sh`)
+- [ ] App Store Connect: app record, `nicfree.unlock` IAP at $9.99, listing, age rating (Zain)
+- [ ] Signing team in Xcode, then archive and TestFlight upload
 - [x] Support and privacy pages live: https://zainnajamkhan.github.io/nicfree-site/ and /privacy.html (public repo `nicfree-site`), linked from Settings
 
 ## In v1
