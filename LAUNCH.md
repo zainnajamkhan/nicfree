@@ -37,9 +37,12 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Tone test that fails on banned words
 - [x] Plural fixes ("1 free day", not "1 free days")
 - [x] UI test that walks a pouch user through first run, a craving, a slip, every tab and the paywall
-- [ ] Damaged store message (TODO in `NicFreeApp.swift`)
-- [ ] App icon
-- [ ] VoiceOver and largest Dynamic Type pass
+- [x] Damaged store message, on Home and before onboarding, with a UI test
+- [x] App icon: light, dark, tinted (`tools/render_icon.swift`)
+- [x] Largest Dynamic Type: UI test runs the whole first run at AccessibilityXXXL
+- [x] Dark mode: UI test runs the whole first run in dark; two contrast fixes
+- [ ] VoiceOver by ear on a real device (labels are in place; needs a human listen)
+- [x] Listing copy and privacy policy drafted (`docs/LISTING.md`, `docs/PRIVACY.md`)
 - [x] Rename project to NicFree
 - [ ] Bundle ID (Zain's decision; `com.app.NicFree` is a placeholder)
 
