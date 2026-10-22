@@ -27,6 +27,11 @@ enum Palette {
 
     static let hairline = Color(light: 0xE5E8EB, dark: 0x2A352F)
 
+    /// Milestones not reached yet. Lighter than the ground in both themes, so they read
+    /// as waiting rather than as holes in the screen.
+    static let locked = Color(light: 0xE5E8EB, dark: 0x2E3A33)
+    static let lockedEdge = Color(light: 0xC9CED3, dark: 0x1F2924)
+
     /// Buttons and the free-day circles.
     static let accent = Color(light: 0x2E7D32, dark: 0x5DB761)
     /// The solid edge under a chunky button.

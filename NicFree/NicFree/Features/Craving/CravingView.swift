@@ -29,6 +29,9 @@ struct CravingView: View {
     @State private var reason: String?
     @State private var trigger: CravingTrigger?
     @State private var heldOutSeconds = 0
+    /// Fetched when the screen opens, so Done never waits on the system. The first request
+    /// after a reboot can take seconds, and Done must feel instant.
+    @State private var askAboutMilestones = false
 
     private enum Phase { case riding, passed, primer }
 
@@ -39,6 +42,9 @@ struct CravingView: View {
             case .passed: passed
             case .primer: primer
             }
+        }
+        .task {
+            askAboutMilestones = await MilestoneScheduler.authorizationStatus() == .notDetermined
         }
         .onAppear {
             // One reason for the whole session. Rotating text at someone trying to calm
@@ -219,12 +225,10 @@ struct CravingView: View {
             )
         )
 
-        Task {
-            if await MilestoneScheduler.authorizationStatus() == .notDetermined {
-                withAnimation(.smooth(duration: 0.3)) { phase = .primer }
-            } else {
-                dismiss()
-            }
+        if askAboutMilestones {
+            withAnimation(.smooth(duration: 0.3)) { phase = .primer }
+        } else {
+            dismiss()
         }
     }
 

@@ -67,6 +67,11 @@ Breaking any of these breaks the product, not just a screen.
   working through `LAUNCH.md`, and he evaluates at the end. Always pass `-derivedDataPath` pointing
   at the scratchpad so a build never fights an open Xcode window. Zain still owns the on-device
   check and every product call.
+- **Run tests with `tools/test.sh <simulator-udid>`.** It runs unit tests and UI tests as two
+  separate passes, because the UI tests' paywall leaves StoreKit state that breaks the purchase
+  unit test when they share a run. UI tests pass `-freshStoreForUITests` so they never see each
+  other's data; `-simulateDamagedStore` and `-forceDarkForUITests` exist for specific tests.
+  All three flags are DEBUG-only.
 - The project uses **file system synchronized groups**: folder location *is* target
   membership. Put a file in the right folder and it is in the right target. Never edit
   target membership by hand.

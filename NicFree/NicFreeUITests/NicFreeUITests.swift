@@ -50,6 +50,15 @@ final class NicFreeUITests: XCTestCase {
         try firstRun(app)
     }
 
+    /// The same walk in dark mode, where contrast problems hide.
+    @MainActor
+    func testFirstRunInDarkMode() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-forceDarkForUITests"]
+        app.launch()
+        try firstRun(app, prefix: "Dark ")
+    }
+
     /// The same walk at the largest accessibility text size, where layouts break first.
     @MainActor
     func testFirstRunAtLargestText() throws {

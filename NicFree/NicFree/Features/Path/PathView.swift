@@ -132,7 +132,7 @@ struct PathView: View {
             }
             .overlay(Circle().stroke(Palette.sunQuiet, lineWidth: 6).padding(-6))
         case .later:
-            circle(size: 60, fill: Palette.sunk, edge: Palette.hairline) {
+            circle(size: 60, fill: Palette.locked, edge: Palette.lockedEdge) {
                 Image(systemName: "lock.fill")
                     .font(.title3.weight(.bold))
                     .foregroundStyle(Palette.inkFaint)

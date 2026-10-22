@@ -29,9 +29,18 @@ struct NicFreeApp: App {
             RootView()
                 .environment(store)
                 .environment(\.storeIsTemporary, storeIsTemporary)
+                .preferredColorScheme(Self.forcedScheme)
                 .task { await store.start() }
         }
         .modelContainer(container)
+    }
+
+    /// Lets a UI test check dark mode without depending on the simulator's setting.
+    private static var forcedScheme: ColorScheme? {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-forceDarkForUITests") { return .dark }
+        #endif
+        return nil
     }
 
     /// Deliberately does not `fatalError` on a failed persistent store.

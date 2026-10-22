@@ -323,7 +323,7 @@ struct LeafProgressStyle: ProgressViewStyle {
     func makeBody(configuration: Configuration) -> some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
-                Capsule().fill(Palette.sunk)
+                Capsule().fill(Palette.hairline)
                 Capsule()
                     .fill(Palette.leaf)
                     .frame(width: proxy.size.width * (configuration.fractionCompleted ?? 0))
