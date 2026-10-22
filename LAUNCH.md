@@ -44,7 +44,8 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [ ] VoiceOver by ear on a real device (labels are in place; needs a human listen)
 - [x] Listing copy and privacy policy drafted (`docs/LISTING.md`, `docs/PRIVACY.md`)
 - [x] Rename project to NicFree
-- [ ] Bundle ID (Zain's decision; `com.app.NicFree` is a placeholder)
+- [x] Bundle ID `com.zainnajamkhan.nicfree`; iOS 26.0 minimum; iPhone (portrait) and iPad
+- [x] Support and privacy pages live: https://zainnajamkhan.github.io/nicfree-site/ and /privacy.html (public repo `nicfree-site`), linked from Settings
 
 ## In v1
 
@@ -62,8 +63,8 @@ Exception: one Lock Screen widget on Mon Nov 2, **only** if every other v1 item 
 
 | Decision | Deadline | Recommendation |
 |---|---|---|
-| Bundle ID. It is `com.app.NicFree`, a placeholder, and it **cannot change after the first upload** | Fri Oct 23 | `com.<your-domain>.nicfree` |
-| Support URL (Apple requires one) | Sun Nov 1 | A one-page site: what the app does, an email, the privacy policy |
+| ~~Bundle ID~~ | Done Oct 22 | `com.zainnajamkhan.nicfree` |
+| ~~Support URL~~ | Done Oct 22 | https://zainnajamkhan.github.io/nicfree-site/ |
 | Price | Mon Oct 26 | $9.99 one-time, as planned |
 | Trademark check on "NicFree" | Fri Oct 23 | Search USPTO for live marks in apps/health before reserving the name |
 

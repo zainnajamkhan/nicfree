@@ -81,7 +81,8 @@ Breaking any of these breaks the product, not just a screen.
 - **Never name a type `Observation`.** It shadows the standard library *module*, and
   SwiftData's `@Model` macro expands to `Observation.Observable`. Every `@Model` in the
   target fails, and the errors point at generated files rather than at the cause. Same
-  applies to `Testing`, `Charts`, `Combine`.
+  applies to `Testing`, `Charts`, `Combine`, and to SwiftUI protocol names such as `Layout`
+  (an `enum Layout` broke `FlowLayout` on 2026-10-22) and `State`.
 - A `Layout` used as `FlowLayout { ... }` must have **no initialiser parameters**, or the
   call is ambiguous against `callAsFunction`.
 - Presenting a sheet directly from a full screen cover's dismissal handler drops it. Raise

@@ -46,7 +46,7 @@ about nicotine withdrawal, talk to a doctor or pharmacist.
 ## Still needed from Zain
 
 - Approve or edit the copy above
-- Support URL and privacy policy URL (both required). The privacy text is in `PRIVACY.md`;
-  it needs a public page to live on
-- Screenshots: 6.9" iPhone required. iPad screenshots too, unless the app goes iPhone-only
+- Support URL: https://zainnajamkhan.github.io/nicfree-site/ (live)
+- Privacy policy URL: https://zainnajamkhan.github.io/nicfree-site/privacy.html (live)
+- Screenshots: 6.9" iPhone and 13" iPad, both required since the app is universal
 - Age rating questionnaire: answer honestly about tobacco references

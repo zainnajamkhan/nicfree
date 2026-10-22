@@ -113,6 +113,12 @@ enum Space {
     static let xxl: CGFloat = 48
 }
 
+enum ContentWidth {
+    /// Content never grows wider than this. On iPhone it changes nothing; on iPad it
+    /// keeps a phone-shaped column centred instead of buttons a foot wide.
+    static let readable: CGFloat = 560
+}
+
 enum Radius {
     static let button: CGFloat = 16
     static let card: CGFloat = 24

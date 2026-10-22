@@ -248,6 +248,7 @@ struct Screen<Content: View>: View {
             ground.ignoresSafeArea()
             content
                 .padding(.horizontal, Space.l)
+                .frame(maxWidth: ContentWidth.readable)
         }
         .tint(Palette.accent)
     }

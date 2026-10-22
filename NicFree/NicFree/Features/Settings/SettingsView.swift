@@ -130,8 +130,8 @@ struct SettingsView: View {
                 Spacer()
                 Text(version).foregroundStyle(Palette.inkSoft).monospacedDigit()
             }
-            // TODO: LAUNCH.md, Sun Nov 1 — add the support and privacy policy links once the
-            // support page exists. Never a placeholder URL.
+            Link("Help and support", destination: Self.supportURL)
+            Link("Privacy policy", destination: Self.privacyURL)
         } header: {
             SectionLabel("About")
         } footer: {
@@ -140,6 +140,11 @@ struct SettingsView: View {
     }
 
     // MARK: - Data
+
+    // Hosted from the public repo zainnajamkhan/nicfree-site. The same two URLs go in App
+    // Store Connect.
+    private static let supportURL = URL(string: "https://zainnajamkhan.github.io/nicfree-site/")!
+    private static let privacyURL = URL(string: "https://zainnajamkhan.github.io/nicfree-site/privacy.html")!
 
     private var notificationLabel: String {
         switch notifications {

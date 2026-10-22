@@ -30,7 +30,12 @@ struct NicFreeApp: App {
                 .environment(store)
                 .environment(\.storeIsTemporary, storeIsTemporary)
                 .preferredColorScheme(Self.forcedScheme)
-                .task { await store.start() }
+                .task {
+                    // When the app is only hosting unit tests, the purchase test owns StoreKit.
+                    // Starting here too races its test session for the product.
+                    guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+                    await store.start()
+                }
         }
         .modelContainer(container)
     }

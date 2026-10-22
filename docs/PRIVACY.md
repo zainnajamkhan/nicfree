@@ -1,6 +1,6 @@
 # NicFree privacy policy (draft)
 
-_Last updated: [DATE OF PUBLISHING]_
+_Last updated: October 22, 2026_
 
 NicFree does not collect any personal data.
 
@@ -22,4 +22,4 @@ from a server.
 **Changes.** If this policy changes, the new version will be posted at this address with a
 new date.
 
-**Contact.** [SUPPORT EMAIL]
+**Contact.** zainnajam2424@gmail.com

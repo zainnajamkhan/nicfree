@@ -23,6 +23,14 @@ final class NicFreeUITests: XCTestCase {
         add(attachment)
     }
 
+    /// iPhone shows tabs in a bottom tab bar; iPad shows them as buttons in a top bar.
+    private func openTab(_ app: XCUIApplication, _ name: String, file: StaticString = #filePath, line: UInt = #line) {
+        let inTabBar = app.tabBars.buttons[name]
+        let button = inTabBar.exists ? inTabBar : app.buttons[name].firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 5), "No tab named \(name)", file: file, line: line)
+        button.tap()
+    }
+
     private func tap(_ app: XCUIApplication, _ label: String, file: StaticString = #filePath, line: UInt = #line) {
         let button = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", label)).firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 5), "No button labelled \(label)", file: file, line: line)
@@ -124,22 +132,22 @@ final class NicFreeUITests: XCTestCase {
         wait(for: [sheetGone], timeout: 5)
 
         // Tabs, each checked by what is on screen rather than trusted.
-        app.tabBars.buttons["Path"].tap()
+        openTab(app, "Path")
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Your path")).firstMatch.waitForExistence(timeout: 3))
         snap("08 path")
-        app.tabBars.buttons["History"].tap()
+        openTab(app, "History")
         XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 3))
         snap("09 history")
 
         // Insights is the paid screen: locked, it offers the paywall once.
-        app.tabBars.buttons["Insights"].tap()
+        openTab(app, "Insights")
         tap(app, "See what unlocks")
         XCTAssertTrue(app.staticTexts["Unlock NicFree"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Restore purchase"].exists, "Restore must be visible on the paywall")
         sleep(2)
         snap("09b paywall")
         tap(app, "Close")
-        app.tabBars.buttons["Home"].tap()
+        openTab(app, "Home")
         sleep(1)
         snap("10 home after a craving and a slip")
     }

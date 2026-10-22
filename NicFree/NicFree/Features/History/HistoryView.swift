@@ -50,6 +50,8 @@ struct HistoryView: View {
                         timelineSection
                     }
                     .padding(.horizontal, Space.l)
+                    .frame(maxWidth: ContentWidth.readable)
+                    .frame(maxWidth: .infinity)
                     .padding(.bottom, Space.xxl)
                 }
             }
