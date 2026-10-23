@@ -18,8 +18,9 @@ full product plan.
 
 ## Who does what
 
-Claude writes the code and the listing copy. Zain builds, runs on device, judges, and makes
-every product call. Claude never compiles (see `CLAUDE.md`).
+Since Oct 22, Claude writes the code and listing copy, builds, and runs the tests
+(`tools/test.sh`). Zain runs it on a device, judges it, and makes every product call. Anything
+that needs his Apple account (App Store Connect, signing) stays with him.
 
 ## Where things stand (audit, Oct 22)
 
@@ -46,9 +47,25 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Rename project to NicFree
 - [x] Bundle ID `com.zainnajamkhan.nicfree`; iOS 26.0 minimum; iPhone (portrait) and iPad
 - [x] App Store screenshots: `screenshots/iphone-6.9` and `screenshots/ipad-13`, six each (`tools/screenshots.sh`)
-- [ ] App Store Connect: app record, `nicfree.unlock` IAP at $9.99, listing, age rating (Zain)
-- [ ] Signing team in Xcode, then archive and TestFlight upload
 - [x] Support and privacy pages live: https://zainnajamkhan.github.io/nicfree-site/ and /privacy.html (public repo `nicfree-site`), linked from Settings
+- [x] Zain's first test (Oct 23): all items in "Fix list" below handled
+- [x] Export compliance: `ITSAppUsesNonExemptEncryption = NO`, so uploads skip the encryption question
+
+## To submit
+
+In order. Nothing else blocks submission.
+
+| # | Step | Who |
+|---|---|---|
+| 1 | USPTO check on "NicFree" (live marks in software or health) | Zain |
+| 2 | App Store Connect: new app, bundle ID `com.zainnajamkhan.nicfree`, name from `docs/LISTING.md`. This reserves the name | Zain |
+| 3 | In-app purchase: non-consumable `nicfree.unlock`, $9.99, display name and description from `docs/LISTING.md`, review screenshot of the paywall | Zain |
+| 4 | Xcode → NicFree target → Signing & Capabilities: pick the paid "Zain Najam" team (individual membership) | Zain |
+| 5 | Archive and upload to TestFlight | Claude, once step 4 is done |
+| 6 | Install from TestFlight on your phone. Buy the unlock with a sandbox account, then restore | Zain |
+| 7 | VoiceOver pass on the phone | Zain |
+| 8 | Listing: paste from `docs/LISTING.md`, upload `screenshots/`, support and privacy URLs, App Privacy = "Data Not Collected", age rating questionnaire, attach the IAP to version 1.0 | Zain |
+| 9 | Submit for review | Zain |
 
 ## In v1
 
@@ -105,18 +122,17 @@ Weekdays are about 2 hours, weekends 4 to 5.
 
 ## Fix list
 
-Fill this in on Oct 22 after using the app end to end.
+From Zain's first run on Oct 23. Details in `docs/DECISIONS.md`.
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
+1. ✅ No launch screen: white or dark ground with the sprout (`NicFree-Info.plist`)
+2. ✅ No way back in onboarding: back button on every step after the first
+3. ✅ "A day you don't open the app counts as free" felt wrong: the catch-up question on
+   return plus an optional evening check-in (off by default)
+4. ➡️ More than one product per person (for example cigarettes to vape): v1.1
+5. ✅ See the paid screens while developing: Settings → "Unlock everything" (debug builds only)
+6. ✅ Chips clipped on the left edge in the slip sheet: borders drawn inside
+7. ✅ Native-looking date pill: Today / Yesterday / Another day, with a styled calendar
+8. ✅ "Logged" sheet vanished by itself: it now waits for Done
 
 ## After launch
 

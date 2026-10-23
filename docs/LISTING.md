@@ -30,8 +30,10 @@ WATCH IT ADD UP
 • A sprout that grows as your free days add up
 • A milestone path: 1 day, 3, 7, 14, 30, 60, 90, 180, a year
 
-NO CHECK-INS
-There is nothing to check in to. A day you do not open NicFree counts as a free day.
+NOTHING TO KEEP UP WITH
+Every day counts as free unless you log a slip. Away for a few days? NicFree asks once
+about them when you're back. An evening check-in is there if you want one, off unless you
+turn it on.
 
 PRIVATE BY DESIGN
 No account. No tracking. No data collected. Everything stays on your iPhone.
@@ -42,6 +44,25 @@ they come, how long they last) and your full history.
 
 NicFree is not a medical device and does not give medical advice. If you are worried
 about nicotine withdrawal, talk to a doctor or pharmacist.
+
+## In-app purchase
+
+| Field | Limit | Value |
+|---|---|---|
+| Type | | Non-consumable |
+| Reference name | 64 | NicFree Unlock |
+| Product ID | | `nicfree.unlock` (must match `PurchaseStore.unlockID`) |
+| Price | | $9.99 (US), other storefronts auto-equalised |
+| Display name | 30 | Unlock NicFree (14) |
+| Description | 45 | Insights and your full history, for good. (41) |
+| Review screenshot | | The paywall: History tab → Unlock, on the 6.9" simulator |
+
+## App Review notes
+
+No account or sign-in. The free app is fully usable. The one purchase (`nicfree.unlock`)
+unlocks Insights and full History; both tabs show an Unlock button, and the paywall has
+Restore purchase. NicFree helps people stop using nicotine. It does not sell or promote
+nicotine products, and it gives no medical advice.
 
 ## Still needed from Zain
 

@@ -29,8 +29,13 @@ Breaking any of these breaks the product, not just a screen.
 
 1. **The hero number is cumulative lifetime free days and cannot decrease.** A slip adds a
    used day. It never removes a free one. Never introduce a streak as the primary figure.
+   The one exception is today: it counts as free until a slip is logged for it, so a slip
+   today lowers the total by one (`docs/DECISIONS.md`, 2026-10-22). Copy must not claim
+   the total is unchanged.
 2. **A `DayRecord` exists only for a day nicotine was used.** Absence means free. There is
-   no check in, no daily prompt, and no blank state to feel guilty about.
+   no required check in and no blank state to feel guilty about. On return after a day or
+   more away, Home asks once about the missed days. The evening check-in is opt in and off
+   by default (decided 2026-10-23).
 3. **Never shame.** Banned from all copy: fail, failed, broke, lost, streak, start over,
    relapse as a verb. Loss aversion as a motivator is banned outright.
 4. **Every user facing statistic must be acceptable on the day someone relapsed.** If a
@@ -67,11 +72,15 @@ Breaking any of these breaks the product, not just a screen.
   working through `LAUNCH.md`, and he evaluates at the end. Always pass `-derivedDataPath` pointing
   at the scratchpad so a build never fights an open Xcode window. Zain still owns the on-device
   check and every product call.
-- **Run tests with `tools/test.sh <simulator-udid>`.** It runs unit tests and UI tests as two
-  separate passes, because the UI tests' paywall leaves StoreKit state that breaks the purchase
-  unit test when they share a run. UI tests pass `-freshStoreForUITests` so they never see each
-  other's data; `-simulateDamagedStore` and `-forceDarkForUITests` exist for specific tests.
-  All three flags are DEBUG-only.
+- **Run tests with `tools/test.sh <simulator-udid>`.** It runs three separate passes (unit,
+  the purchase test alone, UI), because the UI tests' paywall leaves StoreKit state that
+  breaks the purchase unit test when they share a run.
+- **Screenshots with `tools/screenshots.sh <udid> <folder>`**: iPhone 17 Pro Max for
+  `screenshots/iphone-6.9`, iPad Pro 13-inch for `screenshots/ipad-13`.
+- DEBUG-only launch flags: `-freshStoreForUITests` (UI tests never see each other's data),
+  `-simulateDamagedStore`, `-forceDarkForUITests`, `-seedScreenshotData`,
+  `-unlockForScreenshots`, `-simulateAwayForUITests`. Settings has a DEBUG-only
+  "Unlock everything" switch for trying the paid screens.
 - The project uses **file system synchronized groups**: folder location *is* target
   membership. Put a file in the right folder and it is in the right target. Never edit
   target membership by hand.
@@ -87,3 +96,9 @@ Breaking any of these breaks the product, not just a screen.
   call is ambiguous against `callAsFunction`.
 - Presenting a sheet directly from a full screen cover's dismissal handler drops it. Raise
   it from the cover's `onDismiss` instead.
+- A sheet that needs data uses `sheet(item:)`, never `sheet(isPresented:)` plus a separate
+  `@State`. The catch-up sheet showed "Any nicotine since ?" until it was switched.
+- Bordered chips and buttons inside a scroll view use `strokeBorder`, not `stroke`, or the
+  scroll edge clips half the line.
+- `SectionLabel` uppercases its text, and so does its accessibility label. UI tests match it
+  with `BEGINSWITH` or `CONTAINS`, never an exact string.

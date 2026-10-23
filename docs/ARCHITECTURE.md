@@ -12,17 +12,24 @@ because a wrong hero number would destroy trust in everything else the app says.
 
 ```
 NicFree/NicFree/
-  App/          NicFreeApp (ModelContainer), RootView (onboarding vs home)
+  App/          NicFreeApp (ModelContainer, DEBUG launch flags), RootView (onboarding vs
+                tabs, damaged store screen), ScreenshotData (DEBUG seed)
   Models/       Habit, DayRecord, CravingEvent, and the enums
   Core/
     Stats/      QuitStats, QuitStatsSeries        ← pure, tested
     Insights/   CravingInsights                   ← pure, tested
     Observations/ ObservationEngine               ← pure
-    Notifications/ MilestoneScheduler
-  Design/       Theme (tokens), Components, FlowLayout
-  Features/     Onboarding, Home, Craving, Slip, History
-  Resources/    Assets, Localizable.xcstrings
-NicFreeTests/     QuitStatsTests, CravingInsightsTests
+    CatchUp/    CatchUp (which missed days to ask about) ← pure, tested
+    Text/       Inflection ("1 free day")         ← tested
+    Notifications/ MilestoneScheduler, ReminderScheduler
+    Store/      PurchaseStore (StoreKit 2, one non-consumable) ← tested
+  Design/       Theme (tokens), Components, Sprout (mascot), FlowLayout
+  Features/     Onboarding, Home, Craving, Slip, CatchUp, Path, History, Insights,
+                Paywall, Settings
+  Resources/    Assets, Localizable.xcstrings, PrivacyInfo.xcprivacy
+NicFreeTests/     QuitStats, CravingInsights, CatchUp, PurchaseStore, Tone, Inflection
+NicFreeUITests/   first run (light, dark, largest text), damaged store, catch-up,
+                  App Store screenshots
 ```
 
 Folder location determines target membership, because the project uses file system
@@ -40,8 +47,7 @@ derived, never entered.
 
 **`DayRecord`** — **exists only for a day on which nicotine was used.** This is the most
 important design decision in the schema. The absence of a record is what makes a day free,
-so a free day costs zero interactions, there is nothing to check in to, and the no check in
-promise is structural rather than a copy choice someone can later erode.
+so a free day costs zero interactions, no check-in is ever required, and that promise is structural rather than a copy choice someone can later erode.
 
 **`CravingEvent`** — every craving, resisted or not, with how long it was held out and what
 set it off. A slip logged from the slip sheet also writes one of these with
