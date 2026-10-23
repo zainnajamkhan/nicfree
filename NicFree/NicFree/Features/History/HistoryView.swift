@@ -15,6 +15,8 @@ import Charts
 struct HistoryView: View {
     @Environment(PurchaseStore.self) private var store
     @State private var showingPaywall = false
+    /// A slip tapped in Events, opened to edit or remove.
+    @State private var editingSlip: DayRecord?
 
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
@@ -43,7 +45,7 @@ struct HistoryView: View {
                         } else {
                             LockedCard(
                                 title: "Your full history",
-                                detail: "Every day since you stopped on one grid, and your total drawn over time. The last seven days are below."
+                                detail: "See every day since you stopped, plus your total over time. Your last 7 days are below."
                             ) { showingPaywall = true }
                             .padding(.top, Space.m)
                         }
@@ -57,6 +59,10 @@ struct HistoryView: View {
             }
         }
         .sheet(isPresented: $showingPaywall) { PaywallView() }
+        .sheet(item: $editingSlip) { record in
+            SlipLogView(existing: record, day: record.day)
+                .presentationDetents([.medium, .large])
+        }
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
         .tint(Palette.accent)
@@ -150,7 +156,7 @@ struct HistoryView: View {
             SectionLabel("Events")
 
             if entries.isEmpty {
-                Text("Nothing logged yet. That is the ideal outcome, not a gap.")
+                Text("Nothing here yet. That’s a good thing!")
                     .font(Typeface.voiceSmall)
                     .foregroundStyle(Palette.inkFaint)
             } else {
@@ -163,7 +169,19 @@ struct HistoryView: View {
         }
     }
 
+    /// Slips open to edit or remove; cravings are just a record.
+    @ViewBuilder
     private func row(_ entry: TimelineEntry) -> some View {
+        if let record = entry.slip {
+            Button { editingSlip = record } label: { rowContent(entry) }
+                .buttonStyle(.plain)
+                .accessibilityHint("Edit or remove this slip")
+        } else {
+            rowContent(entry)
+        }
+    }
+
+    private func rowContent(_ entry: TimelineEntry) -> some View {
         VStack(spacing: 0) {
             Divider().overlay(Palette.hairline)
             HStack(alignment: .firstTextBaseline, spacing: Space.m) {
@@ -184,7 +202,14 @@ struct HistoryView: View {
                     .font(.caption)
                     .foregroundStyle(Palette.inkFaint)
                     .monospacedDigit()
+
+                if entry.slip != nil {
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Palette.inkFaint)
+                }
             }
+            .contentShape(Rectangle())
             .font(Typeface.row)
             .padding(.vertical, Space.m * 0.7)
         }
@@ -203,7 +228,8 @@ struct HistoryView: View {
                 date: record.day,
                 isSlip: true,
                 title: String(localized: "Used"),
-                detail: record.intensity.map { String(localized: $0.title) }
+                detail: record.intensity.map { String(localized: $0.title) },
+                slip: record
             )
         }
 
@@ -233,5 +259,6 @@ struct HistoryView: View {
         let isSlip: Bool
         let title: String
         let detail: String?
+        var slip: DayRecord? = nil
     }
 }

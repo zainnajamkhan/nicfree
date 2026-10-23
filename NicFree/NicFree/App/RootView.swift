@@ -36,10 +36,10 @@ private struct TemporaryStoreView: View {
         Screen {
             VStack(alignment: .leading, spacing: Space.m) {
                 Spacer()
-                Text("Your saved history could not be opened")
+                Text("We couldn’t open your saved history")
                     .font(Typeface.title)
                     .foregroundStyle(Palette.ink)
-                Text("NicFree has not deleted anything. Close it fully and open it again. If you carry on now, nothing you log will be kept.")
+                Text("Nothing’s been deleted. Close the app fully and open it again. If you carry on now, anything you log won’t be saved.")
                     .font(Typeface.voiceSmall)
                     .foregroundStyle(Palette.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)

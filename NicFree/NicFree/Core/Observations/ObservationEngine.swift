@@ -56,7 +56,7 @@ enum ObservationEngine {
             result.append(
                 DailyObservation(
                     id: "money",
-                    text: String(localized: "\(amount) has stayed in your account.")
+                    text: String(localized: "That’s \(amount) you didn’t spend.")
                 )
             )
         }
@@ -67,7 +67,7 @@ enum ObservationEngine {
             result.append(
                 DailyObservation(
                     id: "longestRun",
-                    text: String(localized: "Your longest run was \(stats.longestRun) days. You have already done this once.")
+                    text: String(localized: "Your longest run was \(stats.longestRun) days. You’ve done it before.")
                 )
             )
         }
@@ -78,7 +78,7 @@ enum ObservationEngine {
             result.append(
                 DailyObservation(
                     id: "ratio",
-                    text: String(localized: "\(stats.lifetimeFreeDays) of your last \(stats.totalDaysTracked) days had no nicotine in them.")
+                    text: String(localized: "\(stats.lifetimeFreeDays) of your last \(stats.totalDaysTracked) days were nicotine-free.")
                 )
             )
         }
@@ -109,7 +109,7 @@ enum ObservationEngine {
                 result.append(
                     DailyObservation(
                         id: "totalHold",
-                        text: String(localized: "You have waited out \(longDuration(cravings.totalHeldOutSeconds)) of cravings in total.")
+                        text: String(localized: "You’ve waited out \(longDuration(cravings.totalHeldOutSeconds)) of cravings so far.")
                     )
                 )
             }
@@ -118,7 +118,7 @@ enum ObservationEngine {
                 result.append(
                     DailyObservation(
                         id: "longestHold",
-                        text: String(localized: "The longest craving you have ridden out lasted \(shortDuration(cravings.longestHeldOutSeconds)).")
+                        text: String(localized: "Your longest craving lasted \(shortDuration(cravings.longestHeldOutSeconds)), and you got through it.")
                     )
                 )
             }
@@ -140,14 +140,13 @@ enum ObservationEngine {
                 )
             }
 
-            if let top = cravings.topTrigger,
-               let trigger = CravingTrigger(rawValue: top.trigger),
-               top.count >= 3 {
-                let name = String(localized: trigger.title).lowercased()
+            if let top = cravings.topTrigger, top.count >= 3 {
+                // A listed trigger reads in lower case; the person's own words stay as typed.
+                let name = CravingTrigger(rawValue: top.trigger).map { String(localized: $0.title).lowercased() } ?? top.trigger
                 result.append(
                     DailyObservation(
                         id: "topTrigger",
-                        text: String(localized: "\"\(name)\" accounts for \(top.count) of your cravings, more than anything else.")
+                        text: String(localized: "“\(name)” sets off more of your cravings than anything else.")
                     )
                 )
             }
@@ -156,7 +155,7 @@ enum ObservationEngine {
                 result.append(
                     DailyObservation(
                         id: "riskyHour",
-                        text: String(localized: "Most of your cravings arrive around \(hourLabel(hour)).")
+                        text: String(localized: "Most of your cravings show up around \(hourLabel(hour)).")
                     )
                 )
             }

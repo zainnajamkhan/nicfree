@@ -23,6 +23,9 @@ struct SettingsView: View {
     @State private var weeklySpend: Double?
     @State private var notifications: UNAuthorizationStatus = .notDetermined
     @State private var reminderNote: String?
+    #if DEBUG
+    @State private var previewCelebration: CelebrationMoment?
+    #endif
 
     var body: some View {
         NavigationStack {
@@ -38,6 +41,9 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(Palette.ground)
             .font(Typeface.row)
+            #if DEBUG
+            .fullScreenCover(item: $previewCelebration) { CelebrationView(moment: $0) }
+            #endif
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -66,7 +72,7 @@ struct SettingsView: View {
         } header: {
             SectionLabel("Your reasons")
         } footer: {
-            Text("One of these comes back to you during each craving.")
+            Text("You’ll see one of these each time a craving hits.")
         }
     }
 
@@ -75,7 +81,7 @@ struct SettingsView: View {
             DatePicker("Quit date", selection: $habit.quitStartedAt, in: ...Date(), displayedComponents: .date)
 
             HStack {
-                Text("Spent in a week")
+                Text("Money spent each week")
                 Spacer()
                 TextField(
                     "Optional",
@@ -94,7 +100,7 @@ struct SettingsView: View {
         } header: {
             SectionLabel("What you used")
         } footer: {
-            Text("Changing the quit date recounts every day since. Spending only shapes the money estimate.")
+            Text("Changing your quit date recounts every day since then. Spending only changes the money saved.")
         }
     }
 
@@ -132,7 +138,7 @@ struct SettingsView: View {
         } header: {
             SectionLabel("Notifications")
         } footer: {
-            Text("Milestone notes at a day, three days, a week, a month and later. The evening check-in is off unless you turn it on, and a free day never needs anything from you.")
+            Text("Little notes at 1 day, 3 days, a week, a month and beyond. The evening check-in is off unless you turn it on. You never need to do anything on a free day.")
         }
     }
 
@@ -157,6 +163,12 @@ struct SettingsView: View {
         @Bindable var store = store
         return Section {
             Toggle("Unlock everything", isOn: $store.debugUnlocked)
+            Button("Preview a free day celebration") {
+                previewCelebration = CelebrationMoment(from: 12, to: 13, milestone: nil)
+            }
+            Button("Preview a milestone celebration") {
+                previewCelebration = CelebrationMoment(from: 6, to: 7, milestone: 7)
+            }
         } header: {
             SectionLabel("Debug builds only")
         } footer: {
@@ -188,7 +200,7 @@ struct SettingsView: View {
                     }
                     notifications = await MilestoneScheduler.authorizationStatus()
                     guard notifications == .authorized || notifications == .provisional else {
-                        reminderNote = String(localized: "Notifications are off for NicFree. Turn them on in iPhone Settings first.")
+                        reminderNote = String(localized: "Notifications are off. Turn them on in iPhone Settings first.")
                         return
                     }
                     habit.eveningReminderMinute = ReminderScheduler.defaultMinute

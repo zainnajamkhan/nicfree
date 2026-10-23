@@ -27,7 +27,7 @@ struct CravingView: View {
     @State private var startedAt = Date()
     @State private var phase: Phase = .riding
     @State private var reason: String?
-    @State private var trigger: CravingTrigger?
+    @State private var trigger: String?
     @State private var heldOutSeconds = 0
     /// Fetched when the screen opens, so Done never waits on the system. The first request
     /// after a reboot can take seconds, and Done must feel instant.
@@ -145,7 +145,7 @@ struct CravingView: View {
         PinnedActions(ground: Palette.calm) {
             VStack(alignment: .leading, spacing: Space.l) {
             VStack(alignment: .leading, spacing: Space.s) {
-                Text("You waited it out.")
+                Text("Nice! You waited it out.")
                     .font(Typeface.title)
                     .foregroundStyle(Palette.ink)
                 Text(durationText)
@@ -155,16 +155,10 @@ struct CravingView: View {
 
             VStack(alignment: .leading, spacing: Space.m) {
                 SectionLabel("What set it off?")
-                Text("Optional. It is what makes the patterns worth reading later.")
+                Text("Optional. It helps you spot patterns later.")
                     .font(.footnote)
                     .foregroundStyle(Palette.inkFaint)
-                FlowLayout {
-                    ForEach(CravingTrigger.allCases, id: \.self) { value in
-                        Chip(String(localized: value.title), isOn: trigger == value) {
-                            trigger = value
-                        }
-                    }
-                }
+                TriggerPicker(selection: $trigger)
             }
             }
             .padding(.vertical, Space.l)
@@ -180,11 +174,11 @@ struct CravingView: View {
     private var primer: some View {
         PinnedActions(ground: Palette.calm) {
             VStack(alignment: .leading, spacing: Space.m) {
-            Text("Should we mark the milestones?")
+            Text("Want a little note at each milestone?")
                 .font(Typeface.title)
                 .foregroundStyle(Palette.ink)
 
-            Text("A short note at a day, three days, a week, a month. NicFree will never nudge you for not opening it.")
+            Text("We’ll send a short note at 1 day, 3 days, a week and a month. We’ll never bug you for not opening the app.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -221,7 +215,7 @@ struct CravingView: View {
                 occurredAt: startedAt,
                 heldOutSeconds: heldOutSeconds,
                 resisted: true,
-                trigger: trigger
+                triggerRaw: trigger
             )
         )
 

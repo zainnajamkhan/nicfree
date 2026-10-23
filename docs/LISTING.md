@@ -14,7 +14,7 @@ them. "Zyn" is a trademark and stays out of every field.
 
 ## Description
 
-Quit vaping or nicotine pouches without the guilt trip.
+Quit vaping, nicotine pouches or cigarettes without the guilt trip.
 
 Most quit apps count a streak, and a streak resets to zero the moment you slip. NicFree
 counts your free days instead. That number only ever goes up. A slip adds a used day; it
@@ -27,7 +27,7 @@ actually last.
 
 WATCH IT ADD UP
 • Free days, cravings beaten, and money not spent, all on one screen
-• A sprout that grows as your free days add up
+• A sprout that grows as your free days add up, and a little party for each one
 • A milestone path: 1 day, 3, 7, 14, 30, 60, 90, 180, a year
 
 NOTHING TO KEEP UP WITH

@@ -40,7 +40,8 @@ Breaking any of these breaks the product, not just a screen.
    relapse as a verb. Loss aversion as a motivator is banned outright.
 4. **Every user facing statistic must be acceptable on the day someone relapsed.** If a
    line would read as mockery that day, it does not ship. This kills all encouragement
-   and keeps facts.
+   and keeps facts. The one place for cheer is the free day celebration, because it only
+   ever follows a finished free day.
 5. **A slip is never red.** Red is alarm and alarm is shame. Used days are clay, and they
    differ in shape as well as tone so colour is never the only signal.
 6. **No community, no chat, no social features.** Unmoderatable by one person, and the
@@ -51,6 +52,8 @@ Breaking any of these breaks the product, not just a screen.
 9. **No third party packages.** Apple frameworks only.
 10. **Migrations are additive only.** Losing someone's history is the one unrecoverable
     failure, because you cannot give the months back.
+11. **Copy is simple and friendly**: grade 8 words, contractions everywhere, a little
+    playful. Never at the cost of rules 3 and 4.
 
 ## Code conventions
 
@@ -79,8 +82,9 @@ Breaking any of these breaks the product, not just a screen.
   `screenshots/iphone-6.9`, iPad Pro 13-inch for `screenshots/ipad-13`.
 - DEBUG-only launch flags: `-freshStoreForUITests` (UI tests never see each other's data),
   `-simulateDamagedStore`, `-forceDarkForUITests`, `-seedScreenshotData`,
-  `-unlockForScreenshots`, `-simulateAwayForUITests`. Settings has a DEBUG-only
-  "Unlock everything" switch for trying the paid screens.
+  `-unlockForScreenshots`, `-simulateAwayForUITests`, `-celebrateForUITests`,
+  `-celebrateMilestoneForUITests` (the last two with `-seedScreenshotData`). Settings has
+  DEBUG-only "Unlock everything" and celebration preview buttons.
 - The project uses **file system synchronized groups**: folder location *is* target
   membership. Put a file in the right folder and it is in the right target. Never edit
   target membership by hand.
@@ -100,5 +104,8 @@ Breaking any of these breaks the product, not just a screen.
   `@State`. The catch-up sheet showed "Any nicotine since ?" until it was switched.
 - Bordered chips and buttons inside a scroll view use `strokeBorder`, not `stroke`, or the
   scroll edge clips half the line.
+- If UI tests start timing out ("Timed out while fetching snapshot from testmanagerd", tests
+  taking many minutes), the simulator is wedged, not the app. Shut it down, boot it, rerun.
+  Recording video with `simctl io` on the test simulator before a run caused this once.
 - `SectionLabel` uppercases its text, and so does its accessibility label. UI tests match it
   with `BEGINSWITH` or `CONTAINS`, never an exact string.

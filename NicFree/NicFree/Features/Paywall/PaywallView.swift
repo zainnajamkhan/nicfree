@@ -34,7 +34,7 @@ struct PaywallView: View {
                     .multilineTextAlignment(.center)
 
                     VStack(alignment: .leading, spacing: Space.m) {
-                        feature("chart.bar.fill", "Insights", "What sets your cravings off, when they come, and how long they last.")
+                        feature("chart.bar.fill", "Insights", "See what sets off your cravings, when they show up and how long they last.")
                         feature("calendar", "Your full history", "Every day since you stopped, and your total drawn over time.")
                         feature("lock.fill", "Still private", "Everything stays on this iPhone. No account, no tracking.")
                     }

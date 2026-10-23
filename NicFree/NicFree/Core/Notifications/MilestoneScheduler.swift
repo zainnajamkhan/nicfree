@@ -62,20 +62,19 @@ enum MilestoneScheduler {
         }
     }
 
-    /// Plainly factual. No exclamation marks, no praise, nothing that would read as
-    /// hollow if the person had a hard week getting here.
-    private static func title(for milestone: Int) -> String {
+    /// Warm and short. Also the headline of the milestone celebration on Home.
+    static func title(for milestone: Int) -> String {
         switch milestone {
-        case 1: String(localized: "One day free.")
-        case 3: String(localized: "Three days free.")
-        case 7: String(localized: "A week free.")
-        case 14: String(localized: "Two weeks free.")
-        case 30: String(localized: "A month free.")
-        case 60: String(localized: "Two months free.")
-        case 90: String(localized: "Three months free.")
-        case 180: String(localized: "Six months free.")
-        case 365: String(localized: "A year free.")
-        default: String(localized: "\(milestone) days free.")
+        case 1: String(localized: "One whole day free!")
+        case 3: String(localized: "Three days free!")
+        case 7: String(localized: "A whole week free!")
+        case 14: String(localized: "Two weeks free!")
+        case 30: String(localized: "A whole month free!")
+        case 60: String(localized: "Two months free!")
+        case 90: String(localized: "Three months free!")
+        case 180: String(localized: "Six months free!")
+        case 365: String(localized: "A whole year free!")
+        default: String(localized: "\(milestone) days free!")
         }
     }
 }

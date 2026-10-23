@@ -35,7 +35,8 @@ a liability rather than a feature.
 
 **Every statistic must survive the bad day test.** If a line would read as mockery on the
 day someone relapsed, it does not ship. This is what separates evidence from encouragement,
-and it is why the daily line is factual rather than cheerful.
+and it is why the daily line is factual rather than cheerful. Cheer is allowed only where it
+can't land on a bad day: the free day celebration, which only follows a finished free day.
 
 ## Design
 
@@ -97,6 +98,32 @@ never says "you have not logged".
 **One product per person in v1 (2026-10-23).** Mixed use (cigarettes and vapes, pouches and
 vapes) is real, but it moves to v1.1. The total is unaffected either way: a day is
 nicotine-free or it is not.
+
+**Friendly, simple copy (2026-10-23).** Zain asked for plain, warm, slightly playful words at
+about a grade 8 reading level, with contractions everywhere ("That's it", not "That is
+everything"). The banned words and the never-shame rule still apply.
+
+**Cigarettes in onboarding; no refillable option (2026-10-23).** Cigarettes are counted per
+day, like pouches. "Refillable, by the millilitre" confused people and is gone from
+onboarding; the `millilitre` unit stays in the model so older data still reads.
+
+**The amount question names the product (2026-10-23).** "Roughly how many disposables do you
+use in a week?", not a generic "how much", so the second step reads as a follow-on.
+
+**Custom triggers (2026-10-23).** "+ Something else" takes the person's own words, stored in
+the same `triggerRaw` field as the listed triggers, so no migration was needed. Words typed
+before come back as chips, matched without caring about case.
+
+**A slip can be removed (2026-10-23).** Logged by mistake is common. "Remove this slip" deletes
+the day record and the craving it wrote (the one that ended in use on that day), after a
+confirm. Past slips open from History's Events. Editing a slip now also saves its trigger.
+
+**A celebration for every finished free day (2026-10-23).** When Home opens on a new day, the
+free days since the last celebration get a full screen moment: the sprout pops, leaves burst,
+the total ticks up. Milestones get the milestone title and a bigger burst. Only finished days
+count, never today, so a slip tonight can't follow a party this morning. Days away are
+celebrated together, after the catch-up question. The first look after install or update only
+sets the starting point. Reduce Motion gets the finished screen with no motion.
 
 ## Technical
 

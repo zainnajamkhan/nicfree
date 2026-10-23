@@ -37,7 +37,7 @@ struct InsightsView: View {
                     if !store.isUnlocked {
                         LockedCard(
                             title: "Insights",
-                            detail: "What sets your cravings off, the hours they arrive, how long they last, and how often they come each week."
+                            detail: "See what sets off your cravings, when they show up, how long they last and how often they come."
                         ) { showingPaywall = true }
                     } else if insights.count == 0 {
                         empty
@@ -60,8 +60,8 @@ struct InsightsView: View {
     // MARK: - Cards
 
     private var empty: some View {
-        card("Nothing to read yet") {
-            Text("Insights fill in as cravings are logged. Next time one comes, tap I'm having a craving.")
+        card("Nothing here yet") {
+            Text("Your insights fill in as you log cravings. Next time one hits, tap “I'm having a craving.”")
                 .font(Typeface.row)
                 .foregroundStyle(Palette.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -118,10 +118,10 @@ struct InsightsView: View {
     private var hourCard: some View {
         if let hour = insights.riskiestHour {
             card("When they come") {
-                Text("Most arrive around \(hourLabel(hour)).")
+                Text("Most show up around \(hourLabel(hour)).")
                     .font(Typeface.voice)
                     .foregroundStyle(Palette.ink)
-                Text("Worth having a plan for that hour.")
+                Text("A good time to have a plan ready.")
                     .font(Typeface.row)
                     .foregroundStyle(Palette.inkSoft)
             }

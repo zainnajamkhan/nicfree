@@ -7,7 +7,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-/// Two taps, no counting.
+/// Two taps, no counting. Opened on an existing slip, it edits it or removes it.
 ///
 /// Asking a vaper how many puffs they took produces either a blank field or an invented
 /// number, so intensity is coarse and deliberately unarithmetic. None of it touches the
@@ -15,6 +15,7 @@ import UIKit
 struct SlipLogView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query private var cravings: [CravingEvent]
 
     let existing: DayRecord?
     let day: Date
@@ -24,20 +25,38 @@ struct SlipLogView: View {
     var heldOutSeconds: Int = 0
 
     @State private var intensity: UsageIntensity?
-    @State private var trigger: CravingTrigger?
-    @State private var saved = false
+    @State private var trigger: String?
+    @State private var outcome: Outcome?
+    @State private var confirmingRemove = false
+
+    private enum Outcome { case saved, removed }
 
     var body: some View {
         Screen {
-            if saved {
-                confirmation
+            if let outcome {
+                confirmation(outcome)
             } else {
                 form
             }
         }
         .onAppear {
             intensity = existing?.intensity
+            trigger = linkedCraving?.triggerRaw
         }
+        .alert("Remove this slip?", isPresented: $confirmingRemove) {
+            Button("Remove it", action: remove)
+            Button("Keep it", role: .cancel) {}
+        } message: {
+            Text("This day will count as a free day again.")
+        }
+    }
+
+    /// The craving a slip wrote when it was logged: the one that ended in use on the same
+    /// day. A day has at most one slip, so there's at most one of these.
+    private var linkedCraving: CravingEvent? {
+        guard existing != nil else { return nil }
+        let calendar = Calendar.current
+        return cravings.first { !$0.resisted && calendar.isDate($0.occurredAt, inSameDayAs: day) }
     }
 
     // MARK: - Form
@@ -48,11 +67,21 @@ struct SlipLogView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            PrimaryButton("Save", action: save)
-                .disabled(intensity == nil)
-                .opacity(intensity == nil ? 0.4 : 1)
-                .padding(.vertical, Space.s)
-                .background(Palette.ground)
+            VStack(spacing: 0) {
+                PrimaryButton("Save", action: save)
+                    .disabled(intensity == nil)
+                    .opacity(intensity == nil ? 0.4 : 1)
+                // Quiet on purpose, like "Log a slip" on Home. Logged by mistake is common.
+                if existing != nil {
+                    Button("Remove this slip") { confirmingRemove = true }
+                        .font(Typeface.row)
+                        .foregroundStyle(Palette.inkFaint)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .buttonStyle(.plain)
+                }
+            }
+            .padding(.vertical, Space.s)
+            .background(Palette.ground)
         }
     }
 
@@ -74,13 +103,7 @@ struct SlipLogView: View {
 
             VStack(alignment: .leading, spacing: Space.m) {
                 SectionLabel("What set it off?")
-                FlowLayout {
-                    ForEach(CravingTrigger.allCases, id: \.self) { value in
-                        Chip(String(localized: value.title), isOn: trigger == value) {
-                            trigger = value
-                        }
-                    }
-                }
+                TriggerPicker(selection: $trigger)
             }
         }
         .padding(.bottom, Space.m)
@@ -90,13 +113,15 @@ struct SlipLogView: View {
 
     /// The most important sentence in the app, so it stays until they have read it. It used
     /// to vanish after 1.8 seconds, which is too fast on a bad day.
-    private var confirmation: some View {
+    private func confirmation(_ outcome: Outcome) -> some View {
         PinnedActions {
             VStack(spacing: Space.s) {
-                Text("Logged.")
+                Text(outcome == .saved ? "Got it." : "Removed.")
                     .font(Typeface.voice)
                     .foregroundStyle(Palette.inkSoft)
-                Text("Every free day you’ve already had is still there.")
+                Text(outcome == .saved
+                     ? "Every free day you’ve already had is still there."
+                     : "That day counts as a free day again.")
                     .font(Typeface.title)
                     .foregroundStyle(Palette.accent)
             }
@@ -112,6 +137,12 @@ struct SlipLogView: View {
     private func save() {
         if let existing {
             existing.intensity = intensity
+            if let linkedCraving {
+                linkedCraving.triggerRaw = trigger
+            } else if trigger != nil {
+                // Catch-up slips and older ones have no craving yet; one gives the trigger a home.
+                context.insert(CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger))
+            }
         } else {
             context.insert(DayRecord(day: day, intensity: intensity))
 
@@ -120,7 +151,7 @@ struct SlipLogView: View {
             // both outcomes rather than only the ones that were survived.
             if trigger != nil || heldOutSeconds > 0 {
                 context.insert(
-                    CravingEvent(heldOutSeconds: heldOutSeconds, resisted: false, trigger: trigger)
+                    CravingEvent(heldOutSeconds: heldOutSeconds, resisted: false, triggerRaw: trigger)
                 )
             }
         }
@@ -129,7 +160,22 @@ struct SlipLogView: View {
         // "well done" firing at this moment would be grotesque.
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
 
-        withAnimation(.smooth(duration: 0.3)) { saved = true }
+        withAnimation(.smooth(duration: 0.3)) { outcome = .saved }
+    }
+
+    /// Logged by mistake: the day goes back to free, and its craving goes with it.
+    private func remove() {
+        if let linkedCraving { context.delete(linkedCraving) }
+        if let existing { context.delete(existing) }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        withAnimation(.smooth(duration: 0.3)) { outcome = .removed }
+    }
+
+    /// Now for today; midday for an earlier day, so it never lands on the wrong date.
+    private var momentOnDay: Date {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(day) { return Date() }
+        return calendar.date(byAdding: .hour, value: 12, to: calendar.startOfDay(for: day)) ?? day
     }
 }
 

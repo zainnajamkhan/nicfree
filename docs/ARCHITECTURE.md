@@ -20,16 +20,18 @@ NicFree/NicFree/
     Insights/   CravingInsights                   ← pure, tested
     Observations/ ObservationEngine               ← pure
     CatchUp/    CatchUp (which missed days to ask about) ← pure, tested
+    Celebration/ Celebration (which free days to celebrate) ← pure, tested
     Text/       Inflection ("1 free day")         ← tested
     Notifications/ MilestoneScheduler, ReminderScheduler
     Store/      PurchaseStore (StoreKit 2, one non-consumable) ← tested
   Design/       Theme (tokens), Components, Sprout (mascot), FlowLayout
-  Features/     Onboarding, Home, Craving, Slip, CatchUp, Path, History, Insights,
-                Paywall, Settings
+  Features/     Onboarding, Home, Craving, Slip, CatchUp, Celebration, Path, History,
+                Insights, Paywall, Settings, Triggers (shared "What set it off?" picker)
   Resources/    Assets, Localizable.xcstrings, PrivacyInfo.xcprivacy
-NicFreeTests/     QuitStats, CravingInsights, CatchUp, PurchaseStore, Tone, Inflection
+NicFreeTests/     QuitStats, CravingInsights, CatchUp, Celebration, PurchaseStore, Tone,
+                  Inflection
 NicFreeUITests/   first run (light, dark, largest text), damaged store, catch-up,
-                  App Store screenshots
+                  celebrations, App Store screenshots
 ```
 
 Folder location determines target membership, because the project uses file system

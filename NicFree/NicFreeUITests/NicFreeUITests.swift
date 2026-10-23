@@ -44,7 +44,7 @@ final class NicFreeUITests: XCTestCase {
         app.launchArguments = ["-freshStoreForUITests", "-simulateDamagedStore"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Your saved history could not be opened"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["We couldn’t open your saved history"].waitForExistence(timeout: 5))
         snap("00 damaged store")
         tap(app, "Carry on without saving")
         XCTAssertTrue(app.staticTexts["What do you use?"].waitForExistence(timeout: 5))
@@ -84,6 +84,33 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertEqual(total.value as? String, "62")
     }
 
+    /// A finished free day is celebrated once, then Home is back.
+    @MainActor
+    func testFreeDayCelebration() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-seedScreenshotData", "-celebrateForUITests"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Another free day!"].waitForExistence(timeout: 10))
+        sleep(2)
+        snap("Celebration 01 free day")
+        tap(app, "Yay!")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "craving")).firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["Another free day!"].exists)
+    }
+
+    @MainActor
+    func testMilestoneCelebration() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-seedScreenshotData", "-celebrateMilestoneForUITests"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Two months free!"].waitForExistence(timeout: 10))
+        sleep(2)
+        snap("Celebration 02 milestone")
+        tap(app, "Yay!")
+    }
+
     /// The same walk in dark mode, where contrast problems hide.
     @MainActor
     func testFirstRunInDarkMode() throws {
@@ -112,18 +139,18 @@ final class NicFreeUITests: XCTestCase {
         tap(app, "Nicotine pouches")
         tap(app, "Continue")
 
-        XCTAssertTrue(app.staticTexts["Roughly how many, in a day?"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Roughly how many pouches do you use in a day?"].waitForExistence(timeout: 5))
         let spend = app.textFields["Optional"]
         XCTAssertTrue(spend.waitForExistence(timeout: 5))
         spend.tap()
         spend.typeText("2000")
-        app.staticTexts["Roughly how many, in a day?"].tap()   // dismiss the keyboard
+        app.staticTexts["Roughly how many pouches do you use in a day?"].tap()   // dismiss the keyboard
         snap("02 onboarding amount, pouches")
         tap(app, "Continue")   // when
         tap(app, "Continue")   // why
         tap(app, "Continue")   // ready
         snap("03 onboarding ready")
-        tap(app, "Start")
+        tap(app, "Let’s go!")
 
         // Home.
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "craving")).firstMatch.waitForExistence(timeout: 5))
@@ -135,6 +162,14 @@ final class NicFreeUITests: XCTestCase {
         snap("05 craving")
         tap(app, "It passed")
         snap("06 craving passed")
+        // A reason the list misses, in their own words.
+        tap(app, "Something else")
+        let own = app.textFields["What was it?"]
+        XCTAssertTrue(own.waitForExistence(timeout: 3))
+        own.typeText("Work emails\n")
+        XCTAssertTrue(app.buttons["Work emails"].waitForExistence(timeout: 3), "A typed reason becomes a chip")
+        XCTAssertTrue(app.buttons["Work emails"].isSelected)
+        snap("06a own reason")
         tap(app, "Done")
         if app.buttons["Not now"].waitForExistence(timeout: 5) {
             snap("06b notification primer")
@@ -161,6 +196,19 @@ final class NicFreeUITests: XCTestCase {
         done.tap()
         let sheetGone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: done)
         wait(for: [sheetGone], timeout: 5)
+
+        // Logged by mistake: it can be removed, and the day is free again.
+        let total = app.descendants(matching: .any)["Free days, all time"]
+        let before = Int(total.value as? String ?? "") ?? -1
+        tap(app, "Edit today's slip")
+        tap(app, "Remove this slip")
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        snap("07c remove slip")
+        app.alerts.buttons["Remove it"].tap()
+        XCTAssertTrue(app.staticTexts["That day counts as a free day again."].waitForExistence(timeout: 3))
+        tap(app, "Done")
+        XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
+        XCTAssertEqual(Int(total.value as? String ?? ""), before + 1)
 
         // Tabs, each checked by what is on screen rather than trusted.
         openTab(app, "Path")

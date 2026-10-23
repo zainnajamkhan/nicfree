@@ -12,7 +12,8 @@ import SwiftData
 enum ScreenshotData {
 
     /// `awayDays` sets the last visit that many days back, to exercise the catch-up question.
-    static func seed(into context: ModelContext, awayDays: Int? = nil, now: Date = Date()) {
+    /// `celebrateDays` sets the last celebration that many days back, so Home celebrates.
+    static func seed(into context: ModelContext, awayDays: Int? = nil, celebrateDays: Int? = nil, now: Date = Date()) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
         func day(_ daysAgo: Int) -> Date {
@@ -29,11 +30,15 @@ enum ScreenshotData {
                 quitStartedAt: day(64),
                 reasons: [
                     "So I can climb stairs without stopping",
-                    "The money",
-                    "I do not want to need it"
+                    "To save money",
+                    "I don’t want to need it"
                 ]
             )
         if let awayDays { habit.lastCheckedThrough = day(awayDays) }
+        if let celebrateDays {
+            habit.lastCheckedThrough = today
+            habit.lastCelebratedThrough = day(celebrateDays)
+        }
         context.insert(habit)
 
         // 65 days tracked, two used, so the hero reads 63 and the next milestone is 90.

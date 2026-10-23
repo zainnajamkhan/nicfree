@@ -75,7 +75,7 @@ final class PurchaseStore {
             case .success(let result):
                 await apply(result)
             case .pending:
-                message = String(localized: "Waiting for approval. It unlocks as soon as it goes through.")
+                message = String(localized: "Waiting for approval. It’ll unlock as soon as it goes through.")
             case .userCancelled:
                 break
             @unknown default:
@@ -83,7 +83,7 @@ final class PurchaseStore {
             }
         } catch {
             logger.error("Purchase threw: \(error.localizedDescription, privacy: .public)")
-            message = String(localized: "The purchase could not be completed. Please try again.")
+            message = String(localized: "That didn’t go through. Please try again.")
         }
     }
 
@@ -101,8 +101,8 @@ final class PurchaseStore {
         }
         await refreshEntitlement()
         message = isUnlocked
-            ? String(localized: "Restored. Everything is unlocked.")
-            : String(localized: "No earlier purchase was found for this Apple Account.")
+            ? String(localized: "Restored! Everything’s unlocked.")
+            : String(localized: "We couldn’t find an earlier purchase on this Apple Account.")
     }
 
     // MARK: - Entitlement

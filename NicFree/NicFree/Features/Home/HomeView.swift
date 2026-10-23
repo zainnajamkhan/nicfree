@@ -28,6 +28,7 @@ struct HomeView: View {
     /// Drives the catch-up sheet by its data. A sheet opened from a separate Bool can render
     /// with the previous, empty list of days ("Any nicotine since ?").
     @State private var catchUp: CatchUpPrompt?
+    @State private var celebration: CelebrationMoment?
 
     private var habit: Habit? { habits.first }
 
@@ -96,11 +97,18 @@ struct HomeView: View {
         }
         // Milestones count free days, so a slip moves the next one. Rebuilding the whole
         // schedule whenever that number changes is the only way to keep them honest.
-        .sheet(item: $catchUp, onDismiss: markChecked) { prompt in
+        .sheet(item: $catchUp, onDismiss: {
+            markChecked()
+            // Next turn, so the days just marked as used are already in the query.
+            Task { checkForCelebration() }
+        }) { prompt in
             CatchUpView(days: prompt.days) { used in
                 for day in used { context.insert(DayRecord(day: day)) }
             }
             .presentationDetents([.medium, .large])
+        }
+        .fullScreenCover(item: $celebration) { moment in
+            CelebrationView(moment: moment)
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active { checkForMissedDays() }
@@ -123,6 +131,7 @@ struct HomeView: View {
         )
         if days.isEmpty {
             markChecked()
+            checkForCelebration()
         } else {
             catchUp = CatchUpPrompt(days: days)
         }
@@ -131,6 +140,32 @@ struct HomeView: View {
     /// Answered or swiped away, the days were seen; the question is not asked twice.
     private func markChecked() {
         habit?.lastCheckedThrough = today
+    }
+
+    // MARK: - Celebration
+
+    /// After any catch-up question, so only days known to be free are celebrated. The first
+    /// look ever just sets the starting point.
+    private func checkForCelebration() {
+        guard let habit, let stats, celebration == nil, catchUp == nil else { return }
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today
+        guard let last = habit.lastCelebratedThrough else {
+            habit.lastCelebratedThrough = yesterday
+            return
+        }
+        guard last < yesterday else { return }
+
+        let gained = Celebration.newFreeDays(
+            lastCelebrated: last,
+            quitStartedAt: habit.quitStartedAt,
+            usedDays: Set(usedDays.map(\.day))
+        )
+        habit.lastCelebratedThrough = yesterday
+        guard gained > 0 else { return }
+
+        let total = stats.lifetimeFreeDays
+        let from = max(0, total - gained)
+        celebration = CelebrationMoment(from: from, to: total, milestone: Celebration.milestone(from: from, to: total))
     }
 
     // MARK: - Pieces
@@ -165,7 +200,7 @@ struct HomeView: View {
                     fill: Palette.sunQuiet,
                     tint: Palette.sun,
                     ink: Palette.sunInk,
-                    label: "Not spent"
+                    label: "Money saved"
                 )
             }
 
@@ -232,10 +267,10 @@ struct HomeView: View {
     /// Plain about what is happening and what it means, without alarm. Never red.
     private var temporaryStoreNotice: some View {
         VStack(alignment: .leading, spacing: Space.xs) {
-            Text("Your saved history could not be opened")
+            Text("We couldn’t open your saved history")
                 .font(.system(.body, design: .rounded, weight: .heavy))
                 .foregroundStyle(Palette.sunInk)
-            Text("Nothing logged right now will be kept. Close NicFree fully and open it again. NicFree has not deleted anything.")
+            Text("Anything you log right now won’t be saved. Close the app fully and open it again. Nothing’s been deleted.")
                 .font(Typeface.row)
                 .foregroundStyle(Palette.ink)
                 .fixedSize(horizontal: false, vertical: true)

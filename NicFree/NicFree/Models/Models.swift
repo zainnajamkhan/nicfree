@@ -49,7 +49,7 @@ enum UsageIntensity: String, CaseIterable, Sendable {
     var title: LocalizedStringResource {
         switch self {
         case .fewPuffs: "Just a little"
-        case .several: "Several times"
+        case .several: "A few times"
         case .usual: "My usual amount"
         case .moreThanUsual: "More than usual"
         }
@@ -79,7 +79,7 @@ enum CravingTrigger: String, CaseIterable, Sendable {
         case .coffee: "Coffee"
         case .alcohol: "Drinking"
         case .social: "Around other people"
-        case .sawSomeoneVape: "Saw someone vape"
+        case .sawSomeoneVape: "Saw someone else doing it"
         case .driving: "Driving"
         case .waiting: "Waiting around"
         case .boredom: "Bored"
@@ -134,6 +134,10 @@ final class Habit {
 
     /// The opt-in evening reminder, as minutes after midnight. Nil means off, the default.
     var eveningReminderMinute: Int?
+
+    /// The last finished day already celebrated on Home. Nil until Home first sets it,
+    /// quietly, so nobody gets a celebration for days before they had the app.
+    var lastCelebratedThrough: Date?
 
     init(
         form: NicotineForm = .vape,
@@ -205,6 +209,7 @@ final class CravingEvent {
     var occurredAt: Date = Date()
     var heldOutSeconds: Int = 0
     var resisted: Bool = true
+    /// A `CravingTrigger` raw value, or the person's own words.
     var triggerRaw: String?
     var note: String?
 
@@ -213,12 +218,14 @@ final class CravingEvent {
         heldOutSeconds: Int = 0,
         resisted: Bool = true,
         trigger: CravingTrigger? = nil,
+        triggerRaw: String? = nil,
         note: String? = nil
     ) {
         self.occurredAt = occurredAt
         self.heldOutSeconds = heldOutSeconds
         self.resisted = resisted
-        self.triggerRaw = trigger?.rawValue
+        // `triggerRaw` carries the person's own words when none of the listed triggers fit.
+        self.triggerRaw = triggerRaw ?? trigger?.rawValue
         self.note = note
     }
 

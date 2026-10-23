@@ -51,6 +51,9 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Zain's first test (Oct 23): all items in "Fix list" below handled
 - [x] Export compliance: `ITSAppUsesNonExemptEncryption = NO`, so uploads skip the encryption question
 
+- [x] Zain's second round (Oct 23): friendly copy, cigarettes, per-product amount question,
+  custom triggers, remove a slip, free day celebration
+
 ## To submit
 
 In order. Nothing else blocks submission.

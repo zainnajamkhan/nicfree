@@ -17,9 +17,10 @@ before onboarding as its own screen, and on Home as a notice. It never crashes o
 Five steps, defaults on every one, a back button after the first, no account, no paywall,
 and deliberately no permission prompt.
 
-1. **What do you use** — vape (disposables, pods, refillable) or nicotine pouches. Sets the
+1. **What do you use** — vape (disposables, pods), nicotine pouches or cigarettes. Sets the
    unit. One product per person in v1; more than one is on the v1.1 list.
-2. **How much** — per day for pouches, per week for vapes, with a stepper, plus an optional
+2. **How much** — the question names the product picked ("Roughly how many pouches do you
+   use in a day?"). Per day for pouches and cigarettes, per week for vapes, plus an optional
    weekly spend in the local currency. Framed as "a rough number is fine", and it only shapes
    the money estimate, never the day count.
 3. **When did you stop** — Today, Yesterday, or Another day, which opens a calendar. Future
@@ -45,6 +46,15 @@ that belongs in the hierarchy rather than in a sentence telling someone off.
 A gear button opens Settings.
 
 On any change to the free day count, the milestone schedule is rebuilt.
+
+## Celebration
+
+When Home opens on a new day, after any catch-up question: if one or more finished days since
+the last celebration were free, a full screen celebration. The sprout pops in, leaves burst
+out of it, and the total ticks up to today's number. "Another free day!", or the milestone
+title when one was passed. One tap on "Yay!" closes it. Rules in `Celebration`.
+
+**Writes** `lastCelebratedThrough`. Settings has preview buttons in debug builds.
 
 ## Catch-up
 
@@ -84,7 +94,11 @@ puffs they took produces either a blank field or an invented number. **What set 
 optional chips.
 
 Neither answer touches the hero number, which is binary on whether nicotine was used at all
-that day.
+that day. "What set it off" offers "+ Something else" for the person's own words.
+
+Opened on an existing slip (from Home, or by tapping it in History), it edits it, or
+**removes** it after a confirm. Removing deletes the `DayRecord` and the craving it wrote,
+and the day counts as free again.
 
 **Writes** a `DayRecord` for today, and a `CravingEvent` with `resisted: false` carrying the
 trigger and any seconds held out before using. Editing an existing slip updates the record

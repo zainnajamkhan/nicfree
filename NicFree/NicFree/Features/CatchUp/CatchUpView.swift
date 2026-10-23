@@ -42,7 +42,7 @@ struct CatchUpView: View {
                             }
                         }
                     } else {
-                        Text("Those days already count as free. This only catches a slip you didn’t get to log.")
+                        Text("Those days already count as free. This is just in case you forgot to log a slip.")
                             .font(Typeface.row)
                             .foregroundStyle(Palette.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)

@@ -16,7 +16,8 @@ struct OnboardingView: View {
 
     @State private var step: Step = .form
     @State private var unit: ConsumptionUnit = .disposable
-    /// Per week for vaping, per day for pouches. Each is how people actually describe it.
+    /// Per week for vaping, per day for pouches and cigarettes. Each is how people actually
+    /// describe it.
     @State private var amount: Double = 3
     /// What a week of it costs, in the user's own currency. Asked as a weekly total
     /// because nobody knows the price of one pouch, and no default works in every
@@ -72,7 +73,7 @@ struct OnboardingView: View {
             .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                PrimaryButton(step == .ready ? "Start" : "Continue", action: advance)
+                PrimaryButton(step == .ready ? "Let’s go!" : "Continue", action: advance)
                     .padding(.vertical, Space.s)
                     .background(Palette.ground)
             }
@@ -89,19 +90,22 @@ struct OnboardingView: View {
                 SectionLabel("Vape")
                 choice("Disposables", unit: .disposable)
                 choice("Pods or cartridges", unit: .pod)
-                choice("Refillable, by the millilitre", unit: .millilitre)
 
                 SectionLabel("Pouches")
                     .padding(.top, Space.s)
                 choice("Nicotine pouches", unit: .pouch)
+
+                SectionLabel("Cigarettes")
+                    .padding(.top, Space.s)
+                choice("Cigarettes", unit: .cigarette)
             }
         }
     }
 
     private var amountStep: some View {
         VStack(alignment: .leading, spacing: Space.l) {
-            question(perDay ? "Roughly how many, in a day?" : "Roughly how much, in a week?")
-            aside("Rough numbers are fine. They only shape the money estimate, never the day count.")
+            question(amountQuestion)
+            aside("Rough numbers are fine.")
 
             VStack(spacing: Space.m) {
                 Stepper(value: $amount, in: 1...(perDay ? 60 : 100), step: 1) {
@@ -115,7 +119,7 @@ struct OnboardingView: View {
                 }
 
                 HStack {
-                    Text("Spent in a week").foregroundStyle(Palette.inkSoft)
+                    Text("Money spent each week").foregroundStyle(Palette.inkSoft)
                     Spacer()
                     TextField("Optional", value: $weeklySpend, format: .currency(code: currencyCode).precision(.fractionLength(0)))
                         .keyboardType(.decimalPad)
@@ -131,7 +135,7 @@ struct OnboardingView: View {
     private var dateStep: some View {
         VStack(alignment: .leading, spacing: Space.l) {
             question("When did you stop?")
-            aside("Today is fine. If you stopped a while ago, all of those days count.")
+            aside("Stopped a while ago? Those days count too.")
 
             VStack(spacing: Space.s) {
                 optionRow("Today", isOn: dateChoice == .today) { chooseDate(.today) }
@@ -157,20 +161,20 @@ struct OnboardingView: View {
     private var reasonsStep: some View {
         VStack(alignment: .leading, spacing: Space.l) {
             question("Why are you stopping?")
-            aside("In your own words. These come back to you during a craving, which is the only time they matter.")
+            aside("Write them your way. We’ll show them to you when a craving hits.")
 
             VStack(spacing: Space.s) {
                 field(index: 0, placeholder: "So I can climb stairs without stopping")
-                field(index: 1, placeholder: "The money")
-                field(index: 2, placeholder: "I do not want to need it")
+                field(index: 1, placeholder: "To save money")
+                field(index: 2, placeholder: "I don’t want to need it")
             }
         }
     }
 
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            question("That is everything.")
-            Text("No daily check-in. Every day counts as free unless you log a slip. If you’re away for a few days, NicFree asks about them when you’re back.")
+            question("That’s it. You’re all set!")
+            Text("You don’t need to check in. Every day counts as a free day unless you log a slip. If you’re away for a few days, we’ll ask about them when you’re back.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
         }
@@ -240,16 +244,38 @@ struct OnboardingView: View {
 
     private var unitsPerWeek: Double { perDay ? amount * 7 : amount }
 
-    /// Pouches are counted per day; vaping per week.
-    private var perDay: Bool { unit == .pouch }
+    /// Pouches and cigarettes are counted per day; vaping per week.
+    private var perDay: Bool { unit == .pouch || unit == .cigarette }
 
-    /// Changing between vaping and pouches changes what a sensible starting amount is,
-    /// so the defaults reset rather than carrying over a number from the other one.
+    /// Names the exact thing picked on the first step, so the question reads as a follow-on.
+    private var amountQuestion: LocalizedStringKey {
+        switch unit {
+        case .disposable: "Roughly how many disposables do you use in a week?"
+        case .pod: "Roughly how many pods do you use in a week?"
+        case .pouch: "Roughly how many pouches do you use in a day?"
+        case .cigarette: "Roughly how many cigarettes do you smoke in a day?"
+        case .millilitre, .session: "Roughly how much do you use in a week?"
+        }
+    }
+
+    /// Each choice gets its own sensible starting amount, rather than carrying over a number
+    /// from a different product.
     private func select(_ value: ConsumptionUnit) {
-        let wasPerDay = perDay
+        guard value != unit else { return }
         unit = value
-        guard perDay != wasPerDay else { return }
-        amount = perDay ? 8 : 3
+        amount = switch value {
+        case .pouch: 8
+        case .cigarette: 10
+        default: 3
+        }
+    }
+
+    private func form(for unit: ConsumptionUnit) -> NicotineForm {
+        switch unit {
+        case .pouch: .pouch
+        case .cigarette: .cigarette
+        default: .vape
+        }
     }
 
     private var currencyCode: String {
@@ -287,7 +313,7 @@ struct OnboardingView: View {
 
     private func finish() {
         let habit = Habit(
-            form: unit == .pouch ? .pouch : .vape,
+            form: form(for: unit),
             unit: unit,
             baselineUnitsPerWeek: unitsPerWeek,
             costPerUnit: (weeklySpend ?? 0) / unitsPerWeek,

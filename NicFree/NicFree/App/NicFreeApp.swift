@@ -66,9 +66,13 @@ struct NicFreeApp: App {
         // App Store screenshots: a fresh in-memory store with a believable history in it.
         if arguments.contains("-seedScreenshotData"),
            let seeded = try? ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]) {
+            // 2 days back celebrates yesterday; 5 back passes the 60 day milestone.
+            let celebrateDays: Int? = arguments.contains("-celebrateMilestoneForUITests") ? 5
+                : arguments.contains("-celebrateForUITests") ? 2 : nil
             ScreenshotData.seed(
                 into: seeded.mainContext,
-                awayDays: arguments.contains("-simulateAwayForUITests") ? 3 : nil
+                awayDays: arguments.contains("-simulateAwayForUITests") ? 3 : nil,
+                celebrateDays: celebrateDays
             )
             return (seeded, false)
         }
