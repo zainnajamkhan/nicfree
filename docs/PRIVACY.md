@@ -22,4 +22,4 @@ from a server.
 **Changes.** If this policy changes, the new version will be posted at this address with a
 new date.
 
-**Contact.** zainnajam2424@gmail.com
+**Contact.** frailappstudio@gmail.com
