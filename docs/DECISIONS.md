@@ -125,6 +125,13 @@ count, never today, so a slip tonight can't follow a party this morning. Days aw
 celebrated together, after the catch-up question. The first look after install or update only
 sets the starting point. Reduce Motion gets the finished screen with no motion.
 
+**The celebration is switched off for now (2026-10-23).** Someone opening the app to log a
+slip would be greeted by a full screen "Another free day! Yay!", and the slip they came to log
+is often last night's, the very day being celebrated. Zain chose to switch it off, not remove
+it: `Celebration.isEnabled` is false, Home still tracks `lastCelebratedThrough`, and the
+Settings preview buttons and UI tests still run it. Ideas if it comes back: celebrate inline on
+Home rather than over it, and let a slip be logged for yesterday.
+
 ## Technical
 
 **No third party packages.** Avoids supply chain risk, keeps launch fast, removes third

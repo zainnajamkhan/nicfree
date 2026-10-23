@@ -52,7 +52,7 @@ notifications, `QuitStats`, `CravingInsights`, `ObservationEngine`, string catal
 - [x] Export compliance: `ITSAppUsesNonExemptEncryption = NO`, so uploads skip the encryption question
 
 - [x] Zain's second round (Oct 23): friendly copy, cigarettes, per-product amount question,
-  custom triggers, remove a slip, free day celebration
+  custom triggers, remove a slip, free day celebration (built, then switched off for now)
 
 ## To submit
 

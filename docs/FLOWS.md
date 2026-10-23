@@ -49,7 +49,7 @@ On any change to the free day count, the milestone schedule is rebuilt.
 
 ## Celebration
 
-When Home opens on a new day, after any catch-up question: if one or more finished days since
+**Switched off for now** (`Celebration.isEnabled`, see `docs/DECISIONS.md`). When on: when Home opens on a new day, after any catch-up question: if one or more finished days since
 the last celebration were free, a full screen celebration. The sprout pops in, leaves burst
 out of it, and the total ticks up to today's number. "Another free day!", or the milestone
 title when one was passed. One tap on "Yay!" closes it. Rules in `Celebration`.

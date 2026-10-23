@@ -161,7 +161,7 @@ struct HomeView: View {
             usedDays: Set(usedDays.map(\.day))
         )
         habit.lastCelebratedThrough = yesterday
-        guard gained > 0 else { return }
+        guard gained > 0, Celebration.isEnabled else { return }
 
         let total = stats.lifetimeFreeDays
         let from = max(0, total - gained)
