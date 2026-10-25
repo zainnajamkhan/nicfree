@@ -28,8 +28,8 @@ watch the timer. Most cravings pass in minutes, and NicFree shows you how long y
 actually last.
 
 WATCH IT ADD UP
-• Free days, cravings beaten, and money not spent, all on one screen
-• A sprout that grows as your free days add up
+• Free days, cravings beaten, and money saved, all on one screen
+• A sprout that grows with every free day, and gets a little thirsty after a slip
 • A milestone path: 1 day, 3, 7, 14, 30, 60, 90, 180, a year
 
 NOTHING TO KEEP UP WITH
