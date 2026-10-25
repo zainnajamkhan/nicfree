@@ -17,6 +17,8 @@ struct HistoryView: View {
     @State private var showingPaywall = false
     /// A slip tapped in Events, opened to edit or remove.
     @State private var editingSlip: DayRecord?
+    /// The date under the finger on the chart, nil when it isn't being touched.
+    @State private var chartSelection: Date?
 
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
@@ -74,9 +76,11 @@ struct HistoryView: View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Every day since you stopped")
 
-            YearGrid(points: stats.series())
-
-            YearGridLegend()
+            VStack(alignment: .leading, spacing: Space.m) {
+                YearGridLegend()
+                YearGrid(points: stats.series())
+            }
+            .card()
 
             VStack(spacing: 0) {
                 StatRow(
@@ -93,59 +97,118 @@ struct HistoryView: View {
 
     /// A single series, so the label names it and there is no legend. The line cannot
     /// fall: on a used day it simply holds flat, which is the thesis drawn rather than
-    /// argued.
+    /// argued. Touch or drag to read any day; it stays picked after lifting the finger.
     private func chartSection(_ stats: QuitStats) -> some View {
         let points = stats.series()
+        let selected = chartSelection.flatMap { date in
+            points.min { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }
+        }
+        let shown = selected ?? points.last
 
         return VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Your total, over time")
 
-            Chart {
-                ForEach(points) { point in
-                    AreaMark(
-                        x: .value("Date", point.date),
-                        y: .value("Days free", point.cumulativeFreeDays)
-                    )
-                    .foregroundStyle(
-                        .linearGradient(
-                            colors: [Palette.accent.opacity(0.25), Palette.accent.opacity(0.02)],
-                            startPoint: .top,
-                            endPoint: .bottom
+            VStack(alignment: .leading, spacing: Space.m) {
+                if let shown {
+                    HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(inflecting: "^[\(shown.cumulativeFreeDays) free day](inflect: true)"))
+                            .font(Typeface.voice)
+                            .foregroundStyle(Palette.ink)
+                            .contentTransition(.numericText(value: Double(shown.cumulativeFreeDays)))
+                        Text(selected == nil
+                             ? String(localized: "So far. Touch the chart to look back.")
+                             : shown.date.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                            .font(.footnote)
+                            .foregroundStyle(Palette.inkSoft)
+                    }
+                    .animation(.smooth(duration: 0.15), value: shown.cumulativeFreeDays)
+                    Spacer()
+                    if selected != nil {
+                        Button("Back to today") { chartSelection = nil }
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Palette.accent)
+                    }
+                    }
+                }
+
+                Chart {
+                    ForEach(points) { point in
+                        AreaMark(
+                            x: .value("Date", point.date),
+                            y: .value("Days free", point.cumulativeFreeDays)
                         )
-                    )
+                        .foregroundStyle(
+                            .linearGradient(
+                                colors: [Palette.leaf.opacity(0.35), Palette.leaf.opacity(0.03)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .interpolationMethod(.monotone)
 
-                    LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Days free", point.cumulativeFreeDays)
-                    )
-                    .foregroundStyle(Palette.accent)
-                    .lineStyle(StrokeStyle(lineWidth: 2))
-                }
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Days free", point.cumulativeFreeDays)
+                        )
+                        .foregroundStyle(Palette.accent)
+                        .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .interpolationMethod(.monotone)
 
-                if let last = points.last {
-                    PointMark(
-                        x: .value("Date", last.date),
-                        y: .value("Days free", last.cumulativeFreeDays)
-                    )
-                    .foregroundStyle(Palette.accent)
-                    .symbolSize(60)
+                        // A slip shows where the line held flat, in the same clay as the grid.
+                        if point.wasUsed {
+                            PointMark(
+                                x: .value("Date", point.date),
+                                y: .value("Days free", point.cumulativeFreeDays)
+                            )
+                            .foregroundStyle(Palette.clay)
+                            .symbol(.square)
+                            .symbolSize(40)
+                        }
+                    }
+
+                    if let shown {
+                        if selected != nil {
+                            RuleMark(x: .value("Date", shown.date))
+                                .foregroundStyle(Palette.hairline)
+                                .lineStyle(StrokeStyle(lineWidth: 2))
+                        }
+                        PointMark(
+                            x: .value("Date", shown.date),
+                            y: .value("Days free", shown.cumulativeFreeDays)
+                        )
+                        .foregroundStyle(Palette.accent)
+                        .symbolSize(110)
+                    }
                 }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading) {
-                    AxisGridLine().foregroundStyle(Palette.hairline)
-                    AxisValueLabel().foregroundStyle(Palette.inkFaint)
+                .chartXSelection(value: $chartSelection)
+                // A custom gesture, so the picked day stays after lifting the finger instead of
+                // vanishing, and vertical scrolling still works through the chart.
+                .chartGesture { proxy in
+                    SpatialTapGesture()
+                        .onEnded { proxy.selectXValue(at: $0.location.x) }
+                        .simultaneously(with: DragGesture(minimumDistance: 8)
+                            .onChanged { proxy.selectXValue(at: $0.location.x) })
                 }
-            }
-            .chartXAxis {
-                AxisMarks {
-                    AxisValueLabel(format: .dateTime.month(.abbreviated))
-                        .foregroundStyle(Palette.inkFaint)
+                .chartYAxis {
+                    AxisMarks(position: .leading) {
+                        AxisGridLine().foregroundStyle(Palette.hairline)
+                        AxisValueLabel().foregroundStyle(Palette.inkFaint)
+                    }
                 }
+                .chartXAxis {
+                    // One label per month; the default ticks can repeat a month name.
+                    AxisMarks(values: .stride(by: .month)) {
+                        AxisValueLabel(format: .dateTime.month(.abbreviated))
+                            .foregroundStyle(Palette.inkFaint)
+                    }
+                }
+                .frame(height: 190)
+                .sensoryFeedback(.selection, trigger: selected?.date)
+                .accessibilityLabel("Total days free over time")
+                .accessibilityValue(String(inflecting: "^[\(stats.lifetimeFreeDays) day](inflect: true)"))
             }
-            .frame(height: 170)
-            .accessibilityLabel("Total days free over time")
-            .accessibilityValue(String(inflecting: "^[\(stats.lifetimeFreeDays) day](inflect: true)"))
+            .card()
         }
     }
 
@@ -260,5 +323,17 @@ struct HistoryView: View {
         let title: String
         let detail: String?
         var slip: DayRecord? = nil
+    }
+}
+
+private extension View {
+    /// The same outlined card as Home's sprout card.
+    func card() -> some View {
+        padding(Space.m + 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.card)
+                    .strokeBorder(Palette.hairline, lineWidth: 2)
+            )
     }
 }

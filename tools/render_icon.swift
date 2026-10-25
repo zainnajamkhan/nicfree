@@ -1,7 +1,8 @@
 import AppKit
 import CoreGraphics
 
-// Renders the NicFree app icon from the same 150-point sprout geometry as Sprout.swift.
+// Renders the NicFree app icon, and the launch screen image (sprout with the name under it),
+// from the same 150-point sprout geometry as Sprout.swift.
 // Usage: swift render_icon.swift <output-folder>
 
 func rgb(_ hex: UInt32, _ a: CGFloat = 1) -> CGColor {
@@ -52,8 +53,17 @@ func render(_ variant: Variant, size: Int = 1024, to url: URL) {
     ctx.translateBy(x: CGFloat(size) / 2 - 75 * scale, y: CGFloat(size) / 2 - contentCenterY * scale)
     ctx.scaleBy(x: scale, y: scale)
 
+    drawSprout(ctx, color: color, darkStem: variant == .dark)
+
+    guard let image = ctx.makeImage() else { return }
+    let rep = NSBitmapImageRep(cgImage: image)
+    try? rep.representation(using: .png, properties: [:])?.write(to: url)
+}
+
+/// The sprout in its 150 point grid, in a context already flipped to a top-left origin.
+func drawSprout(_ ctx: CGContext, color: (UInt32) -> CGColor, darkStem: Bool) {
     // Stem
-    ctx.setStrokeColor(color(variant == .dark ? 0x5DB761 : 0x2E7D32))
+    ctx.setStrokeColor(color(darkStem ? 0x5DB761 : 0x2E7D32))
     ctx.setLineWidth(6)
     ctx.setLineCap(.round)
     ctx.beginPath()
@@ -93,18 +103,50 @@ func render(_ variant: Variant, size: Int = 1024, to url: URL) {
     ctx.move(to: CGPoint(x: 66, y: 126))
     ctx.addQuadCurve(to: CGPoint(x: 84, y: 126), control: CGPoint(x: 75, y: 133))
     ctx.strokePath()
+}
+
+/// The launch screen image: the sprout with "NicFree" under it, on a clear background so the
+/// launch colour shows through. 200 by 180 points. The dark one has light text.
+func renderLaunch(dark: Bool, scale: Int, to url: URL) {
+    let width = 200 * scale, height = 180 * scale
+    guard let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+                              space: CGColorSpaceCreateDeviceRGB(),
+                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return }
+    let s = CGFloat(scale)
+    ctx.clear(CGRect(x: 0, y: 0, width: width, height: height))
+    ctx.translateBy(x: 0, y: CGFloat(height))
+    ctx.scaleBy(x: 1, y: -1)
+
+    // The sprout in the top 120 points, the same size as the old sprout-only launch image.
+    ctx.saveGState()
+    let unit = s * 0.984
+    ctx.translateBy(x: CGFloat(width) / 2 - 75 * unit, y: 2 * s - 24 * unit)
+    ctx.scaleBy(x: unit, y: unit)
+    drawSprout(ctx, color: { rgb($0) }, darkStem: dark)
+    ctx.restoreGState()
+
+    // The name, in the app's rounded heavy type and ink colour.
+    let base = NSFont.systemFont(ofSize: 34 * s, weight: .heavy)
+    let font = base.fontDescriptor.withDesign(.rounded).flatMap { NSFont(descriptor: $0, size: 34 * s) } ?? base
+    let ink = dark ? NSColor(cgColor: rgb(0xEEF2EC)) : NSColor(cgColor: rgb(0x2B2F33))
+    let text = NSAttributedString(string: "NicFree", attributes: [.font: font, .foregroundColor: ink ?? .black])
+    let size = text.size()
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: true)
+    text.draw(at: NSPoint(x: (CGFloat(width) - size.width) / 2, y: 132 * s))
+    NSGraphicsContext.restoreGraphicsState()
 
     guard let image = ctx.makeImage() else { return }
-    let rep = NSBitmapImageRep(cgImage: image)
-    try? rep.representation(using: .png, properties: [:])?.write(to: url)
+    try? NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])?.write(to: url)
 }
 
 let out = URL(fileURLWithPath: CommandLine.arguments[1])
 render(.light, to: out.appendingPathComponent("AppIcon.png"))
 render(.dark, to: out.appendingPathComponent("AppIcon-dark.png"))
 render(.tinted, to: out.appendingPathComponent("AppIcon-tinted.png"))
-// Launch screen sprout, 120 points square at 1x, 2x and 3x.
+// Launch screen image, light and dark, at 1x, 2x and 3x.
 for (scale, suffix) in [(1, ""), (2, "@2x"), (3, "@3x")] {
-    render(.launch, size: 120 * scale, to: out.appendingPathComponent("LaunchSprout\(suffix).png"))
+    renderLaunch(dark: false, scale: scale, to: out.appendingPathComponent("LaunchSprout\(suffix).png"))
+    renderLaunch(dark: true, scale: scale, to: out.appendingPathComponent("LaunchSprout-dark\(suffix).png"))
 }
 print("rendered")

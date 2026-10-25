@@ -103,9 +103,11 @@ struct PathView: View {
                         Text(title(for: milestone))
                             .font(.system(.body, design: .rounded, weight: .heavy))
                             .foregroundStyle(Palette.ink)
-                        Text(subtitle(for: state, milestone: milestone, free: free))
-                            .font(Typeface.row)
-                            .foregroundStyle(state == .next ? Palette.sunInk : Palette.inkSoft)
+                        if let subtitle = subtitle(for: state, milestone: milestone, free: free) {
+                            Text(subtitle)
+                                .font(Typeface.row)
+                                .foregroundStyle(state == .next ? Palette.sunInk : Palette.inkSoft)
+                        }
                     }
                 }
                 .padding(.leading, sway[index % sway.count])
@@ -160,11 +162,12 @@ struct PathView: View {
             : String(inflecting: "^[\(milestone) day](inflect: true)")
     }
 
-    private func subtitle(for state: Stage, milestone: Int, free: Int) -> String {
+    /// Only the reached ones and the next one get a line; the rest just show their number.
+    private func subtitle(for state: Stage, milestone: Int, free: Int) -> String? {
         switch state {
         case .reached: String(localized: "Reached")
-        case .next: String(inflecting: "^[\(milestone - free) free day](inflect: true) to go")
-        case .later: String(localized: "Later")
+        case .next: String(inflecting: "Upcoming · ^[\(milestone - free) free day](inflect: true) to go")
+        case .later: nil
         }
     }
 }
