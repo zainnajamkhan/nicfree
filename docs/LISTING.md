@@ -6,11 +6,13 @@ Character counts checked against Apple's limits on 2026-10-22.
 |---|---|---|---|
 | Name | 30 | NicFree: Quit Vape & Pouches | 28 |
 | Subtitle | 30 | Nicotine & craving tracker | 26 |
-| Keywords | 100 | `snus,smoking,stop,cessation,habit,sober,counter,money,saved,breathe,addiction,dip,chew,cigarette` | 96 |
+| Keywords | 100 | `snus,smoking,stop,cessation,habit,sober,counter,money,saved,breathe,addiction,tobacco,urge,cigarette` | 100 |
 | Promotional text | 170 | Your free days only ever add up. A slip never wipes them out. One purchase, no subscription, and nothing leaves your iPhone. | 124 |
 
 Apple indexes the name, subtitle and keywords together, so no word appears twice across
-them. "Zyn" is a trademark and stays out of every field.
+them. "Zyn" is a trademark and stays out of every field. "dip" and "chew" were dropped on
+2026-10-25: the app doesn't support those products, and keywords for things an app doesn't do
+can be rejected under guideline 2.3.7.
 
 ## Description
 
