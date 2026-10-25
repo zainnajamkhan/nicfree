@@ -83,7 +83,8 @@ Breaking any of these breaks the product, not just a screen.
 - DEBUG-only launch flags: `-freshStoreForUITests` (UI tests never see each other's data),
   `-simulateDamagedStore`, `-forceDarkForUITests`, `-seedScreenshotData`,
   `-unlockForScreenshots`, `-simulateAwayForUITests`, `-celebrateForUITests`,
-  `-celebrateMilestoneForUITests` (the last two with `-seedScreenshotData`). Settings has
+  `-celebrateMilestoneForUITests`, `-thirstyForUITests` (the last three with
+  `-seedScreenshotData`). Settings has
   DEBUG-only "Unlock everything" and celebration preview buttons.
 - The project uses **file system synchronized groups**: folder location *is* target
   membership. Put a file in the right folder and it is in the right target. Never edit

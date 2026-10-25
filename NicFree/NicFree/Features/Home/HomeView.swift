@@ -56,6 +56,13 @@ struct HomeView: View {
     private var today: Date { Calendar.current.startOfDay(for: Date()) }
     private var todaysRecord: DayRecord? { usedDays.first { $0.day == today } }
 
+    /// Thirsty after a slip today or yesterday, until a full free day has passed. A slip
+    /// yesterday still shows this morning, because today isn't over yet.
+    private var sproutIsThirsty: Bool {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today
+        return usedDays.contains { $0.day == today || $0.day == yesterday }
+    }
+
     var body: some View {
         Screen {
             if let habit, let stats {
@@ -220,8 +227,10 @@ struct HomeView: View {
 
     private func sproutCard(stats: QuitStats, habit: Habit) -> some View {
         let free = stats.lifetimeFreeDays
-        let line = ObservationEngine.daily(stats: stats, habit: habit, cravings: insights)?.text
-            ?? String(inflecting: "^[\(free) free day](inflect: true), and that number only goes up.")
+        let line = sproutIsThirsty
+            ? String(localized: "Your sprout’s a bit thirsty. A free day will perk it up.")
+            : ObservationEngine.daily(stats: stats, habit: habit, cravings: insights)?.text
+                ?? String(inflecting: "^[\(free) free day](inflect: true), and that number only goes up.")
 
         return VStack(spacing: Space.m) {
             Text(line)
@@ -233,8 +242,9 @@ struct HomeView: View {
                 .padding(Space.m - 2)
                 .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.button))
 
-            Sprout(freeDays: free)
+            Sprout(freeDays: free, thirsty: sproutIsThirsty)
                 .frame(height: 180)
+                .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
 
             if let next = MilestoneScheduler.milestones.first(where: { $0 > free }) {
                 nextMilestone(free: free, next: next)

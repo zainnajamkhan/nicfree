@@ -65,9 +65,9 @@ in the spirit of Duolingo: chunky buttons, stat chips, a mascot, a milestone pat
 "calm, not Kwit" and "one animation only" decisions are superseded. What did not change is
 every product rule in CLAUDE.md. Playful is fine; shaming is not.
 
-**The mascot never wilts, frowns or reacts to a slip.** It only gains leaves as free days add
-up (1 leaf, 2 at 3 days, 3 at 7, 4 at 30). A mascot that looked sad on a slip day would be
-shaming with a face, which is the same as red.
+~~**The mascot never wilts, frowns or reacts to a slip.**~~ Replaced on 2026-10-25 by "The
+sprout reacts to a slip" below: it now gets thirsty, but still never loses a leaf. It gains
+leaves as free days add up (1 leaf, 2 at 3 days, 3 at 7, 4 at 30).
 
 **Borrowed from Duolingo: the fun. Not borrowed: the streak.** No streak counter, no streak
 freeze, no "don't break it" copy. Every number on Home only grows: free days, cravings beaten,
@@ -131,6 +131,16 @@ is often last night's, the very day being celebrated. Zain chose to switch it of
 it: `Celebration.isEnabled` is false, Home still tracks `lastCelebratedThrough`, and the
 Settings preview buttons and UI tests still run it. Ideas if it comes back: celebrate inline on
 Home rather than over it, and let a slip be logged for yesterday.
+
+**The sprout reacts to a slip (2026-10-25).** Zain wanted the plant to carry emotional
+weight: grow on free days, and visibly suffer when nicotine is used. Shame and lost leaves
+were considered and turned down, because guilt after a lapse tends to turn one slip into
+several (the abstinence violation effect) and a leaf that falls off is a streak reset with a
+face. What shipped: the plant grows a little every free day (full size at 60) and gains
+leaves at 3, 7 and 30; a slip today or yesterday makes it **thirsty** (leaves droop, colours
+fade to olive, the smile turns down, and Home says "Your sprout's a bit thirsty. A free day
+will perk it up."); a full free day restores it. It never loses a leaf or shrinks, because
+the total never goes down. The thirsty colours are dry greens, never clay or red.
 
 ## Technical
 

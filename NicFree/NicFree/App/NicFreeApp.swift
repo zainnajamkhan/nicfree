@@ -72,7 +72,8 @@ struct NicFreeApp: App {
             ScreenshotData.seed(
                 into: seeded.mainContext,
                 awayDays: arguments.contains("-simulateAwayForUITests") ? 3 : nil,
-                celebrateDays: celebrateDays
+                celebrateDays: celebrateDays,
+                slipYesterday: arguments.contains("-thirstyForUITests")
             )
             return (seeded, false)
         }

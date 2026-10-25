@@ -13,7 +13,8 @@ enum ScreenshotData {
 
     /// `awayDays` sets the last visit that many days back, to exercise the catch-up question.
     /// `celebrateDays` sets the last celebration that many days back, so Home celebrates.
-    static func seed(into context: ModelContext, awayDays: Int? = nil, celebrateDays: Int? = nil, now: Date = Date()) {
+    /// `slipYesterday` adds a slip yesterday, so the sprout shows thirsty.
+    static func seed(into context: ModelContext, awayDays: Int? = nil, celebrateDays: Int? = nil, slipYesterday: Bool = false, now: Date = Date()) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
         func day(_ daysAgo: Int) -> Date {
@@ -44,6 +45,7 @@ enum ScreenshotData {
         // 65 days tracked, two used, so the hero reads 63 and the next milestone is 90.
         context.insert(DayRecord(day: day(41), intensity: .fewPuffs))
         context.insert(DayRecord(day: day(12), intensity: .several))
+        if slipYesterday { context.insert(DayRecord(day: day(1), intensity: .fewPuffs)) }
 
         let triggers: [CravingTrigger] = [
             .phone, .phone, .afterMeal, .stress, .phone, .coffee, .boredom,
