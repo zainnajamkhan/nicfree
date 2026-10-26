@@ -60,6 +60,14 @@ struct PaywallView: View {
                             Task { await store.purchase() }
                         }
                         .disabled(store.isWorking)
+                    } else if store.productUnavailable {
+                        Text("Couldn’t reach the App Store. Check your connection and try again.")
+                            .font(Typeface.row)
+                            .foregroundStyle(Palette.inkSoft)
+                            .multilineTextAlignment(.center)
+                        PrimaryButton("Try again") {
+                            Task { await store.loadProduct() }
+                        }
                     } else {
                         Text("Loading the price…")
                             .font(Typeface.row)

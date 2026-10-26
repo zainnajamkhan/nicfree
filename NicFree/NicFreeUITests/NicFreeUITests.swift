@@ -171,6 +171,8 @@ final class NicFreeUITests: XCTestCase {
         let spend = app.textFields["Optional"]
         XCTAssertTrue(spend.waitForExistence(timeout: 5))
         spend.tap()
+        // At the largest text size the keyboard can take a moment to arrive.
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
         spend.typeText("2000")
         app.staticTexts["Roughly how many pouches do you use in a day?"].tap()   // dismiss the keyboard
         snap("02 onboarding amount, pouches")

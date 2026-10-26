@@ -18,6 +18,9 @@ final class PurchaseStore {
     static let unlockID = "nicfree.unlock"
 
     private(set) var product: Product?
+    /// True once loading the product has failed after retries. The paywall then says so and
+    /// offers to try again, instead of showing "Loading the price…" forever.
+    private(set) var productUnavailable = false
     /// What the App Store says this Apple Account owns.
     private(set) var entitled = false
 
@@ -57,12 +60,25 @@ final class PurchaseStore {
         if ProcessInfo.processInfo.arguments.contains("-unlockForScreenshots") { return }
         #endif
         await refreshEntitlement()
+        await loadProduct()
+    }
+
+    /// A few quick tries, because a single network hiccup shouldn't leave the paywall stuck.
+    func loadProduct() async {
         guard product == nil else { return }
-        do {
-            product = try await Product.products(for: [Self.unlockID]).first
-        } catch {
-            logger.error("Could not load the product: \(error.localizedDescription, privacy: .public)")
+        productUnavailable = false
+        for attempt in 0..<3 {
+            do {
+                if let loaded = try await Product.products(for: [Self.unlockID]).first {
+                    product = loaded
+                    return
+                }
+            } catch {
+                logger.error("Could not load the product: \(error.localizedDescription, privacy: .public)")
+            }
+            try? await Task.sleep(for: .seconds(attempt + 1))
         }
+        productUnavailable = true
     }
 
     func purchase() async {
