@@ -90,23 +90,35 @@ struct CravingView: View {
 
     /// A paced breathing exercise rather than an ornament: four seconds in, four seconds
     /// out. The elapsed time sits in the middle so the whole screen is one object.
+    ///
+    /// Driven by the clock, not by an animation. An implicit animation also caught the
+    /// screen's own layout as the cover slid up, so the whole circle drifted upward from
+    /// behind the reason card. Computing the scale from the time changes only the scale.
     @ViewBuilder
     private var breathing: some View {
         if reduceMotion {
-            breathingRings(inhaling: true, label: "Breathe slowly", animated: false)
+            breathingRings(scale: 1, label: "Breathe slowly")
         } else {
-            PhaseAnimator([true, false]) { inhaling in
-                breathingRings(inhaling: inhaling, label: inhaling ? "Breathe in" : "Breathe out", animated: true)
-            } animation: { _ in
-                .easeInOut(duration: 4)
+            TimelineView(.animation) { context in
+                let cycle = Self.breathCycle(at: context.date.timeIntervalSince(startedAt))
+                breathingRings(scale: cycle.scale, label: cycle.inhaling ? "Breathe in" : "Breathe out")
             }
         }
     }
 
-    private func breathingRings(inhaling: Bool, label: LocalizedStringKey, animated: Bool) -> some View {
-        let scale: CGFloat = animated ? (inhaling ? 1 : 0.84) : 1
+    /// Four seconds in, four out, eased at both ends. Starts small, breathing in.
+    static func breathCycle(at elapsed: TimeInterval) -> (scale: CGFloat, inhaling: Bool) {
+        let half = 4.0
+        let position = elapsed.truncatingRemainder(dividingBy: half * 2)
+        let inhaling = position < half
+        let progress = (inhaling ? position : position - half) / half
+        let eased = 0.5 - cos(progress * .pi) / 2
+        let amount = inhaling ? eased : 1 - eased
+        return (0.84 + 0.16 * amount, inhaling)
+    }
 
-        return ZStack {
+    private func breathingRings(scale: CGFloat, label: LocalizedStringKey) -> some View {
+        ZStack {
             Circle()
                 .fill(Palette.calmRing)
                 .frame(width: 250, height: 250)
@@ -129,14 +141,14 @@ struct CravingView: View {
                     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                    .transaction { $0.animation = nil }
                 Text(timerInterval: startedAt...Date.distantFuture, countsDown: false)
                     .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
                     .foregroundStyle(Palette.ink)
                     .accessibilityHidden(true)
             }
         }
-        .frame(height: 260)
+        // Fixed size, so the circle never pushes or pulls anything around it.
+        .frame(width: 260, height: 260)
     }
 
     // MARK: - It passed
