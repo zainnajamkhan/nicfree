@@ -111,7 +111,8 @@ final class NicFreeUITests: XCTestCase {
         tap(app, "Yay!")
     }
 
-    /// The unlocked History: the month grid, then the chart, which answers a drag with that day.
+    /// The unlocked History: the month grid, then the chart. Dragging across the chart, as
+    /// when scrolling past it, must not pick a day.
     @MainActor
     func testHistoryChartIsTouchable() throws {
         let app = XCUIApplication()
@@ -122,7 +123,7 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
         snap("History 01 grid")
 
-        let hint = app.staticTexts["So far. Touch the chart to look back."]
+        let hint = app.staticTexts["So far. Tap a dot to look back."]
         for _ in 0..<6 where !hint.isHittable { app.swipeUp() }
         XCTAssertTrue(hint.exists)
         snap("History 02 chart")
@@ -131,12 +132,10 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertTrue(chart.waitForExistence(timeout: 3))
         let from = chart.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
         let to = chart.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
-        from.press(forDuration: 0.3, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.5)
-        XCTAssertTrue(app.buttons["Back to today"].waitForExistence(timeout: 3), "A picked day stays picked")
-        XCTAssertFalse(hint.exists)
+        from.press(forDuration: 0.1, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 0.3)
+        XCTAssertFalse(app.buttons["Back to today"].exists, "A drag across the chart picks nothing")
+        XCTAssertTrue(hint.exists)
         snap("History 03 chart dragged")
-        tap(app, "Back to today")
-        XCTAssertTrue(hint.waitForExistence(timeout: 3))
     }
 
     /// The same walk in dark mode, where contrast problems hide.
