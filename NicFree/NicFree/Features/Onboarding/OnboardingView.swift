@@ -26,6 +26,8 @@ struct OnboardingView: View {
     @State private var quitDate: Date = Date()
     @State private var dateChoice: DateChoice = .today
     @State private var reasons: [String] = ["", "", ""]
+    /// Set the moment the habit is saved, so a second tap during the fade can't save another.
+    @State private var finished = false
 
     private enum DateChoice { case today, yesterday, another }
 
@@ -312,6 +314,10 @@ struct OnboardingView: View {
     }
 
     private func finish() {
+        guard !finished else { return }
+        // Belt and braces: never create a second habit, even if the flag is somehow reset.
+        guard ((try? context.fetchCount(FetchDescriptor<Habit>())) ?? 0) == 0 else { return }
+        finished = true
         let habit = Habit(
             form: form(for: unit),
             unit: unit,
