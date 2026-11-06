@@ -14,6 +14,7 @@ import Charts
 /// every event.
 struct HistoryView: View {
     @Environment(PurchaseStore.self) private var store
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingPaywall = false
     /// A slip tapped in Events, opened to edit or remove.
     @State private var editingSlip: DayRecord?
@@ -42,8 +43,16 @@ struct HistoryView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Space.xl) {
                         if store.isUnlocked {
-                            gridSection(stats)
-                            chartSection(stats)
+                            if sizeClass == .regular {
+                                // iPad: every day on the left, the total over time on the right.
+                                HStack(alignment: .top, spacing: Space.xl) {
+                                    gridSection(stats).frame(maxWidth: .infinity)
+                                    chartSection(stats).frame(maxWidth: .infinity)
+                                }
+                            } else {
+                                gridSection(stats)
+                                chartSection(stats)
+                            }
                         } else {
                             LockedCard(
                                 title: "Your full history",
@@ -53,8 +62,8 @@ struct HistoryView: View {
                         }
                         timelineSection
                     }
-                    .padding(.horizontal, Space.l)
-                    .frame(maxWidth: ContentWidth.readable)
+                    .padding(.horizontal, sizeClass == .regular ? Space.xl : Space.l)
+                    .frame(maxWidth: sizeClass == .regular ? ContentWidth.wide : ContentWidth.readable)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, Space.xxl)
                 }
@@ -227,7 +236,7 @@ struct HistoryView: View {
                             .foregroundStyle(Palette.inkFaint)
                     }
                 }
-                .frame(height: 190)
+                .frame(height: sizeClass == .regular ? 340 : 190)
                 .sensoryFeedback(.selection, trigger: selected?.date)
                 .accessibilityLabel("Total days free over time")
                 .accessibilityValue(String(inflecting: "^[\(stats.lifetimeFreeDays) day](inflect: true)"))
