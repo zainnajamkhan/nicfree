@@ -13,6 +13,7 @@ import SwiftData
 /// first milestone.
 struct OnboardingView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     @State private var step: Step = .form
     @State private var unit: ConsumptionUnit = .disposable
@@ -37,6 +38,41 @@ struct OnboardingView: View {
 
     var body: some View {
         Screen {
+            if sizeClass == .regular {
+                // iPad: the sprout on the left, growing as the steps go by, and the step
+                // itself beside it.
+                HStack(spacing: Space.xxl) {
+                    sproutPanel
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    stepColumn
+                        .frame(maxWidth: 560)
+                }
+            } else {
+                stepColumn
+            }
+        }
+    }
+
+    /// Grows a little with each step, then plays its whole life on the last.
+    private var sproutPanel: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Radius.card * 1.5)
+                .fill(Palette.accentQuiet)
+            if step == .ready {
+                GrowingSprout()
+                    .padding(Space.xl)
+            } else {
+                Sprout(days: [0, 3, 14, 30, 60][min(step.rawValue, 4)])
+                    .padding(Space.xxl)
+                    .animation(.spring(duration: 0.6, bounce: 0.4), value: step)
+            }
+        }
+        .padding(.vertical, Space.l)
+        .accessibilityHidden(step != .ready)
+    }
+
+    private var stepColumn: some View {
+        Group {
             // The step scrolls and the button is pinned, so at the largest text sizes the
             // button can never be pushed off the bottom of the screen.
             ScrollView {
@@ -175,8 +211,10 @@ struct OnboardingView: View {
 
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            GrowingSprout()
-                .padding(.bottom, Space.s)
+            if sizeClass != .regular {
+                GrowingSprout()
+                    .padding(.bottom, Space.s)
+            }
             question("That’s it. You’re all set!")
             Text("You don’t need to check in. Every day counts as a free day unless you log a slip. If you’re away for a few days, we’ll ask about them when you’re back.")
                 .font(Typeface.voice)
