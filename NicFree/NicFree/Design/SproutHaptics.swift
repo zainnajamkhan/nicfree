@@ -8,7 +8,7 @@ import os
 
 /// What the sprout feels like in the hand.
 ///
-/// - **Pet (tap):** a giggle, or one of a few other styles.
+/// - **Pet (tap):** bubbles popping up, or one of a few other styles.
 /// - **Thirsty pet:** one slow, low, dull bump. Never an error buzz.
 /// - **Grow:** a rising hum that ends in a pop as the new leaf, bud or flower opens.
 ///
@@ -63,11 +63,11 @@ enum SproutHaptics {
     /// The ways a tap on the sprout can feel. All of them are short, so a few quick taps in
     /// a row stay playful instead of turning into a buzz.
     enum PetStyle: String, CaseIterable, Identifiable {
-        /// A soft thump, then a quick little laugh climbing in pitch. The default.
+        /// A soft thump, then a quick little laugh climbing in pitch.
         case giggle
         /// One firm thump that bounces to rest, slower each time, like a spring.
         case boing
-        /// Light taps getting crisper, like bubbles popping up.
+        /// Light taps getting crisper, like bubbles popping up. The default.
         case bubbles
         /// A swish of leaves that swells and fades.
         case rustle
@@ -95,7 +95,7 @@ enum SproutHaptics {
             return style
         }
         #endif
-        return .giggle
+        return .bubbles
     }
 
     static func pet(_ style: PetStyle? = nil) {
