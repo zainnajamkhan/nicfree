@@ -90,6 +90,8 @@ struct SecondaryButton: View {
                         .strokeBorder(Palette.hairline, lineWidth: 2)
                 )
                 .foregroundStyle(Palette.inkSoft)
+                // The outline is only a stroke, so without this only the words take a tap.
+                .contentShape(RoundedRectangle(cornerRadius: Radius.button))
         }
         .buttonStyle(.plain)
     }
@@ -182,6 +184,8 @@ struct Chip: View {
                     }
                 )
                 .foregroundStyle(isOn ? Palette.ink : Palette.inkSoft)
+                // An unselected chip is only an outline; the whole pill must take the tap.
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isOn ? [.isSelected] : [])
