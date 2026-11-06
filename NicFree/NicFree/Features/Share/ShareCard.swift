@@ -125,9 +125,6 @@ struct ShareCardSheet: View {
                         .shadow(color: Palette.ink.opacity(0.15), radius: 20, y: 10)
                         .scaleEffect(0.9)
                         .accessibilityElement(children: .combine)
-                    Text("Only you decide where this goes.")
-                        .font(Typeface.row)
-                        .foregroundStyle(Palette.inkSoft)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, Space.l)
