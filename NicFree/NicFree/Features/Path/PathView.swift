@@ -17,6 +17,8 @@ struct PathView: View {
 
     private let milestones = MilestoneScheduler.milestones
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     @State private var sharing: ShareMoment?
 
     private var stats: QuitStats? {
@@ -38,17 +40,30 @@ struct PathView: View {
 
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: Space.m) {
-                            header(free: free, finished: finished)
-                            sproutCard(finished: finished)
-                            trail(finished: finished, next: next)
-                            Text("Milestones count free days, so a slip only moves the next one a little.")
-                                .font(Typeface.voiceSmall)
-                                .foregroundStyle(Palette.inkSoft)
-                                .multilineTextAlignment(.center)
-                                .padding(.vertical, Space.m)
+                        if sizeClass == .regular {
+                            // iPad: the sprout and totals stay on the left, the trail winds
+                            // down the right with room to swing.
+                            HStack(alignment: .top, spacing: Space.xl) {
+                                VStack(spacing: Space.m) {
+                                    header(free: free, finished: finished)
+                                    sproutCard(finished: finished)
+                                    footnote
+                                }
+                                .frame(width: 400)
+
+                                trail(finished: finished, next: next, swing: 2.4)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .padding(.vertical, Space.l)
+                        } else {
+                            VStack(spacing: Space.m) {
+                                header(free: free, finished: finished)
+                                sproutCard(finished: finished)
+                                trail(finished: finished, next: next, swing: 1)
+                                footnote
+                            }
+                            .padding(.top, Space.m)
                         }
-                        .padding(.top, Space.m)
                     }
                     .scrollBounceBehavior(.basedOnSize)
                     .sheet(item: $sharing) { ShareCardSheet(moment: $0) }
@@ -59,6 +74,14 @@ struct PathView: View {
                 }
             }
         }
+    }
+
+    private var footnote: some View {
+        Text("Milestones count free days, so a slip only moves the next one a little.")
+            .font(Typeface.voiceSmall)
+            .foregroundStyle(Palette.inkSoft)
+            .multilineTextAlignment(.center)
+            .padding(.vertical, Space.m)
     }
 
     // MARK: - Pieces
@@ -139,7 +162,8 @@ struct PathView: View {
         )
     }
 
-    private func trail(finished free: Int, next: Int?) -> some View {
+    /// `swing` widens the trail's side to side sway, for a wider screen.
+    private func trail(finished free: Int, next: Int?, swing: CGFloat) -> some View {
         let sway: [CGFloat] = [0, 52, 92, 52, 0, 52, 92, 52, 0]
 
         return VStack(alignment: .leading, spacing: Space.m) {
@@ -161,7 +185,7 @@ struct PathView: View {
                 }
                 // The next milestone's halo reaches past its circle, so even the first row keeps
                 // a margin or the halo is clipped at the screen's edge.
-                .padding(.leading, sway[index % sway.count] + 8)
+                .padding(.leading, sway[index % sway.count] * swing + 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 // A reached milestone opens its own card to share.
