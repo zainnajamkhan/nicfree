@@ -57,7 +57,6 @@ struct PathView: View {
                             .padding(.vertical, Space.l)
                         } else {
                             VStack(spacing: Space.m) {
-                                header(free: free, finished: finished)
                                 sproutCard(finished: finished)
                                 trail(finished: finished, next: next, swing: 1)
                                 footnote
@@ -66,6 +65,16 @@ struct PathView: View {
                         }
                     }
                     .scrollBounceBehavior(.basedOnSize)
+                    // On iPhone the header stays put while the trail scrolls beneath it, on a
+                    // solid ground that also fills the status bar, so nothing shows through
+                    // behind the clock.
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        if sizeClass != .regular {
+                            header(free: free, finished: finished)
+                                .padding(.vertical, Space.s)
+                                .background(Palette.ground.ignoresSafeArea(edges: .top))
+                        }
+                    }
                     .sheet(item: $sharing) { ShareCardSheet(moment: $0) }
                     .onAppear {
                         // Low on screen rather than centred, so the header stays in view.
