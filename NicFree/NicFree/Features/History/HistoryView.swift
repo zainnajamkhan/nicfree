@@ -223,7 +223,7 @@ struct HistoryView: View {
                     .font(Typeface.voiceSmall)
                     .foregroundStyle(Palette.inkFaint)
             } else {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     ForEach(entries) { entry in
                         row(entry)
                     }
@@ -310,7 +310,7 @@ struct HistoryView: View {
         }
 
         let all = (slips + held).sorted { $0.date > $1.date }
-        guard !store.isUnlocked else { return Array(all.prefix(40)) }
+        guard !store.isUnlocked else { return all }
 
         let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Calendar.current.startOfDay(for: Date())) ?? .distantPast
         return all.filter { $0.date >= weekAgo }
