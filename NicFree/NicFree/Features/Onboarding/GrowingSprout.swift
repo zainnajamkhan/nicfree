@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// The sprout's whole life, played once at the end of onboarding: a seedling grows through
-/// every stage to a golden plant in full bloom, with a pop of haptics at each one. It shows
+/// every stage to a golden plant in full bloom, silently: onboarding has no haptics. It shows
 /// what the free days are growing. Tap it to watch again.
 ///
 /// Under Reduce Motion it just shows the finished plant.
@@ -64,7 +64,6 @@ struct GrowingSprout: View {
                 stage = index
                 // Quick, bouncy steps early on, easing into a slower, bigger last one.
                 let last = index == Sprout.stages.count - 1
-                SproutHaptics.grow(duration: last ? 0.5 : 0.25)
                 withAnimation(.spring(duration: last ? 0.9 : 0.55, bounce: 0.4)) {
                     days = Double(Sprout.stages[index].day)
                 }

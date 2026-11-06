@@ -33,7 +33,7 @@ struct OnboardingView: View {
     private enum DateChoice { case today, yesterday, another }
 
     private enum Step: Int, CaseIterable {
-        case form, amount, date, reasons, ready
+        case form, amount, date, reasons, grow, ready
     }
 
     var body: some View {
@@ -58,9 +58,12 @@ struct OnboardingView: View {
         ZStack {
             RoundedRectangle(cornerRadius: Radius.card * 1.5)
                 .fill(Palette.accentQuiet)
-            if step == .ready {
+            if step == .grow {
                 GrowingSprout()
                     .padding(Space.xl)
+            } else if step == .ready {
+                Sprout(freeDays: 90)
+                    .padding(Space.xxl)
             } else {
                 Sprout(days: [0, 3, 14, 30, 60][min(step.rawValue, 4)])
                     .padding(Space.xxl)
@@ -68,7 +71,7 @@ struct OnboardingView: View {
             }
         }
         .padding(.vertical, Space.l)
-        .accessibilityHidden(step != .ready)
+        .accessibilityHidden(step != .grow)
     }
 
     private var stepColumn: some View {
@@ -100,6 +103,7 @@ struct OnboardingView: View {
                         case .amount: amountStep
                         case .date: dateStep
                         case .reasons: reasonsStep
+                        case .grow: growStep
                         case .ready: readyStep
                         }
                     }
@@ -209,11 +213,28 @@ struct OnboardingView: View {
         }
     }
 
-    private var readyStep: some View {
+    /// The sprout turning into the plant these days are growing, on a screen of its own.
+    private var growStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             if sizeClass != .regular {
                 GrowingSprout()
                     .padding(.bottom, Space.s)
+            }
+            question("Here’s what you’re growing")
+            Text("Every free day helps your sprout grow. It gets leaves, a bud, then flowers, and it never shrinks.")
+                .font(Typeface.voice)
+                .foregroundStyle(Palette.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var readyStep: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            if sizeClass != .regular {
+                Sprout(freeDays: 90)
+                    .frame(height: 140)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
             }
             question("That’s it. You’re all set!")
             Text("You don’t need to check in. Every day counts as a free day unless you log a slip. If you’re away for a few days, we’ll ask about them when you’re back.")
