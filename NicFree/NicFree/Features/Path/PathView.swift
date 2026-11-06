@@ -194,7 +194,9 @@ struct PathView: View {
                         }
                     }
                 }
-                .padding(.leading, sway[index % sway.count])
+                // The next milestone's halo reaches past its circle, so even the first row keeps
+                // a margin or the halo is clipped at the screen's edge.
+                .padding(.leading, sway[index % sway.count] + 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 // A reached milestone opens its own card to share.
