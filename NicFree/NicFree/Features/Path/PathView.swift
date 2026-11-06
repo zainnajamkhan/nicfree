@@ -140,35 +140,70 @@ struct PathView: View {
 
     // MARK: - Sprout
 
-    /// The plant's life so far, and what it turns into next.
+    /// Where the sprout is now, and a faded preview of what it turns into next, so this card
+    /// says something Home doesn't: Home is the plant today, this is the road ahead.
     private func sproutCard(finished: Int) -> some View {
         let index = Sprout.stageIndex(freeDays: finished)
         let stage = Sprout.stages[index]
         let next = index + 1 < Sprout.stages.count ? Sprout.stages[index + 1] : nil
 
-        return HStack(spacing: Space.m) {
-            Sprout(freeDays: finished)
-                .frame(width: 110, height: 110)
+        return VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Your sprout")
 
-            VStack(alignment: .leading, spacing: Space.xs) {
-                SectionLabel("Your sprout")
-                Text(stage.name)
-                    .font(.system(.title3, design: .rounded, weight: .heavy))
-                    .foregroundStyle(Palette.ink)
-                if let next {
-                    Text(String(localized: "Next: \(String(localized: next.name)) at \(next.day) days"))
-                        .font(Typeface.row)
-                        .foregroundStyle(Palette.inkSoft)
-                        .fixedSize(horizontal: false, vertical: true)
+            if let next {
+                HStack(alignment: .bottom, spacing: Space.s) {
+                    sproutColumn(Sprout(freeDays: finished), caption: "Now", name: stage.name, size: 96)
+                    Image(systemName: "arrow.right")
+                        .font(.title3.weight(.heavy))
+                        .foregroundStyle(Palette.sun)
+                        .padding(.bottom, 56)
+                    sproutColumn(
+                        Sprout(freeDays: next.day).saturation(0.3).opacity(0.65),
+                        caption: String(inflecting: "Next · ^[\(next.day) day](inflect: true)"),
+                        name: next.name,
+                        size: 96
+                    )
+                }
+                .frame(maxWidth: .infinity)
+
+                ProgressView(value: Double(finished - stage.day), total: Double(max(1, next.day - stage.day)))
+                    .progressViewStyle(LeafProgressStyle())
+            } else {
+                HStack(spacing: Space.m) {
+                    Sprout(freeDays: finished).frame(width: 110, height: 110)
+                    VStack(alignment: .leading, spacing: Space.xs) {
+                        Text(stage.name)
+                            .font(.system(.title3, design: .rounded, weight: .heavy))
+                            .foregroundStyle(Palette.ink)
+                        Text("Fully grown. It stays this way for good.")
+                            .font(Typeface.row)
+                            .foregroundStyle(Palette.inkSoft)
+                    }
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(Space.m)
+        .background(Palette.sunQuiet.opacity(0.6), in: RoundedRectangle(cornerRadius: Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Radius.card)
-                .strokeBorder(Palette.hairline, lineWidth: 2)
+                .strokeBorder(Palette.sun.opacity(0.45), style: StrokeStyle(lineWidth: 2, dash: [7, 6]))
         )
+    }
+
+    private func sproutColumn(_ sprout: some View, caption: String, name: LocalizedStringResource, size: CGFloat) -> some View {
+        VStack(spacing: Space.xs) {
+            sprout.frame(width: size, height: size)
+            Text(caption)
+                .font(Typeface.label)
+                .textCase(.uppercase)
+                .foregroundStyle(Palette.inkFaint)
+            Text(name)
+                .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                .foregroundStyle(Palette.ink)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
     /// `swing` widens the trail's side to side sway, for a wider screen.
