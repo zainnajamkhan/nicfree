@@ -17,6 +17,7 @@ import WidgetKit
 struct HomeView: View {
     @Environment(\.storeIsTemporary) private var storeIsTemporary
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.requestReview) private var requestReview
     @Environment(\.modelContext) private var context
     @Query private var habits: [Habit]
@@ -68,19 +69,10 @@ struct HomeView: View {
     var body: some View {
         Screen {
             if let habit, let stats {
-                ScrollView {
-                    VStack(spacing: Space.m) {
-                        if storeIsTemporary { temporaryStoreNotice }
-                        chips(stats: stats, habit: habit)
-                        sproutCard(stats: stats, habit: habit)
-                        WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
-                    }
-                    .padding(.top, Space.m)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    actions
-                        .background(Palette.ground)
+                if sizeClass == .regular {
+                    wideLayout(stats: stats, habit: habit)
+                } else {
+                    compactLayout(stats: stats, habit: habit)
                 }
             }
         }
@@ -148,6 +140,59 @@ struct HomeView: View {
     private var scheduleKey: String {
         guard let stats else { return "none" }
         return "\(stats.finishedFreeDays)-\(stats.todayIsUsed)"
+    }
+
+    // MARK: - Layouts
+
+    /// iPhone: one column, with the craving button pinned to the bottom.
+    private func compactLayout(stats: QuitStats, habit: Habit) -> some View {
+        ScrollView {
+            VStack(spacing: Space.m) {
+                if storeIsTemporary { temporaryStoreNotice }
+                chips(stats: stats, habit: habit)
+                sproutCard(stats: stats, habit: habit, sproutHeight: 180)
+                WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
+            }
+            .padding(.top, Space.m)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            actions
+                .background(Palette.ground)
+        }
+    }
+
+    /// iPad and other wide windows: the sprout gets the room on the left, and everything
+    /// to do sits in a column beside it, so nothing is a phone screen with margins.
+    private func wideLayout(stats: QuitStats, habit: Habit) -> some View {
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: Space.l) {
+                    if storeIsTemporary { temporaryStoreNotice }
+                    HStack(alignment: .top, spacing: Space.xl) {
+                        // The sprout card takes the whole height of the window.
+                        sproutCard(stats: stats, habit: habit, sproutHeight: nil)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        VStack(spacing: Space.l) {
+                            chips(stats: stats, habit: habit)
+                            WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
+                                .padding(Space.m)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: Radius.card)
+                                        .strokeBorder(Palette.hairline, lineWidth: 2)
+                                )
+                            Spacer(minLength: Space.l)
+                            actions
+                        }
+                        .frame(width: 420)
+                    }
+                    .frame(minHeight: max(420, proxy.size.height - Space.l * 2))
+                }
+                .padding(.vertical, Space.l)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
     }
 
     // MARK: - Used after a craving
@@ -280,7 +325,8 @@ struct HomeView: View {
         }
     }
 
-    private func sproutCard(stats: QuitStats, habit: Habit) -> some View {
+    /// `sproutHeight` nil lets the sprout fill whatever room the card has.
+    private func sproutCard(stats: QuitStats, habit: Habit, sproutHeight: CGFloat?) -> some View {
         let free = stats.lifetimeFreeDays
         let line = sproutIsThirsty
             ? String(localized: "Your sprout’s a bit thirsty. A free day will perk it up.")
@@ -303,7 +349,8 @@ struct HomeView: View {
                 seenStage: habit.sproutStageSeen,
                 onSeenStage: { habit.sproutStageSeen = $0 }
             )
-            .frame(height: 180)
+            .frame(height: sproutHeight)
+            .frame(maxHeight: sproutHeight == nil ? .infinity : nil)
             .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
 
             // Finished days only, the same count the notes and Path use.
