@@ -76,13 +76,12 @@ struct LivingSprout: View {
             return
         }
 
-        // Starts just before the new part, then opens it slowly, with a long rest after.
-        shownDays = Double(Sprout.stages[current].day) - 1
-        try? await Task.sleep(for: .milliseconds(1200))
-        SproutHaptics.grow(duration: 1.8)
-        withAnimation(.easeInOut(duration: 2.4)) { shownDays = Double(Sprout.stages[current].day) }
-        try? await Task.sleep(for: .milliseconds(2800))
-        withAnimation(.smooth(duration: 1.2)) { shownDays = Double(finishedDays) }
+        shownDays = Double(Sprout.stages[current].day - 1)
+        try? await Task.sleep(for: .milliseconds(700))
+        SproutHaptics.grow(duration: 0.9)
+        withAnimation(.easeIn(duration: 0.9)) { shownDays = Double(Sprout.stages[current].day) - 0.05 }
+        try? await Task.sleep(for: .milliseconds(900))
+        withAnimation(.spring(duration: 0.6, bounce: 0.5)) { shownDays = Double(finishedDays) }
         pets += 1
     }
 }

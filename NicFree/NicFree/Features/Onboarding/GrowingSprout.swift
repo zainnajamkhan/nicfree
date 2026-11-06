@@ -5,100 +5,71 @@
 
 import SwiftUI
 
-/// The sprout's whole life as a slow time lapse, on the onboarding screen of its own: one
-/// continuous growth from a seedling to a golden plant in full bloom, easing from stage to
-/// stage with a moment's rest at each, while it sways a little as if in a breeze. Silent:
-/// onboarding has no haptics. Tap it to watch again.
-///
-/// Drawn from the clock rather than from a chain of animations, so every leaf and flower
-/// opens smoothly and the name beneath always matches what's on screen.
+/// The sprout's whole life, played once at the end of onboarding: a seedling grows through
+/// every stage to a golden plant in full bloom, silently: onboarding has no haptics. It shows
+/// what the free days are growing. Tap it to watch again.
 ///
 /// Under Reduce Motion it just shows the finished plant.
 struct GrowingSprout: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Seconds from seedling to golden. Long enough to watch each part open.
-    private static let duration: Double = 16
-
-    @State private var start = Date()
-    @State private var settled = false
+    @State private var days: Double = 0
+    @State private var stage = 0
+    @State private var playing = false
+    @State private var task: Task<Void, Never>?
 
     var body: some View {
-        Group {
-            if reduceMotion || settled {
-                content(days: Double(Sprout.stages.last?.day ?? 365), time: 0)
-            } else {
-                TimelineView(.animation) { context in
-                    let elapsed = context.date.timeIntervalSince(start)
-                    content(days: Self.days(at: elapsed), time: elapsed)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture { replay() }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Plays the sprout growing again")
-        .task(id: start) {
-            // Hold the finished plant once the time lapse is over.
-            try? await Task.sleep(for: .seconds(Self.duration + 0.5))
-            if !Task.isCancelled { settled = true }
-        }
-    }
-
-    private func replay() {
-        guard !reduceMotion else { return }
-        settled = false
-        start = Date()
-    }
-
-    private func content(days: Double, time: Double) -> some View {
-        // The name changes once a stage is fully open, not while it's still unfolding.
-        let stage = Sprout.stageIndex(freeDays: Int((days + 0.001).rounded(.down)))
-
-        return VStack(spacing: Space.s) {
+        VStack(spacing: Space.s) {
             Sprout(days: days)
-                .frame(height: 240)
-                // A slow sway from the pot, never more than a few degrees.
-                .rotationEffect(.degrees(sin(time * 1.1) * 2.2), anchor: .bottom)
+                .frame(height: 200)
 
             VStack(spacing: 2) {
                 Text(Sprout.stages[stage].name)
                     .font(.system(.title3, design: .rounded, weight: .heavy))
                     .foregroundStyle(Palette.ink)
+                    .contentTransition(.opacity)
                 Text(String(inflecting: "^[\(Sprout.stages[stage].day) free day](inflect: true)"))
                     .font(Typeface.row)
                     .foregroundStyle(Palette.inkSoft)
                     .monospacedDigit()
             }
+            .animation(.smooth(duration: 0.25), value: stage)
         }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture { play() }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Plays the sprout growing again")
+        .task { play() }
+        .onDisappear { task?.cancel() }
     }
 
-    /// The plant's age at a moment in the time lapse. Every stage gets an equal share of the
-    /// time, in three parts: the plant fills out toward it, the new leaf or flower opens
-    /// slowly, and then it rests, so each change can be seen before the next one starts.
-    static func days(at elapsed: Double) -> Double {
-        let stages = Sprout.stages
-        let segments = Double(stages.count - 1)
-        let position = min(max(elapsed / duration, 0), 1) * segments
-        if position >= segments { return Double(stages[stages.count - 1].day) }
-
-        let index = Int(position)
-        let within = position - Double(index)
-        let from = Double(stages[index].day)
-        let to = Double(stages[index + 1].day)
-
-        func smooth(_ x: Double) -> Double {
-            let t = min(max(x, 0), 1)
-            return t * t * (3 - 2 * t)
+    private func play() {
+        guard !playing else { return }
+        guard !reduceMotion else {
+            stage = Sprout.stages.count - 1
+            days = Double(Sprout.stages[stage].day)
+            return
         }
-
-        // A new part opens over the last day before its stage, so open is the one day
-        // leading to `to`, and filling out is everything before that.
-        if within < 0.25 { return from + (max(to - 1, from) - from) * smooth(within / 0.25) }
-        if within < 0.8 { return max(to - 1, from) + (to - max(to - 1, from)) * smooth((within - 0.25) / 0.55) }
-        return to
+        task?.cancel()
+        task = Task {
+            playing = true
+            defer { playing = false }
+            stage = 0
+            days = 0
+            try? await Task.sleep(for: .milliseconds(500))
+            for index in 1..<Sprout.stages.count {
+                guard !Task.isCancelled else { return }
+                stage = index
+                // Quick, bouncy steps early on, easing into a slower, bigger last one.
+                let last = index == Sprout.stages.count - 1
+                withAnimation(.spring(duration: last ? 0.9 : 0.55, bounce: 0.4)) {
+                    days = Double(Sprout.stages[index].day)
+                }
+                try? await Task.sleep(for: .milliseconds(last ? 1200 : 700))
+            }
+        }
     }
 }
 
