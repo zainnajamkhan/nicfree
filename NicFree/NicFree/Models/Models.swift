@@ -143,6 +143,8 @@ final class Habit {
     /// looks, so someone who joins already weeks in isn't asked straight away.
     var lastReviewMilestone: Int?
 
+    /// The last sprout stage already shown growing on Home. Nil until Home first looks.
+    var sproutStageSeen: Int?
 
     init(
         form: NicotineForm = .vape,

@@ -288,9 +288,14 @@ struct HomeView: View {
                 .padding(Space.m - 2)
                 .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.button))
 
-            Sprout(freeDays: free, thirsty: sproutIsThirsty)
-                .frame(height: 180)
-                .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
+            LivingSprout(
+                finishedDays: stats.finishedFreeDays,
+                thirsty: sproutIsThirsty,
+                seenStage: habit.sproutStageSeen,
+                onSeenStage: { habit.sproutStageSeen = $0 }
+            )
+            .frame(height: 180)
+            .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
 
             // Finished days only, the same count the notes and Path use.
             let finished = stats.finishedFreeDays
