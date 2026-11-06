@@ -39,7 +39,8 @@ struct GrowingSprout: View {
             Button(action: play) {
                 Label("Watch again", systemImage: "arrow.counterclockwise")
                     .font(Typeface.row)
-                    .foregroundStyle(Palette.accent)
+                    // Stays readable while it plays: a softer ink, never a faded green.
+                    .foregroundStyle(playing ? Palette.inkSoft : Palette.accent)
                     .padding(.horizontal, Space.m)
                     .frame(minHeight: 44)
                     .background(Capsule().fill(Palette.accentQuiet))
@@ -48,7 +49,6 @@ struct GrowingSprout: View {
             }
             .buttonStyle(.plain)
             .disabled(playing)
-            .opacity(playing ? 0.35 : 1)
             .animation(.smooth(duration: 0.25), value: playing)
             .padding(.top, Space.xs)
         }
