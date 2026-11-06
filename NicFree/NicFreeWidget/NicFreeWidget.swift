@@ -22,7 +22,13 @@ struct SproutWidget: Widget {
         StaticConfiguration(kind: "SproutWidget", provider: Provider()) { entry in
             SproutWidgetView(entry: entry)
                 .containerBackground(for: .widget) {
-                    LinearGradient(colors: [Palette.sunQuiet, Palette.accentQuiet], startPoint: .top, endPoint: .bottom)
+                    // Soft sun into leaf in light mode, a deep green in dark mode, so the
+                    // text on top always has the contrast of the app's own screens.
+                    LinearGradient(
+                        colors: [Color(light: 0xFFF4D6, dark: 0x1E3326), Color(light: 0xE9F5EA, dark: 0x14211A)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                 }
         }
         .configurationDisplayName("Your sprout")
@@ -124,7 +130,6 @@ struct SproutWidgetView: View {
                     .multilineTextAlignment(.center)
             }
         }
-        .environment(\.colorScheme, .light)
     }
 
     private var medium: some View {
@@ -152,7 +157,6 @@ struct SproutWidgetView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .environment(\.colorScheme, .light)
     }
 
     /// Lock Screen: the system tints it, so it's shapes and numbers only.
