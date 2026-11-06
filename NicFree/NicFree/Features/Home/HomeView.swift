@@ -23,6 +23,8 @@ struct HomeView: View {
     @State private var loggingSlip = false
     @State private var showingCraving = false
     @State private var pendingSlip = false
+    /// The slip sheet came from "I used", so it's for right now.
+    @State private var slipFromCraving = false
     @State private var pendingHoldSeconds = 0
     @State private var showingSettings = false
     /// Drives the catch-up sheet by its data. A sheet opened from a separate Bool can render
@@ -85,13 +87,22 @@ struct HomeView: View {
         .sheet(isPresented: $showingSettings) {
             if let habit { SettingsView(habit: habit) }
         }
-        .sheet(isPresented: $loggingSlip, onDismiss: { pendingHoldSeconds = 0 }) {
-            SlipLogView(existing: todaysRecord, day: today, heldOutSeconds: pendingHoldSeconds)
+        .sheet(isPresented: $loggingSlip, onDismiss: {
+            pendingHoldSeconds = 0
+            slipFromCraving = false
+        }) {
+            SlipLogView(
+                existing: todaysRecord,
+                day: today,
+                heldOutSeconds: pendingHoldSeconds,
+                allowsDayChoice: !slipFromCraving
+            )
                 .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showingCraving, onDismiss: {
             if pendingSlip {
                 pendingSlip = false
+                slipFromCraving = true
                 loggingSlip = true
             }
         }) {

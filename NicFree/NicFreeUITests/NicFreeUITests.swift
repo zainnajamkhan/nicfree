@@ -279,4 +279,26 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
         XCTAssertEqual(cravings.value as? String, before, "Closing must not record a craving")
     }
+
+    /// Last night's slip can be logged this morning, and lands on yesterday.
+    @MainActor
+    func testSlipCanBeLoggedForYesterday() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        let slipLink = app.buttons["Log a slip"]
+        XCTAssertTrue(slipLink.waitForExistence(timeout: 8))
+        slipLink.tap()
+        tap(app, "Yesterday")
+        tap(app, "Just a little")
+        tap(app, "Save")
+        XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
+        tap(app, "Done")
+
+        // Today is untouched, so the link still offers a new slip rather than an edit.
+        XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
+        // And the sprout is thirsty, because yesterday now has a slip.
+        XCTAssertTrue(app.staticTexts["Your sprout’s a bit thirsty. A free day will perk it up."].waitForExistence(timeout: 5))
+    }
 }
