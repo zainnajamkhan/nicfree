@@ -25,6 +25,7 @@ struct SettingsView: View {
     @State private var reminderNote: String?
     #if DEBUG
     @AppStorage("debugPetStyle") private var petStyle = ""
+    @AppStorage(DebugLaunch.key) private var startFresh = true
     #endif
     #if DEBUG
     @State private var previewCelebration: CelebrationMoment?
@@ -195,6 +196,7 @@ struct SettingsView: View {
         @Bindable var store = store
         return Section {
             Toggle("Unlock everything", isOn: $store.debugUnlocked)
+            Toggle("Start from onboarding every launch", isOn: $startFresh)
             hapticLab
             Button("Preview a free day celebration") {
                 previewCelebration = CelebrationMoment(from: 12, to: 13, milestone: nil)
@@ -205,7 +207,7 @@ struct SettingsView: View {
         } header: {
             SectionLabel("Debug builds only")
         } footer: {
-            Text("Not in the App Store version. Shows the paid screens without buying.")
+            Text("Not in the App Store version. While \"Start from onboarding\" is on, each launch uses an empty temporary store and turns the unlock off, so anything you log here is gone next launch. Turn it off to keep your data.")
         }
     }
     #endif
