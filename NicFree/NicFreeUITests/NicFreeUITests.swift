@@ -260,4 +260,23 @@ final class NicFreeUITests: XCTestCase {
         sleep(1)
         snap("10 home after a craving and a slip")
     }
+
+    /// The craving screen can be left without choosing anything, and saves nothing.
+    @MainActor
+    func testCravingScreenCanBeClosedWithTheCross() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        let cravings = app.descendants(matching: .any)["Cravings beaten"]
+        XCTAssertTrue(cravings.waitForExistence(timeout: 8))
+        let before = cravings.value as? String
+
+        tap(app, "craving")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "It passed")).firstMatch.waitForExistence(timeout: 5))
+        tap(app, "Close")
+
+        XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
+        XCTAssertEqual(cravings.value as? String, before, "Closing must not record a craving")
+    }
 }

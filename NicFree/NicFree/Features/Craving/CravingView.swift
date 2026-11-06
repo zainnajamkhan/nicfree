@@ -43,6 +43,23 @@ struct CravingView: View {
             case .primer: primer
             }
         }
+        .overlay(alignment: .topTrailing) {
+            // Opened by mistake, or no longer needed: leaves without saving anything.
+            if phase == .riding {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.callout.weight(.bold))
+                        .foregroundStyle(Palette.inkSoft)
+                        .frame(width: 44, height: 44)
+                        .background(Palette.ground, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Close")
+                .padding(Space.m)
+            }
+        }
         .task {
             askAboutMilestones = await MilestoneScheduler.authorizationStatus() == .notDetermined
         }
