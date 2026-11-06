@@ -15,14 +15,9 @@ struct PathView: View {
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     private let milestones = MilestoneScheduler.milestones
 
     @State private var sharing: ShareMoment?
-    /// Set while "Watch it grow" plays the sprout's life from the start.
-    @State private var replayDays: Double?
-    @State private var replay: Task<Void, Never>?
 
     private var stats: QuitStats? {
         guard let habit = habits.first else { return nil }
@@ -57,10 +52,6 @@ struct PathView: View {
                     }
                     .scrollBounceBehavior(.basedOnSize)
                     .sheet(item: $sharing) { ShareCardSheet(moment: $0) }
-                    .onDisappear {
-                        replay?.cancel()
-                        replayDays = nil
-                    }
                     .onAppear {
                         // Low on screen rather than centred, so the header stays in view.
                         if let next { proxy.scrollTo(next, anchor: UnitPoint(x: 0.5, y: 0.8)) }
@@ -124,7 +115,7 @@ struct PathView: View {
         let next = index + 1 < Sprout.stages.count ? Sprout.stages[index + 1] : nil
 
         return HStack(spacing: Space.m) {
-            Sprout(days: replayDays ?? Double(finished))
+            Sprout(freeDays: finished)
                 .frame(width: 110, height: 110)
 
             VStack(alignment: .leading, spacing: Space.xs) {
@@ -138,11 +129,6 @@ struct PathView: View {
                         .foregroundStyle(Palette.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Button(replayDays == nil ? "Watch it grow" : "Growing…") { watchItGrow(to: finished) }
-                    .font(Typeface.row)
-                    .foregroundStyle(Palette.accent)
-                    .disabled(replayDays != nil)
-                    .frame(minHeight: 44)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -151,27 +137,6 @@ struct PathView: View {
             RoundedRectangle(cornerRadius: Radius.card)
                 .strokeBorder(Palette.hairline, lineWidth: 2)
         )
-    }
-
-    /// Plays every stage reached so far, from a single leaf, with a pop for each.
-    private func watchItGrow(to finished: Int) {
-        let reached = Sprout.stages.filter { $0.day <= finished }
-        replay?.cancel()
-        replay = Task {
-            replayDays = 0
-            try? await Task.sleep(for: .milliseconds(400))
-            for stage in reached.dropFirst() {
-                guard !Task.isCancelled else { return }
-                SproutHaptics.grow(duration: 0.35)
-                withAnimation(reduceMotion ? nil : .spring(duration: 0.5, bounce: 0.45)) {
-                    replayDays = Double(stage.day)
-                }
-                try? await Task.sleep(for: .milliseconds(750))
-            }
-            withAnimation(.smooth(duration: 0.4)) { replayDays = Double(finished) }
-            try? await Task.sleep(for: .milliseconds(450))
-            replayDays = nil
-        }
     }
 
     private func trail(finished free: Int, next: Int?) -> some View {

@@ -175,6 +175,8 @@ struct OnboardingView: View {
 
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
+            GrowingSprout()
+                .padding(.bottom, Space.s)
             question("That’s it. You’re all set!")
             Text("You don’t need to check in. Every day counts as a free day unless you log a slip. If you’re away for a few days, we’ll ask about them when you’re back.")
                 .font(Typeface.voice)
