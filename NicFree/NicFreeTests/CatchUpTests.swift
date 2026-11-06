@@ -32,7 +32,7 @@ struct CatchUpTests {
 
     @Test("Opening every day never asks anything")
     func dailyUserIsNeverAsked() {
-        #expect(ask(lastChecked: day(0)).isEmpty)   
+        #expect(ask(lastChecked: day(0)).isEmpty)
         #expect(ask(lastChecked: day(1)).isEmpty)
     }
 
