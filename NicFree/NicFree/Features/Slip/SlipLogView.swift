@@ -22,14 +22,6 @@ struct SlipLogView: View {
     let existing: DayRecord?
     let day: Date
 
-    /// Seconds held out before using, when this arrived from the craving screen. The
-    /// effort still counts, even though the craving ended in use.
-    var heldOutSeconds: Int = 0
-
-    /// False when arriving from "I used": that slip is happening now, so there's no day to
-    /// pick.
-    var allowsDayChoice = true
-
     /// Today, or yesterday for a slip from last night. Only a new slip chooses; an existing
     /// one keeps its day.
     @State private var chosenDay: Date?
@@ -69,7 +61,7 @@ struct SlipLogView: View {
 
     /// Yesterday is offered only if the quit date reaches back that far.
     private var canChooseYesterday: Bool {
-        guard allowsDayChoice, existing == nil, let yesterday, let quit = habits.first?.quitStartedAt else { return false }
+        guard existing == nil, let yesterday, let quit = habits.first?.quitStartedAt else { return false }
         return yesterday >= Calendar.current.startOfDay(for: quit)
     }
 
@@ -179,9 +171,9 @@ struct SlipLogView: View {
         } else if let sameDay = records.first(where: { $0.day == selectedDay }) {
             // Yesterday already has a slip: add to it rather than writing a second record.
             sameDay.intensity = intensity
-            if trigger != nil || heldOutSeconds > 0 {
+            if trigger != nil {
                 context.insert(
-                    CravingEvent(occurredAt: momentOnDay, heldOutSeconds: heldOutSeconds, resisted: false, triggerRaw: trigger)
+                    CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger)
                 )
             }
         } else {
@@ -190,9 +182,9 @@ struct SlipLogView: View {
             // A slip is a craving that ended in use, so the trigger belongs in the same
             // place resisted cravings go. That is what lets insights rank triggers across
             // both outcomes rather than only the ones that were survived.
-            if trigger != nil || heldOutSeconds > 0 {
+            if trigger != nil {
                 context.insert(
-                    CravingEvent(occurredAt: momentOnDay, heldOutSeconds: heldOutSeconds, resisted: false, triggerRaw: trigger)
+                    CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger)
                 )
             }
         }

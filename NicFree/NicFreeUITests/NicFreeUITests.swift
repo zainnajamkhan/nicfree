@@ -301,4 +301,19 @@ final class NicFreeUITests: XCTestCase {
         // And the sprout is thirsty, because yesterday now has a slip.
         XCTAssertTrue(app.staticTexts["Your sprout’s a bit thirsty. A free day will perk it up."].waitForExistence(timeout: 5))
     }
+
+    /// "I used" is logged the moment it's tapped, so closing the details sheet keeps it.
+    @MainActor
+    func testUsedAfterACravingIsLoggedEvenIfTheSheetIsClosed() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        tap(app, "craving")
+        tap(app, "I used")
+        XCTAssertTrue(app.buttons["Remove this slip"].waitForExistence(timeout: 5), "The details sheet opens on the slip that was just logged")
+        app.swipeDown(velocity: .fast)
+
+        XCTAssertTrue(app.buttons["Edit today's slip"].waitForExistence(timeout: 5), "Closing the sheet must not lose the slip")
+    }
 }

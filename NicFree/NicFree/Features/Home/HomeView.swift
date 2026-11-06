@@ -26,9 +26,6 @@ struct HomeView: View {
     @State private var loggingSlip = false
     @State private var showingCraving = false
     @State private var pendingSlip = false
-    /// The slip sheet came from "I used", so it's for right now.
-    @State private var slipFromCraving = false
-    @State private var pendingHoldSeconds = 0
     @State private var showingSettings = false
     /// Drives the catch-up sheet by its data. A sheet opened from a separate Bool can render
     /// with the previous, empty list of days ("Any nicotine since ?").
@@ -90,28 +87,19 @@ struct HomeView: View {
         .sheet(isPresented: $showingSettings) {
             if let habit { SettingsView(habit: habit) }
         }
-        .sheet(isPresented: $loggingSlip, onDismiss: {
-            pendingHoldSeconds = 0
-            slipFromCraving = false
-        }) {
-            SlipLogView(
-                existing: todaysRecord,
-                day: today,
-                heldOutSeconds: pendingHoldSeconds,
-                allowsDayChoice: !slipFromCraving
-            )
+        .sheet(isPresented: $loggingSlip) {
+            SlipLogView(existing: todaysRecord, day: today)
                 .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showingCraving, onDismiss: {
             if pendingSlip {
                 pendingSlip = false
-                slipFromCraving = true
                 loggingSlip = true
             }
         }) {
             if let habit {
                 CravingView(habit: habit) { seconds in
-                    pendingHoldSeconds = seconds
+                    logSlipFromCraving(heldOutSeconds: seconds)
                     pendingSlip = true
                 }
             }
@@ -160,6 +148,16 @@ struct HomeView: View {
     private var scheduleKey: String {
         guard let stats else { return "none" }
         return "\(stats.finishedFreeDays)-\(stats.todayIsUsed)"
+    }
+
+    // MARK: - Used after a craving
+
+    /// "I used" is the slip. It's written the moment it's tapped, so closing the details
+    /// sheet afterwards can't lose it; the sheet only adds how much and what set it off.
+    private func logSlipFromCraving(heldOutSeconds: Int) {
+        guard todaysRecord == nil else { return }
+        context.insert(DayRecord(day: today))
+        context.insert(CravingEvent(heldOutSeconds: heldOutSeconds, resisted: false))
     }
 
     // MARK: - Catch-up
