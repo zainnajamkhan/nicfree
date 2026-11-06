@@ -131,10 +131,19 @@ struct HomeView: View {
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active { checkForMissedDays() }
         }
-        .task(id: stats?.lifetimeFreeDays ?? -1) {
+        .task(id: scheduleKey) {
             guard let stats else { return }
-            await MilestoneScheduler.reschedule(freeDays: stats.lifetimeFreeDays)
+            await MilestoneScheduler.reschedule(
+                finishedFreeDays: stats.finishedFreeDays,
+                todayUsed: stats.todayIsUsed
+            )
         }
+    }
+
+    /// Changes whenever the milestone schedule has to be rebuilt.
+    private var scheduleKey: String {
+        guard let stats else { return "none" }
+        return "\(stats.finishedFreeDays)-\(stats.todayIsUsed)"
     }
 
     // MARK: - Catch-up
@@ -257,8 +266,10 @@ struct HomeView: View {
                 .frame(height: 180)
                 .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
 
-            if let next = MilestoneScheduler.milestones.first(where: { $0 > free }) {
-                nextMilestone(free: free, next: next)
+            // Finished days only, the same count the notes and Path use.
+            let finished = stats.finishedFreeDays
+            if let next = MilestoneScheduler.milestones.first(where: { $0 > finished }) {
+                nextMilestone(free: finished, next: next)
             }
         }
         .padding(Space.m + 4)

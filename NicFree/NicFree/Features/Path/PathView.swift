@@ -17,6 +17,7 @@ struct PathView: View {
 
     private let milestones = MilestoneScheduler.milestones
 
+
     private var stats: QuitStats? {
         guard let habit = habits.first else { return nil }
         return QuitStats(
@@ -31,13 +32,14 @@ struct PathView: View {
         Screen {
             if let stats {
                 let free = stats.lifetimeFreeDays
-                let next = milestones.first { $0 > free }
+                let finished = stats.finishedFreeDays
+                let next = milestones.first { $0 > finished }
 
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(spacing: Space.m) {
-                            header(free: free)
-                            trail(free: free, next: next)
+                            header(free: free, finished: finished)
+                            trail(finished: finished, next: next)
                             Text("Milestones count free days, so a slip only moves the next one a little.")
                                 .font(Typeface.voiceSmall)
                                 .foregroundStyle(Palette.inkSoft)
@@ -58,8 +60,8 @@ struct PathView: View {
 
     // MARK: - Pieces
 
-    private func header(free: Int) -> some View {
-        let reached = milestones.filter { $0 <= free }.count
+    private func header(free: Int, finished: Int) -> some View {
+        let reached = milestones.filter { $0 <= finished }.count
 
         return HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -90,7 +92,7 @@ struct PathView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func trail(free: Int, next: Int?) -> some View {
+    private func trail(finished free: Int, next: Int?) -> some View {
         let sway: [CGFloat] = [0, 52, 92, 52, 0, 52, 92, 52, 0]
 
         return VStack(alignment: .leading, spacing: Space.m) {
