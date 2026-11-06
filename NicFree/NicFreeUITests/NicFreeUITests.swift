@@ -316,4 +316,24 @@ final class NicFreeUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["Edit today's slip"].waitForExistence(timeout: 5), "Closing the sheet must not lose the slip")
     }
+
+    /// Scrolling through the chart must never pick a day; only a tap on a dot does.
+    @MainActor
+    func testScrollingOverTheChartSelectsNothing() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData", "-unlockForScreenshots"]
+        app.launch()
+        let tab = app.tabBars.buttons["History"].exists ? app.tabBars.buttons["History"] : app.buttons["History"].firstMatch
+        XCTAssertTrue(tab.waitForExistence(timeout: 8))
+        tab.tap()
+
+        let hint = app.staticTexts["So far. Tap a dot to look back."]
+        XCTAssertTrue(hint.waitForExistence(timeout: 5))
+        // Drag across the whole screen, through the chart, a few times.
+        for _ in 0..<3 {
+            app.swipeUp(velocity: .slow)
+            app.swipeDown(velocity: .slow)
+        }
+        XCTAssertFalse(app.buttons["Back to today"].exists, "Scrolling must not select a day")
+    }
 }
