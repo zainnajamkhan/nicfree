@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import StoreKit
 
 /// Three numbers that only grow, a sprout that grows with them, and one big button.
 ///
@@ -15,6 +16,7 @@ import SwiftData
 struct HomeView: View {
     @Environment(\.storeIsTemporary) private var storeIsTemporary
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
     @Environment(\.modelContext) private var context
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
@@ -118,7 +120,10 @@ struct HomeView: View {
         .sheet(item: $catchUp, onDismiss: {
             markChecked()
             // Next turn, so the days just marked as used are already in the query.
-            Task { checkForCelebration() }
+            Task {
+                checkForCelebration()
+                checkForReview()
+            }
         }) { prompt in
             CatchUpView(days: prompt.days) { used in
                 for day in used { context.insert(DayRecord(day: day)) }
@@ -159,6 +164,7 @@ struct HomeView: View {
         if days.isEmpty {
             markChecked()
             checkForCelebration()
+            checkForReview()
         } else {
             catchUp = CatchUpPrompt(days: days)
         }
@@ -193,6 +199,26 @@ struct HomeView: View {
         let total = stats.lifetimeFreeDays
         let from = max(0, total - gained)
         celebration = CelebrationMoment(from: from, to: total, milestone: Celebration.milestone(from: from, to: total))
+    }
+
+    // MARK: - Review
+
+    /// After a milestone is reached, and not while a slip is fresh. The first look ever
+    /// only records where the person already is.
+    private func checkForReview() {
+        guard let habit, let stats, celebration == nil, catchUp == nil else { return }
+        let decision = ReviewPrompt.decide(
+            finishedFreeDays: stats.finishedFreeDays,
+            last: habit.lastReviewMilestone,
+            recentSlip: sproutIsThirsty
+        )
+        habit.lastReviewMilestone = decision.remember
+        guard decision.ask else { return }
+        Task {
+            // A beat after the screen settles, so it never lands on top of a sheet.
+            try? await Task.sleep(for: .seconds(1.5))
+            requestReview()
+        }
     }
 
     // MARK: - Pieces

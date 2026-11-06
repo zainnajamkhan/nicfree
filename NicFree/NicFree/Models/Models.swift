@@ -139,6 +139,11 @@ final class Habit {
     /// quietly, so nobody gets a celebration for days before they had the app.
     var lastCelebratedThrough: Date?
 
+    /// The biggest milestone already considered for a review request. Nil until Home first
+    /// looks, so someone who joins already weeks in isn't asked straight away.
+    var lastReviewMilestone: Int?
+
+
     init(
         form: NicotineForm = .vape,
         unit: ConsumptionUnit = .disposable,
