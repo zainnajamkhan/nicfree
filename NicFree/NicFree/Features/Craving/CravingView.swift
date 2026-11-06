@@ -18,6 +18,10 @@ struct CravingView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    /// The circle and the cards beside it are larger on a big screen.
+    private var big: Bool { sizeClass == .regular }
 
     let habit: Habit
 
@@ -86,7 +90,7 @@ struct CravingView: View {
                         .foregroundStyle(Palette.ink)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: big ? 640 : .infinity, alignment: .leading)
                 .padding(Space.m)
                 .background(Palette.ground, in: RoundedRectangle(cornerRadius: Radius.card))
                 .overlay(
@@ -101,6 +105,7 @@ struct CravingView: View {
                 PrimaryButton("It passed") { finishResisted() }
                 SecondaryButton("I used") { finishUsed() }
             }
+            .frame(maxWidth: big ? 560 : .infinity)
             .padding(.bottom, Space.l)
         }
     }
@@ -165,7 +170,8 @@ struct CravingView: View {
             }
         }
         // Fixed size, so the circle never pushes or pulls anything around it.
-        .frame(width: 260, height: 260)
+        .scaleEffect(big ? 1.7 : 1)
+        .frame(width: big ? 440 : 260, height: big ? 440 : 260)
     }
 
     // MARK: - It passed
