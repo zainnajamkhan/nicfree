@@ -7,7 +7,7 @@ import SwiftUI
 
 /// The sprout's whole life, played once at the end of onboarding: a seedling grows through
 /// every stage to a golden plant in full bloom, silently: onboarding has no haptics. It shows
-/// what the free days are growing. Tap it to watch again.
+/// what the free days are growing. A button underneath plays it again.
 ///
 /// Under Reduce Motion it just shows the finished plant.
 struct GrowingSprout: View {
@@ -34,13 +34,25 @@ struct GrowingSprout: View {
                     .monospacedDigit()
             }
             .animation(.smooth(duration: 0.25), value: stage)
+
+            // Waits until it's done, then offers another go.
+            Button(action: play) {
+                Label("Watch again", systemImage: "arrow.counterclockwise")
+                    .font(Typeface.row)
+                    .foregroundStyle(Palette.accent)
+                    .padding(.horizontal, Space.m)
+                    .frame(minHeight: 44)
+                    .background(Capsule().fill(Palette.accentQuiet))
+                    .overlay(Capsule().strokeBorder(Palette.leaf.opacity(0.6), lineWidth: 2))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .disabled(playing)
+            .opacity(playing ? 0.35 : 1)
+            .animation(.smooth(duration: 0.25), value: playing)
+            .padding(.top, Space.xs)
         }
         .frame(maxWidth: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture { play() }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Plays the sprout growing again")
         .task { play() }
         .onDisappear { task?.cancel() }
     }
