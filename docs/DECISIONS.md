@@ -221,8 +221,12 @@ full screen cover is still animating away silently drops it.
 that reviewers openly resent, so honest pricing is a marketing position competitors cannot
 copy without wrecking their own revenue. Recommended at 9.99 USD.
 
-**The paywall never appears at launch, during onboarding, or after a slip.** The last would
-be indefensible.
+**The paywall appears once, at the end of onboarding (2026-11-06), never at launch or after a
+slip.** It used to be held back until someone had been in the app, to avoid asking before they
+had seen anything. Zain moved it to the last step of onboarding: the sprout has just grown
+in front of them and it's the moment they've decided to stay. It's a full screen with a plain
+"Not now" and a Close button, it's skipped for anyone who already owns the unlock, and the
+habit is saved when it closes either way. After a slip it stays indefensible.
 
 **Paid acquisition is closed.** Sunnyside and Reframe can outbid any keyword indefinitely.
 The channels are organic long tail search and genuine community participation over months.

@@ -14,6 +14,7 @@ import SwiftData
 struct OnboardingView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(PurchaseStore.self) private var store
 
     @State private var step: Step = .form
     @State private var unit: ConsumptionUnit = .disposable
@@ -29,6 +30,8 @@ struct OnboardingView: View {
     @State private var reasons: [String] = ["", "", ""]
     /// Set the moment the habit is saved, so a second tap during the fade can't save another.
     @State private var finished = false
+    /// Shown once, after the last step. The habit is saved when it closes, however it closes.
+    @State private var showingPaywall = false
 
     private enum DateChoice { case today, yesterday, another }
 
@@ -37,6 +40,13 @@ struct OnboardingView: View {
     }
 
     var body: some View {
+        content
+            .fullScreenCover(isPresented: $showingPaywall, onDismiss: finish) {
+                PaywallView(showsSkip: true)
+            }
+    }
+
+    private var content: some View {
         Screen {
             if sizeClass == .regular {
                 // iPad: the sprout on the left, growing as the steps go by, and the step
@@ -368,7 +378,8 @@ struct OnboardingView: View {
 
     private func advance() {
         guard let next = Step(rawValue: step.rawValue + 1) else {
-            finish()
+            // Someone who already owns the unlock, or restored it, isn't asked again.
+            if store.isUnlocked { finish() } else { showingPaywall = true }
             return
         }
         step = next

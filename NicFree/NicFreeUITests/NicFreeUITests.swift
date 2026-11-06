@@ -177,9 +177,14 @@ final class NicFreeUITests: XCTestCase {
         snap("02 onboarding amount, pouches")
         tap(app, "Continue")   // when
         tap(app, "Continue")   // why
+        tap(app, "Continue")   // grow
         tap(app, "Continue")   // ready
         snap("03 onboarding ready")
         tap(app, "Let’s go!")
+        // The paywall comes last. Skipping it is one tap.
+        XCTAssertTrue(app.staticTexts["Unlock NicFree"].waitForExistence(timeout: 5), "The paywall closes onboarding")
+        snap("03b onboarding paywall")
+        tap(app, "Not now")
 
         // Home.
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "craving")).firstMatch.waitForExistence(timeout: 5))
