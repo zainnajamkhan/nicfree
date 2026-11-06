@@ -24,6 +24,9 @@ struct SettingsView: View {
     @State private var notifications: UNAuthorizationStatus = .notDetermined
     @State private var reminderNote: String?
     #if DEBUG
+    @AppStorage("debugPetStyle") private var petStyle = ""
+    #endif
+    #if DEBUG
     @State private var previewCelebration: CelebrationMoment?
     #endif
 
@@ -159,10 +162,40 @@ struct SettingsView: View {
     }
 
     #if DEBUG
+    /// Try each way the sprout can feel in the hand. The one with the tick is what a tap on
+    /// the sprout uses, in this debug build only.
+    @ViewBuilder
+    private var hapticLab: some View {
+        ForEach(SproutHaptics.PetStyle.allCases) { style in
+            Button {
+                petStyle = style.rawValue
+                SproutHaptics.pet(style)
+            } label: {
+                HStack {
+                    Text(verbatim: style.title)
+                    Spacer()
+                    if petStyle == style.rawValue || (petStyle.isEmpty && style == .giggle) {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+        }
+        Button("Thirsty pet") { SproutHaptics.thirstyPet() }
+        Button("Growing") { SproutHaptics.grow(duration: 0.9) }
+        Text("Hold to purr")
+            .foregroundStyle(Palette.accent)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onLongPressGesture(minimumDuration: 0.2, maximumDistance: 40, perform: { SproutHaptics.startPurr() }) { pressing in
+                if !pressing { SproutHaptics.stopPurr() }
+            }
+    }
+
     private var debugSection: some View {
         @Bindable var store = store
         return Section {
             Toggle("Unlock everything", isOn: $store.debugUnlocked)
+            hapticLab
             Button("Preview a free day celebration") {
                 previewCelebration = CelebrationMoment(from: 12, to: 13, milestone: nil)
             }

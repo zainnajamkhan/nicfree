@@ -21,6 +21,9 @@ struct LivingSprout: View {
 
     @State private var shownDays: Double?
     @State private var pets = 0
+    /// True while it's being held, and the slow in and out of its breathing.
+    @State private var purring = false
+    @State private var breath = false
 
     var body: some View {
         Sprout(days: shownDays ?? Double(finishedDays), thirsty: thirsty)
@@ -41,8 +44,13 @@ struct LivingSprout: View {
                     SpringKeyframe(1, duration: 0.3)
                 }
             }
+            .scaleEffect(purring && breath ? 1.05 : 1, anchor: .bottom)
             .contentShape(Rectangle())
             .onTapGesture { pet() }
+            // Hold it and it purrs, breathing in and out, until you let go.
+            .onLongPressGesture(minimumDuration: 0.35, maximumDistance: 30, perform: startPurring) { pressing in
+                if !pressing { stopPurring() }
+            }
             .accessibilityAddTraits(.isButton)
             .accessibilityHint("Pet your sprout")
             .accessibilityAction { pet() }
@@ -57,6 +65,24 @@ struct LivingSprout: View {
     private func pet() {
         if !reduceMotion { pets += 1 }
         thirsty ? SproutHaptics.thirstyPet() : SproutHaptics.pet()
+    }
+
+    private func startPurring() {
+        guard !purring else { return }
+        purring = true
+        SproutHaptics.startPurr()
+        if !reduceMotion {
+            withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) { breath = true }
+        }
+    }
+
+    private func stopPurring() {
+        guard purring else { return }
+        SproutHaptics.stopPurr()
+        withAnimation(.spring(duration: 0.4, bounce: 0.5)) {
+            breath = false
+            purring = false
+        }
     }
 
     /// A new stage plays once: from just before it, up to today.
