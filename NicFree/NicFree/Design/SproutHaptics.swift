@@ -9,7 +9,6 @@ import os
 /// What the sprout feels like in the hand.
 ///
 /// - **Pet (tap):** a giggle, or one of a few other styles.
-/// - **Purr (press and hold):** a low rumble that breathes until you let go.
 /// - **Thirsty pet:** one slow, low, dull bump. Never an error buzz.
 /// - **Grow:** a rising hum that ends in a pop as the new leaf, bud or flower opens.
 ///
@@ -156,43 +155,6 @@ enum SproutHaptics {
         play([
             continuous(0, duration: 0.25, intensity: 0.3, sharpness: 0.05),
         ])
-    }
-
-    // MARK: - Purring (press and hold)
-
-    private static var purrPlayer: CHHapticAdvancedPatternPlayer?
-
-    /// A low rumble that breathes in and out, for as long as the sprout is held. A second of
-    /// rapid soft taps, wobbling in strength, looped until `stopPurr`.
-    static func startPurr() {
-        guard purrPlayer == nil, let engine = ready() else { return }
-        let step = 0.045
-        let count = Int(1.0 / step)
-        let events = (0..<count).map { index -> CHHapticEvent in
-            let t = Double(index) * step
-            // Two slow swells a second, so it feels like breathing under a purr.
-            let swell = 0.5 + 0.5 * sin(t * 2 * .pi * 1.0 - .pi / 2)
-            return tap(t, intensity: Float(0.22 + 0.3 * swell), sharpness: 0.08)
-        }
-        do {
-            try engine.start()
-            let pattern = try CHHapticPattern(events: events, parameters: [])
-            let player = try engine.makeAdvancedPlayer(with: pattern)
-            player.loopEnabled = true
-            player.loopEnd = 1.0
-            try player.start(atTime: CHHapticTimeImmediate)
-            purrPlayer = player
-        } catch {
-            logger.error("Purr did not start: \(error.localizedDescription, privacy: .public)")
-        }
-    }
-
-    /// Stops the purr, and ends on a happy little double tap.
-    static func stopPurr() {
-        guard let player = purrPlayer else { return }
-        try? player.stop(atTime: CHHapticTimeImmediate)
-        purrPlayer = nil
-        play([tap(0.02, intensity: 0.7, sharpness: 0.5), tap(0.11, intensity: 0.45, sharpness: 0.6)])
     }
 
     private static func continuous(_ time: TimeInterval, duration: TimeInterval, intensity: Float, sharpness: Float) -> CHHapticEvent {

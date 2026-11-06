@@ -183,13 +183,6 @@ struct SettingsView: View {
         }
         Button("Thirsty pet") { SproutHaptics.thirstyPet() }
         Button("Growing") { SproutHaptics.grow(duration: 0.9) }
-        Text("Hold to purr")
-            .foregroundStyle(Palette.accent)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onLongPressGesture(minimumDuration: 0.2, maximumDistance: 40, perform: { SproutHaptics.startPurr() }) { pressing in
-                if !pressing { SproutHaptics.stopPurr() }
-            }
     }
 
     private var debugSection: some View {
