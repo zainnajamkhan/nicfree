@@ -240,7 +240,9 @@ struct SettingsView: View {
     private func load() {
         reasons = Array((habit.reasons + ["", "", ""]).prefix(3))
         let spend = habit.costPerUnit * habit.baselineUnitsPerWeek
-        weeklySpend = spend > 0 ? spend.rounded() : nil
+        // Not rounded: the field only displays whole amounts, and writing a rounded figure back
+        // would change the money saved just by opening Settings.
+        weeklySpend = spend > 0 ? spend : nil
     }
 
     private func saveReasons() {
