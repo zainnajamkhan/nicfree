@@ -20,7 +20,7 @@ xcrun simctl bootstatus "$udid" -b > /dev/null
 xcrun simctl status_bar "$udid" override --time "9:41" --batteryState charged --batteryLevel 100 \
     --cellularMode active --cellularBars 4 --wifiBars 3 --dataNetwork wifi
 
-TEST_RUNNER_SCREENSHOTS=1 xcodebuild test -project "$project" -scheme NicFree \
+TEST_RUNNER_SCREENSHOTS=1 xcodebuild test -project "$project" -scheme "NicFree Debug" \
     -destination "id=$udid" -derivedDataPath "$derived" -parallel-testing-enabled NO \
     -test-timeouts-enabled YES -maximum-test-execution-time-allowance 420 \
     -only-testing:NicFreeUITests/AppStoreScreenshots -resultBundlePath "$bundle" \

@@ -26,7 +26,7 @@ final class PurchaseStore {
 
     #if DEBUG
     /// Debug builds only: a switch in Settings to see the paid screens without buying.
-    var debugUnlocked = UserDefaults.standard.bool(forKey: "debugUnlocked") {
+    var debugUnlocked = !DebugLaunch.startFresh && UserDefaults.standard.bool(forKey: "debugUnlocked") {
         didSet { UserDefaults.standard.set(debugUnlocked, forKey: "debugUnlocked") }
     }
     var isUnlocked: Bool { entitled || debugUnlocked }

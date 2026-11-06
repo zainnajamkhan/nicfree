@@ -13,6 +13,8 @@ import SwiftData
 /// first milestone.
 struct OnboardingView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(PurchaseStore.self) private var store
 
     @State private var step: Step = .form
     @State private var unit: ConsumptionUnit = .disposable
@@ -26,15 +28,64 @@ struct OnboardingView: View {
     @State private var quitDate: Date = Date()
     @State private var dateChoice: DateChoice = .today
     @State private var reasons: [String] = ["", "", ""]
+    /// Set the moment the habit is saved, so a second tap during the fade can't save another.
+    @State private var finished = false
+    /// Shown once, after the last step. The habit is saved when it closes, however it closes.
+    @State private var showingPaywall = false
 
     private enum DateChoice { case today, yesterday, another }
 
     private enum Step: Int, CaseIterable {
-        case form, amount, date, reasons, ready
+        case form, amount, date, reasons, grow, ready
     }
 
     var body: some View {
+        content
+            .fullScreenCover(isPresented: $showingPaywall, onDismiss: finish) {
+                PaywallView(showsSkip: true)
+            }
+    }
+
+    private var content: some View {
         Screen {
+            if sizeClass == .regular {
+                // iPad: the sprout on the left, growing as the steps go by, and the step
+                // itself beside it.
+                HStack(spacing: Space.xxl) {
+                    sproutPanel
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    stepColumn
+                        .frame(maxWidth: 560)
+                }
+            } else {
+                stepColumn
+            }
+        }
+    }
+
+    /// Grows a little with each step, then plays its whole life on the last.
+    private var sproutPanel: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Radius.card * 1.5)
+                .fill(Palette.accentQuiet)
+            if step == .grow {
+                GrowingSprout()
+                    .padding(Space.xl)
+            } else if step == .ready {
+                Sprout(freeDays: 90)
+                    .padding(Space.xxl)
+            } else {
+                Sprout(days: [0, 3, 14, 30, 60][min(step.rawValue, 4)])
+                    .padding(Space.xxl)
+                    .animation(.spring(duration: 0.6, bounce: 0.4), value: step)
+            }
+        }
+        .padding(.vertical, Space.l)
+        .accessibilityHidden(step != .grow)
+    }
+
+    private var stepColumn: some View {
+        Group {
             // The step scrolls and the button is pinned, so at the largest text sizes the
             // button can never be pushed off the bottom of the screen.
             ScrollView {
@@ -62,6 +113,7 @@ struct OnboardingView: View {
                         case .amount: amountStep
                         case .date: dateStep
                         case .reasons: reasonsStep
+                        case .grow: growStep
                         case .ready: readyStep
                         }
                     }
@@ -171,10 +223,31 @@ struct OnboardingView: View {
         }
     }
 
+    /// The sprout turning into the plant these days are growing, on a screen of its own.
+    private var growStep: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            if sizeClass != .regular {
+                GrowingSprout()
+                    .padding(.bottom, Space.s)
+            }
+            question("Here’s what you’re growing")
+            Text("Every free day helps your sprout grow. It gets leaves, a bud, then flowers, and it never shrinks.")
+                .font(Typeface.voice)
+                .foregroundStyle(Palette.inkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
     private var readyStep: some View {
         VStack(alignment: .leading, spacing: Space.m) {
+            if sizeClass != .regular {
+                Sprout(freeDays: 90)
+                    .frame(height: 140)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
+            }
             question("That’s it. You’re all set!")
-            Text("You don’t need to check in. Every day counts as a free day unless you log a slip. If you’re away for a few days, we’ll ask about them when you’re back.")
+            Text("You don’t need to check in. Every day counts as a free day unless you log a slip.")
                 .font(Typeface.voice)
                 .foregroundStyle(Palette.inkSoft)
         }
@@ -305,13 +378,18 @@ struct OnboardingView: View {
 
     private func advance() {
         guard let next = Step(rawValue: step.rawValue + 1) else {
-            finish()
+            // Someone who already owns the unlock, or restored it, isn't asked again.
+            if store.isUnlocked { finish() } else { showingPaywall = true }
             return
         }
         step = next
     }
 
     private func finish() {
+        guard !finished else { return }
+        // Belt and braces: never create a second habit, even if the flag is somehow reset.
+        guard ((try? context.fetchCount(FetchDescriptor<Habit>())) ?? 0) == 0 else { return }
+        finished = true
         let habit = Habit(
             form: form(for: unit),
             unit: unit,

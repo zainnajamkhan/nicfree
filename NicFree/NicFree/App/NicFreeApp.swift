@@ -83,6 +83,13 @@ struct NicFreeApp: App {
            let fresh = try? ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]) {
             return (fresh, false)
         }
+        // The dev app starts from onboarding every launch. Skipped for a screenshot or test
+        // launch, which choose their own data above.
+        if DebugLaunch.startFresh, !arguments.contains("-simulateDamagedStore"),
+           ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil,
+           let fresh = try? ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]) {
+            return (fresh, false)
+        }
         // Lets a UI test walk the damaged-store path without damaging anything.
         let simulateDamage = arguments.contains("-simulateDamagedStore")
         #else

@@ -24,6 +24,10 @@ struct SettingsView: View {
     @State private var notifications: UNAuthorizationStatus = .notDetermined
     @State private var reminderNote: String?
     #if DEBUG
+    @AppStorage("debugPetStyle") private var petStyle = ""
+    @AppStorage(DebugLaunch.key) private var startFresh = true
+    #endif
+    #if DEBUG
     @State private var previewCelebration: CelebrationMoment?
     #endif
 
@@ -159,10 +163,34 @@ struct SettingsView: View {
     }
 
     #if DEBUG
+    /// Try each way the sprout can feel in the hand. The one with the tick is what a tap on
+    /// the sprout uses, in this debug build only.
+    @ViewBuilder
+    private var hapticLab: some View {
+        ForEach(SproutHaptics.PetStyle.allCases) { style in
+            Button {
+                petStyle = style.rawValue
+                SproutHaptics.pet(style)
+            } label: {
+                HStack {
+                    Text(verbatim: style.title)
+                    Spacer()
+                    if petStyle == style.rawValue || (petStyle.isEmpty && style == .giggle) {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+        }
+        Button("Thirsty pet") { SproutHaptics.thirstyPet() }
+        Button("Growing") { SproutHaptics.grow(duration: 0.9) }
+    }
+
     private var debugSection: some View {
         @Bindable var store = store
         return Section {
             Toggle("Unlock everything", isOn: $store.debugUnlocked)
+            Toggle("Start from onboarding every launch", isOn: $startFresh)
+            hapticLab
             Button("Preview a free day celebration") {
                 previewCelebration = CelebrationMoment(from: 12, to: 13, milestone: nil)
             }
@@ -172,7 +200,7 @@ struct SettingsView: View {
         } header: {
             SectionLabel("Debug builds only")
         } footer: {
-            Text("Not in the App Store version. Shows the paid screens without buying.")
+            Text("Not in the App Store version. While \"Start from onboarding\" is on, each launch uses an empty temporary store and turns the unlock off, so anything you log here is gone next launch. Turn it off to keep your data.")
         }
     }
     #endif
@@ -240,7 +268,9 @@ struct SettingsView: View {
     private func load() {
         reasons = Array((habit.reasons + ["", "", ""]).prefix(3))
         let spend = habit.costPerUnit * habit.baselineUnitsPerWeek
-        weeklySpend = spend > 0 ? spend.rounded() : nil
+        // Not rounded: the field only displays whole amounts, and writing a rounded figure back
+        // would change the money saved just by opening Settings.
+        weeklySpend = spend > 0 ? spend : nil
     }
 
     private func saveReasons() {

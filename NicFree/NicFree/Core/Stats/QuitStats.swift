@@ -55,6 +55,16 @@ struct QuitStats {
 
     var usedDayCount: Int { usedDaysTracked.count }
 
+    /// True when a slip is logged for today.
+    var todayIsUsed: Bool { usedDaysTracked.contains(endDay) }
+
+    /// Free days that are completely over, so today is never included. Milestones count
+    /// these: a day still in progress can end in a slip, and a milestone, once reached,
+    /// must stay reached.
+    var finishedFreeDays: Int {
+        max(0, lifetimeFreeDays - (todayIsUsed ? 0 : 1))
+    }
+
     /// Share of tracked days that were free, for the year grid summary.
     var freeDayRatio: Double {
         guard totalDaysTracked > 0 else { return 0 }

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<!--
+  NicFree App Store screenshots. One frame per render:
+    frames.html?f=1..6            iPhone, 1320 x 2868 (6.9"); render at 1206 x 2622 with zoom for 6.3"
+    frames.html?f=1..6&d=ipad     iPad, 2064 x 2752 (13")
+  Captures come from tools/screenshots.sh (cap/iphone-*.png, cap/ipad-*.png); art from
+  tools/store-art.sh (art/*.png). Rendered with headless Chrome by tools/store-frames.sh.
+-->
+<style>
+  @font-face { font-family: R; src: local("SF Pro Rounded Black"), local("SFProRounded-Black"); font-weight: 900; }
+  @font-face { font-family: R; src: local("SF Pro Rounded Heavy"), local("SFProRounded-Heavy"); font-weight: 800; }
+  @font-face { font-family: R; src: local("SF Pro Rounded Bold"), local("SFProRounded-Bold"); font-weight: 700; }
+  @font-face { font-family: R; src: local("SF Pro Rounded Semibold"), local("SFProRounded-Semibold"); font-weight: 600; }
+  :root { --ink:#22302A; --ink2:#5F6E66; --green:#2E7D32; --leaf:#4CAF50; --mint:#E9F5EA; --sun:#E8A800; --sunq:#FFF4D6; --sky:#1769AA; --skyq:#E6F3FC; --clay:#B98A6E; --W:1320px; --H:2868px; --u:1px; }
+  body.ipad { --W:2064px; --H:2752px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:var(--W); height:var(--H); overflow:hidden; font-family:R, -apple-system, sans-serif; color:var(--ink); }
+  .frame { position:relative; width:var(--W); height:var(--H); overflow:hidden; display:none; }
+  .frame.on { display:block; }
+  .head { position:absolute; top:190px; left:0; right:0; text-align:center; padding:0 80px; z-index:5; }
+  h1 { font-weight:900; font-size:132px; line-height:1.02; letter-spacing:-3px; }
+  h1 em { font-style:normal; color:var(--leaf); }
+  .sub { margin-top:40px; font-weight:600; font-size:52px; line-height:1.3; color:var(--ink2); }
+  .pill { display:inline-block; padding:18px 40px; border-radius:999px; background:#fff; font-weight:800; font-size:40px; color:var(--ink); box-shadow:0 8px 0 #D5E8D7; }
+  .phone { position:absolute; left:50%; width:960px; transform:translateX(-50%); background:#1D2420; border-radius:150px; padding:24px; box-shadow:0 60px 120px rgba(34,48,42,.25), 0 0 0 6px rgba(255,255,255,.7); z-index:3; }
+  .phone img { display:block; width:100%; border-radius:128px; }
+  .phone::after { content:""; position:absolute; top:52px; left:50%; transform:translateX(-50%); width:250px; height:72px; border-radius:40px; background:#000; }
+  body.ipad .phone { width:1880px; border-radius:90px; padding:30px; }
+  body.ipad .phone img { border-radius:62px; }
+  body.ipad .phone::after { display:none; }
+  .art { position:absolute; z-index:4; filter:drop-shadow(0 30px 40px rgba(34,48,42,.18)); }
+  .spark { position:absolute; color:var(--sun); font-size:90px; z-index:4; }
+  .hill { position:absolute; border-radius:50%; z-index:1; }
+  .card { position:absolute; background:#fff; border-radius:72px; box-shadow:0 14px 0 #D5E8D7, 0 50px 100px rgba(34,48,42,.15); overflow:hidden; z-index:4; }
+  .stages { position:absolute; left:0; right:0; display:flex; justify-content:center; align-items:flex-end; z-index:4; }
+  .stages div { text-align:center; }
+  .stages img { display:block; margin:0 auto; }
+  .stages .pill { margin-top:6px; font-size:34px; padding:12px 28px; }
+  .arrow { font-weight:900; font-size:80px; color:#B9C8BE; padding:0 0 120px; }
+</style></head>
+<body>
+
+<!-- 1. The hero number -->
+<div class="frame" id="f1" style="background:radial-gradient(circle at 50% 70%, #DDF3E2 0, #EEF8F0 36%, #FFFFFF 64%);">
+  <div class="head">
+    <h1>Every free day<br><em>counts. Forever.</em></h1>
+    <div class="sub">A slip never wipes out<br>the days you've already had.</div>
+  </div>
+  <div class="phone" style="top:1010px;"><img src="cap/PREFIX-01-home.png"></div>
+  <span class="spark" style="top:930px; left:120px;">✦</span>
+  <span class="spark" style="top:1100px; right:110px; font-size:120px;">✦</span>
+  <span class="spark" style="top:1500px; left:60px; font-size:70px;">✦</span>
+</div>
+
+<!-- 2. A craving -->
+<div class="frame" id="f2" style="background:linear-gradient(180deg, #EAF6FD 0%, #D9EEFB 100%);">
+  <div class="head">
+    <h1>Ride out<br><em style="color:var(--sky);">the craving.</em></h1>
+    <div class="sub">Breathe with the circle,<br>with your own reason on screen.</div>
+  </div>
+  <div class="phone" style="top:1010px;"><img src="cap/PREFIX-02-craving.png"></div>
+</div>
+
+<!-- 3. The sprout grows -->
+<div class="frame" id="f3" style="background:radial-gradient(circle at 50% 46%, #DDF3E2 0, #EEF8F0 40%, #FFFFFF 75%);">
+  <div class="head">
+    <h1>Grow a sprout,<br><em>bloom by bloom.</em></h1>
+    <div class="sub">New leaves, a bud, then flowers.<br>It never loses one.</div>
+  </div>
+  <div class="stages" style="top:960px;">
+    <div><img src="art/sprout-3.png" style="width:330px;"><div class="pill">3 days</div></div>
+    <div class="arrow">›</div>
+    <div><img src="art/sprout-30.png" style="width:370px;"><div class="pill">1 month</div></div>
+    <div class="arrow">›</div>
+    <div><img src="art/sprout-365.png" style="width:410px;"><div class="pill">1 year</div></div>
+  </div>
+  <div class="phone stagephone" style="top:1620px;"><img src="cap/PREFIX-03-path.png"></div>
+</div>
+
+<!-- 4. Share a milestone -->
+<div class="frame" id="f4" style="background:radial-gradient(circle at 50% 62%, #FFF0C2 0, #FFF7E2 40%, #FFFFFF 72%);">
+  <div class="head">
+    <h1>Hit a milestone?<br><em style="color:var(--sun);">Share it.</em></h1>
+    <div class="sub">A card for every milestone,<br>made to send to a friend.</div>
+  </div>
+  <img class="art sharecard" src="art/share-30.png" style="width:860px; top:930px; left:50%; transform:translateX(-50%) rotate(-3deg); border-radius:70px;">
+  <div style="position:absolute; top:2260px; left:0; right:0; display:flex; justify-content:center; gap:28px; z-index:4;" class="pills">
+    <div class="pill">1 day</div><div class="pill">1 week</div><div class="pill">1 month</div><div class="pill">1 year</div>
+  </div>
+  <span class="spark" style="top:960px; left:110px; font-size:110px;">✦</span>
+  <span class="spark" style="top:1900px; right:100px; font-size:90px;">✦</span>
+</div>
+
+<!-- 5. Insights -->
+<div class="frame" id="f5" style="background:linear-gradient(180deg, #F3F6F4 0%, #E6EFE9 100%);">
+  <div class="head">
+    <h1>Know your<br><em>triggers.</em></h1>
+    <div class="sub">See what sets off your cravings,<br>and when they show up.</div>
+  </div>
+  <div class="phone" style="top:1010px;"><img src="cap/PREFIX-04-insights.png"></div>
+</div>
+
+<!-- 6. Private, no subscription -->
+<div class="frame" id="f6" style="background:linear-gradient(180deg, #17301F 0%, #1F4029 100%); color:#fff;">
+  <div class="head">
+    <h1 style="color:#fff;">Yours alone.<br><em style="color:#8FD694;">No subscription.</em></h1>
+    <div class="sub" style="color:#BFD8C4;">Everything stays on your phone.<br>One purchase unlocks the rest.</div>
+  </div>
+  <div style="position:absolute; width:1000px; height:1000px; top:860px; left:50%; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle, rgba(242,193,75,.35) 0, rgba(242,193,75,0) 65%);"></div>
+  <img class="art" src="art/sprout-365.png" style="width:760px; top:900px; left:50%; transform:translateX(-50%); filter:drop-shadow(0 40px 60px rgba(0,0,0,.35));">
+  <div class="card histcard" style="top:1760px; left:62px; width:1196px; height:520px; box-shadow:0 50px 100px rgba(0,0,0,.35);">
+    <img src="cap/PREFIX-05-history.png" class="histimg" style="width:1320px; margin:-430px 0 0 -62px;">
+  </div>
+  <div style="position:absolute; top:2420px; left:0; right:0; display:flex; justify-content:center; gap:28px; z-index:4;">
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No account</div>
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No tracking</div>
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No ads</div>
+  </div>
+</div>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const ipad = q.get("d") === "ipad";
+  if (ipad) document.body.classList.add("ipad");
+  const prefix = ipad ? "ipad" : "iphone";
+  document.querySelectorAll("img").forEach(img => {
+    img.src = img.getAttribute("src").replace("PREFIX", prefix);
+  });
+  if (ipad) {
+    // Wider canvas: give the art more room and keep the device within the frame.
+    document.querySelectorAll(".phone").forEach(p => { p.style.top = (parseInt(p.style.top) - 40) + "px"; });
+    document.querySelectorAll(".stagephone").forEach(p => { p.style.top = "1560px"; });
+    document.querySelectorAll(".sharecard").forEach(c => { c.style.width = "1000px"; });
+    document.querySelectorAll(".histcard").forEach(c => { c.style.left = "232px"; c.style.width = "1600px"; c.style.height = "560px"; });
+    document.querySelectorAll(".histimg").forEach(i => { i.style.width = "2064px"; i.style.margin = "-300px 0 0 -232px"; });
+    document.querySelectorAll(".head").forEach(h => { h.style.top = "170px"; });
+  }
+  document.getElementById("f" + (q.get("f") || "1")).classList.add("on");
+</script>
+</body></html>

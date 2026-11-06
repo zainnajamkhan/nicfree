@@ -14,6 +14,7 @@ import Charts
 /// every event.
 struct HistoryView: View {
     @Environment(PurchaseStore.self) private var store
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingPaywall = false
     /// A slip tapped in Events, opened to edit or remove.
     @State private var editingSlip: DayRecord?
@@ -42,8 +43,16 @@ struct HistoryView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Space.xl) {
                         if store.isUnlocked {
-                            gridSection(stats)
-                            chartSection(stats)
+                            if sizeClass == .regular {
+                                // iPad: every day on the left, the total over time on the right.
+                                HStack(alignment: .top, spacing: Space.xl) {
+                                    gridSection(stats).frame(maxWidth: .infinity)
+                                    chartSection(stats).frame(maxWidth: .infinity)
+                                }
+                            } else {
+                                gridSection(stats)
+                                chartSection(stats)
+                            }
                         } else {
                             LockedCard(
                                 title: "Your full history",
@@ -53,8 +62,8 @@ struct HistoryView: View {
                         }
                         timelineSection
                     }
-                    .padding(.horizontal, Space.l)
-                    .frame(maxWidth: ContentWidth.readable)
+                    .padding(.horizontal, sizeClass == .regular ? Space.xl : Space.l)
+                    .frame(maxWidth: sizeClass == .regular ? ContentWidth.wide : ContentWidth.readable)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, Space.xxl)
                 }
@@ -100,9 +109,8 @@ struct HistoryView: View {
     /// argued. Touch or drag to read any day; it stays picked after lifting the finger.
     private func chartSection(_ stats: QuitStats) -> some View {
         let points = stats.series()
-        let selected = chartSelection.flatMap { date in
-            points.min { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }
-        }
+        let dots = Self.dots(in: points)
+        let selected = chartSelection.flatMap { date in points.first { $0.date == date } }
         let shown = selected ?? points.last
 
         return VStack(alignment: .leading, spacing: Space.m) {
@@ -117,7 +125,7 @@ struct HistoryView: View {
                             .foregroundStyle(Palette.ink)
                             .contentTransition(.numericText(value: Double(shown.cumulativeFreeDays)))
                         Text(selected == nil
-                             ? String(localized: "So far. Touch the chart to look back.")
+                             ? String(localized: "So far. Tap a dot to look back.")
                              : shown.date.formatted(.dateTime.weekday(.wide).day().month(.wide)))
                             .font(.footnote)
                             .foregroundStyle(Palette.inkSoft)
@@ -167,6 +175,18 @@ struct HistoryView: View {
                         }
                     }
 
+                    // The dots that can be tapped. Nothing else on the chart responds to touch.
+                    ForEach(dots) { dot in
+                        if !dot.wasUsed {
+                            PointMark(
+                                x: .value("Date", dot.date),
+                                y: .value("Days free", dot.cumulativeFreeDays)
+                            )
+                            .foregroundStyle(Palette.accent.opacity(0.55))
+                            .symbolSize(34)
+                        }
+                    }
+
                     if let shown {
                         if selected != nil {
                             RuleMark(x: .value("Date", shown.date))
@@ -181,14 +201,27 @@ struct HistoryView: View {
                         .symbolSize(110)
                     }
                 }
-                .chartXSelection(value: $chartSelection)
-                // A custom gesture, so the picked day stays after lifting the finger instead of
-                // vanishing, and vertical scrolling still works through the chart.
-                .chartGesture { proxy in
-                    SpatialTapGesture()
-                        .onEnded { proxy.selectXValue(at: $0.location.x) }
-                        .simultaneously(with: DragGesture(minimumDistance: 8)
-                            .onChanged { proxy.selectXValue(at: $0.location.x) })
+                // Only a tap on a dot selects it, and only a tap: there's no drag, so
+                // scrolling through the chart never picks anything.
+                .chartOverlay { proxy in
+                    GeometryReader { geometry in
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture { location in
+                                guard let plotFrame = proxy.plotFrame else { return }
+                                let origin = geometry[plotFrame].origin
+                                let tap = CGPoint(x: location.x - origin.x, y: location.y - origin.y)
+                                let hit = dots
+                                    .compactMap { dot -> (QuitStats.DayPoint, CGFloat)? in
+                                        guard let x = proxy.position(forX: dot.date),
+                                              let y = proxy.position(forY: dot.cumulativeFreeDays) else { return nil }
+                                        return (dot, hypot(x - tap.x, y - tap.y))
+                                    }
+                                    .filter { $0.1 <= Self.tapRadius }
+                                    .min { $0.1 < $1.1 }
+                                if let hit { chartSelection = hit.0.date }
+                            }
+                    }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading) {
@@ -203,12 +236,26 @@ struct HistoryView: View {
                             .foregroundStyle(Palette.inkFaint)
                     }
                 }
-                .frame(height: 190)
+                .frame(height: sizeClass == .regular ? 340 : 190)
                 .sensoryFeedback(.selection, trigger: selected?.date)
                 .accessibilityLabel("Total days free over time")
                 .accessibilityValue(String(inflecting: "^[\(stats.lifetimeFreeDays) day](inflect: true)"))
             }
             .card()
+        }
+    }
+
+    /// How close a tap has to land to a dot to pick it, in points.
+    private static let tapRadius: CGFloat = 24
+
+    /// The days that get a dot: every slip, the latest day, and enough others to be
+    /// tappable without crowding. Roughly one every few points of width.
+    private static func dots(in points: [QuitStats.DayPoint]) -> [QuitStats.DayPoint] {
+        guard !points.isEmpty else { return [] }
+        let step = max(1, points.count / 18)
+        return points.enumerated().compactMap { index, point in
+            let isLast = index == points.count - 1
+            return (point.wasUsed || isLast || (points.count - 1 - index) % step == 0) ? point : nil
         }
     }
 
@@ -223,7 +270,7 @@ struct HistoryView: View {
                     .font(Typeface.voiceSmall)
                     .foregroundStyle(Palette.inkFaint)
             } else {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     ForEach(entries) { entry in
                         row(entry)
                     }
@@ -310,7 +357,7 @@ struct HistoryView: View {
         }
 
         let all = (slips + held).sorted { $0.date > $1.date }
-        guard !store.isUnlocked else { return Array(all.prefix(40)) }
+        guard !store.isUnlocked else { return all }
 
         let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Calendar.current.startOfDay(for: Date())) ?? .distantPast
         return all.filter { $0.date >= weekAgo }

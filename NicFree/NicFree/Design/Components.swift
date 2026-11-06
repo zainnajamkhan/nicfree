@@ -90,6 +90,8 @@ struct SecondaryButton: View {
                         .strokeBorder(Palette.hairline, lineWidth: 2)
                 )
                 .foregroundStyle(Palette.inkSoft)
+                // The outline is only a stroke, so without this only the words take a tap.
+                .contentShape(RoundedRectangle(cornerRadius: Radius.button))
         }
         .buttonStyle(.plain)
     }
@@ -182,6 +184,8 @@ struct Chip: View {
                     }
                 )
                 .foregroundStyle(isOn ? Palette.ink : Palette.inkSoft)
+                // An unselected chip is only an outline; the whole pill must take the tap.
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isOn ? [.isSelected] : [])
@@ -240,6 +244,8 @@ struct PinnedActions<Content: View, Actions: View>: View {
 /// Every screen sits on the same ground with the same margins. The craving screen passes
 /// its own calmer ground.
 struct Screen<Content: View>: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     var ground: Color = Palette.ground
     @ViewBuilder var content: Content
 
@@ -247,8 +253,8 @@ struct Screen<Content: View>: View {
         ZStack {
             ground.ignoresSafeArea()
             content
-                .padding(.horizontal, Space.l)
-                .frame(maxWidth: ContentWidth.readable)
+                .padding(.horizontal, sizeClass == .regular ? Space.xl : Space.l)
+                .frame(maxWidth: sizeClass == .regular ? ContentWidth.wide : ContentWidth.readable)
         }
         .tint(Palette.accent)
     }

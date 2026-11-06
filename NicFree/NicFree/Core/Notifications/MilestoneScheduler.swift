@@ -9,8 +9,8 @@ import UserNotifications
 /// Milestones only. There is deliberately no "you have not logged today" reminder: there
 /// is no check in to miss, and a guilt prompt would contradict the whole product.
 ///
-/// Milestones count **free days**, not elapsed days, so a slip pushes the next one
-/// further out. A local notification cannot re-evaluate itself on delivery, so the whole
+/// Milestones count **finished free days**, not elapsed days, so a slip pushes the next one
+/// further out and a day still in progress never counts. A local notification cannot re-evaluate itself on delivery, so the whole
 /// schedule is torn down and rebuilt whenever the free day count changes. That is why
 /// `reschedule` is cheap and safe to call often.
 enum MilestoneScheduler {
@@ -27,23 +27,56 @@ enum MilestoneScheduler {
     }
 
     static func requestAuthorization() async -> Bool {
-        (try? await UNUserNotificationCenter.current()
+        let granted = (try? await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.alert, .sound])) ?? false
+        // Schedule now, not at the next change in the count.
+        if granted, let last = lastInputs {
+            await reschedule(finishedFreeDays: last.finished, todayUsed: last.todayUsed)
+        }
+        return granted
     }
 
     // MARK: - Scheduling
 
-    static func reschedule(freeDays: Int, calendar: Calendar = .current) async {
+    /// The inputs of the last schedule, so granting permission can schedule straight away
+    /// instead of waiting for the free day count to change.
+    private static var lastInputs: (finished: Int, todayUsed: Bool)?
+
+    /// Days from today (at 10:00) on which each upcoming milestone should be announced.
+    ///
+    /// A milestone is earned when its last free day is over, so it's announced the morning
+    /// after. With today free, the day that completes milestone M ends M - finished - 1 days
+    /// from now. With a slip today, today doesn't count, so everything moves a day later.
+    /// Milestones already reached are left out, and the offset is never zero, so nothing is
+    /// scheduled in the past.
+    static func announcementOffsets(
+        finishedFreeDays finished: Int,
+        todayUsed: Bool,
+        milestones: [Int] = MilestoneScheduler.milestones
+    ) -> [Int: Int] {
+        var offsets: [Int: Int] = [:]
+        for milestone in milestones where milestone > finished {
+            offsets[milestone] = milestone - finished + (todayUsed ? 1 : 0)
+        }
+        return offsets
+    }
+
+    static func reschedule(finishedFreeDays: Int, todayUsed: Bool, calendar: Calendar = .current) async {
+        lastInputs = (finishedFreeDays, todayUsed)
+
         let center = UNUserNotificationCenter.current()
         guard await authorizationStatus() == .authorized else { return }
 
-        // Only our own requests: the evening reminder lives in the same queue.
-        center.removePendingNotificationRequests(withIdentifiers: milestones.map { "milestone-\($0)" })
+        let offsets = announcementOffsets(finishedFreeDays: finishedFreeDays, todayUsed: todayUsed)
+
+        // Only the ones still ahead. A milestone reached this morning may still be waiting
+        // for its 10:00 slot, and clearing it here would lose it. Only our own requests:
+        // the evening reminder lives in the same queue.
+        center.removePendingNotificationRequests(withIdentifiers: offsets.keys.map { "milestone-\($0)" })
 
         let today = calendar.startOfDay(for: Date())
 
-        for milestone in milestones where milestone > freeDays {
-            let daysAway = milestone - freeDays
+        for (milestone, daysAway) in offsets {
             guard let fireDay = calendar.date(byAdding: .day, value: daysAway, to: today) else { continue }
 
             var components = calendar.dateComponents([.year, .month, .day], from: fireDay)

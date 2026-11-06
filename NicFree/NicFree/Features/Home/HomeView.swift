@@ -5,6 +5,8 @@
 
 import SwiftUI
 import SwiftData
+import StoreKit
+import WidgetKit
 
 /// Three numbers that only grow, a sprout that grows with them, and one big button.
 ///
@@ -15,6 +17,8 @@ import SwiftData
 struct HomeView: View {
     @Environment(\.storeIsTemporary) private var storeIsTemporary
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.requestReview) private var requestReview
     @Environment(\.modelContext) private var context
     @Query private var habits: [Habit]
     @Query(sort: \DayRecord.day, order: .reverse) private var usedDays: [DayRecord]
@@ -23,7 +27,6 @@ struct HomeView: View {
     @State private var loggingSlip = false
     @State private var showingCraving = false
     @State private var pendingSlip = false
-    @State private var pendingHoldSeconds = 0
     @State private var showingSettings = false
     /// Drives the catch-up sheet by its data. A sheet opened from a separate Bool can render
     /// with the previous, empty list of days ("Any nicotine since ?").
@@ -66,27 +69,18 @@ struct HomeView: View {
     var body: some View {
         Screen {
             if let habit, let stats {
-                ScrollView {
-                    VStack(spacing: Space.m) {
-                        if storeIsTemporary { temporaryStoreNotice }
-                        chips(stats: stats, habit: habit)
-                        sproutCard(stats: stats, habit: habit)
-                        WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
-                    }
-                    .padding(.top, Space.m)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    actions
-                        .background(Palette.ground)
+                if sizeClass == .regular {
+                    wideLayout(stats: stats, habit: habit)
+                } else {
+                    compactLayout(stats: stats, habit: habit)
                 }
             }
         }
         .sheet(isPresented: $showingSettings) {
             if let habit { SettingsView(habit: habit) }
         }
-        .sheet(isPresented: $loggingSlip, onDismiss: { pendingHoldSeconds = 0 }) {
-            SlipLogView(existing: todaysRecord, day: today, heldOutSeconds: pendingHoldSeconds)
+        .sheet(isPresented: $loggingSlip) {
+            SlipLogView(existing: todaysRecord, day: today)
                 .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showingCraving, onDismiss: {
@@ -97,7 +91,7 @@ struct HomeView: View {
         }) {
             if let habit {
                 CravingView(habit: habit) { seconds in
-                    pendingHoldSeconds = seconds
+                    logSlipFromCraving(heldOutSeconds: seconds)
                     pendingSlip = true
                 }
             }
@@ -107,7 +101,10 @@ struct HomeView: View {
         .sheet(item: $catchUp, onDismiss: {
             markChecked()
             // Next turn, so the days just marked as used are already in the query.
-            Task { checkForCelebration() }
+            Task {
+                checkForCelebration()
+                checkForReview()
+            }
         }) { prompt in
             CatchUpView(days: prompt.days) { used in
                 for day in used { context.insert(DayRecord(day: day)) }
@@ -120,10 +117,92 @@ struct HomeView: View {
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active { checkForMissedDays() }
         }
-        .task(id: stats?.lifetimeFreeDays ?? -1) {
-            guard let stats else { return }
-            await MilestoneScheduler.reschedule(freeDays: stats.lifetimeFreeDays)
+        // The widget's copy of the record, rewritten whenever the record changes.
+        .task(id: widgetSnapshot) {
+            guard let widgetSnapshot, widgetSnapshot.save() else { return }
+            WidgetCenter.shared.reloadAllTimelines()
         }
+        .task(id: scheduleKey) {
+            guard let stats else { return }
+            await MilestoneScheduler.reschedule(
+                finishedFreeDays: stats.finishedFreeDays,
+                todayUsed: stats.todayIsUsed
+            )
+        }
+    }
+
+    private var widgetSnapshot: WidgetSnapshot? {
+        guard let habit else { return nil }
+        return WidgetSnapshot(quitStartedAt: habit.quitStartedAt, usedDays: usedDays.map(\.day).sorted())
+    }
+
+    /// Changes whenever the milestone schedule has to be rebuilt.
+    private var scheduleKey: String {
+        guard let stats else { return "none" }
+        return "\(stats.finishedFreeDays)-\(stats.todayIsUsed)"
+    }
+
+    // MARK: - Layouts
+
+    /// iPhone: one column, with the craving button pinned to the bottom.
+    private func compactLayout(stats: QuitStats, habit: Habit) -> some View {
+        ScrollView {
+            VStack(spacing: Space.m) {
+                if storeIsTemporary { temporaryStoreNotice }
+                chips(stats: stats, habit: habit)
+                sproutCard(stats: stats, habit: habit, sproutHeight: 180)
+                WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
+            }
+            .padding(.top, Space.m)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            actions
+                .background(Palette.ground)
+        }
+    }
+
+    /// iPad and other wide windows: the sprout gets the room on the left, and everything
+    /// to do sits in a column beside it, so nothing is a phone screen with margins.
+    private func wideLayout(stats: QuitStats, habit: Habit) -> some View {
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: Space.l) {
+                    if storeIsTemporary { temporaryStoreNotice }
+                    HStack(alignment: .top, spacing: Space.xl) {
+                        // The sprout card takes the whole height of the window.
+                        sproutCard(stats: stats, habit: habit, sproutHeight: nil)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        VStack(spacing: Space.l) {
+                            chips(stats: stats, habit: habit)
+                            WeekRow(stats: stats, usedDays: Set(usedDays.map(\.day)))
+                                .padding(Space.m)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: Radius.card)
+                                        .strokeBorder(Palette.hairline, lineWidth: 2)
+                                )
+                            Spacer(minLength: Space.l)
+                            actions
+                        }
+                        .frame(width: 420)
+                    }
+                    .frame(minHeight: max(420, proxy.size.height - Space.l * 2))
+                }
+                .padding(.vertical, Space.l)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+
+    // MARK: - Used after a craving
+
+    /// "I used" is the slip. It's written the moment it's tapped, so closing the details
+    /// sheet afterwards can't lose it; the sheet only adds how much and what set it off.
+    private func logSlipFromCraving(heldOutSeconds: Int) {
+        guard todaysRecord == nil else { return }
+        context.insert(DayRecord(day: today))
+        context.insert(CravingEvent(heldOutSeconds: heldOutSeconds, resisted: false))
     }
 
     // MARK: - Catch-up
@@ -139,6 +218,7 @@ struct HomeView: View {
         if days.isEmpty {
             markChecked()
             checkForCelebration()
+            checkForReview()
         } else {
             catchUp = CatchUpPrompt(days: days)
         }
@@ -173,6 +253,26 @@ struct HomeView: View {
         let total = stats.lifetimeFreeDays
         let from = max(0, total - gained)
         celebration = CelebrationMoment(from: from, to: total, milestone: Celebration.milestone(from: from, to: total))
+    }
+
+    // MARK: - Review
+
+    /// After a milestone is reached, and not while a slip is fresh. The first look ever
+    /// only records where the person already is.
+    private func checkForReview() {
+        guard let habit, let stats, celebration == nil, catchUp == nil else { return }
+        let decision = ReviewPrompt.decide(
+            finishedFreeDays: stats.finishedFreeDays,
+            last: habit.lastReviewMilestone,
+            recentSlip: sproutIsThirsty
+        )
+        habit.lastReviewMilestone = decision.remember
+        guard decision.ask else { return }
+        Task {
+            // A beat after the screen settles, so it never lands on top of a sheet.
+            try? await Task.sleep(for: .seconds(1.5))
+            requestReview()
+        }
     }
 
     // MARK: - Pieces
@@ -225,7 +325,8 @@ struct HomeView: View {
         }
     }
 
-    private func sproutCard(stats: QuitStats, habit: Habit) -> some View {
+    /// `sproutHeight` nil lets the sprout fill whatever room the card has.
+    private func sproutCard(stats: QuitStats, habit: Habit, sproutHeight: CGFloat?) -> some View {
         let free = stats.lifetimeFreeDays
         let line = sproutIsThirsty
             ? String(localized: "Your sprout’s a bit thirsty. A free day will perk it up.")
@@ -242,12 +343,20 @@ struct HomeView: View {
                 .padding(Space.m - 2)
                 .background(Palette.surface, in: RoundedRectangle(cornerRadius: Radius.button))
 
-            Sprout(freeDays: free, thirsty: sproutIsThirsty)
-                .frame(height: 180)
-                .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
+            LivingSprout(
+                finishedDays: stats.finishedFreeDays,
+                thirsty: sproutIsThirsty,
+                seenStage: habit.sproutStageSeen,
+                onSeenStage: { habit.sproutStageSeen = $0 }
+            )
+            .frame(height: sproutHeight)
+            .frame(maxHeight: sproutHeight == nil ? .infinity : nil)
+            .animation(.smooth(duration: 0.4), value: sproutIsThirsty)
 
-            if let next = MilestoneScheduler.milestones.first(where: { $0 > free }) {
-                nextMilestone(free: free, next: next)
+            // Finished days only, the same count the notes and Path use.
+            let finished = stats.finishedFreeDays
+            if let next = MilestoneScheduler.milestones.first(where: { $0 > finished }) {
+                nextMilestone(free: finished, next: next)
             }
         }
         .padding(Space.m + 4)

@@ -16,14 +16,15 @@ struct SlipLogView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Query private var cravings: [CravingEvent]
+    @Query private var habits: [Habit]
+    @Query private var records: [DayRecord]
 
     let existing: DayRecord?
     let day: Date
 
-    /// Seconds held out before using, when this arrived from the craving screen. The
-    /// effort still counts, even though the craving ended in use.
-    var heldOutSeconds: Int = 0
-
+    /// Today, or yesterday for a slip from last night. Only a new slip chooses; an existing
+    /// one keeps its day.
+    @State private var chosenDay: Date?
     @State private var intensity: UsageIntensity?
     @State private var trigger: String?
     @State private var outcome: Outcome?
@@ -40,6 +41,7 @@ struct SlipLogView: View {
             }
         }
         .onAppear {
+            chosenDay = day
             intensity = existing?.intensity
             trigger = linkedCraving?.triggerRaw
         }
@@ -51,12 +53,24 @@ struct SlipLogView: View {
         }
     }
 
+    private var selectedDay: Date { chosenDay ?? day }
+
+    private var yesterday: Date? {
+        Calendar.current.date(byAdding: .day, value: -1, to: day)
+    }
+
+    /// Yesterday is offered only if the quit date reaches back that far.
+    private var canChooseYesterday: Bool {
+        guard existing == nil, let yesterday, let quit = habits.first?.quitStartedAt else { return false }
+        return yesterday >= Calendar.current.startOfDay(for: quit)
+    }
+
     /// The craving a slip wrote when it was logged: the one that ended in use on the same
     /// day. A day has at most one slip, so there's at most one of these.
     private var linkedCraving: CravingEvent? {
         guard existing != nil else { return nil }
         let calendar = Calendar.current
-        return cravings.first { !$0.resisted && calendar.isDate($0.occurredAt, inSameDayAs: day) }
+        return cravings.first { !$0.resisted && calendar.isDate($0.occurredAt, inSameDayAs: selectedDay) }
     }
 
     // MARK: - Form
@@ -89,6 +103,17 @@ struct SlipLogView: View {
     /// bottom of a half-height sheet by larger text or more chips.
     private var fields: some View {
         VStack(alignment: .leading, spacing: Space.l) {
+            if canChooseYesterday, let yesterday {
+                VStack(alignment: .leading, spacing: Space.m) {
+                    SectionLabel("When?")
+                    FlowLayout {
+                        Chip(String(localized: "Today"), isOn: selectedDay == day) { chosenDay = day }
+                        Chip(String(localized: "Yesterday"), isOn: selectedDay == yesterday) { chosenDay = yesterday }
+                    }
+                }
+                .padding(.top, Space.xl)
+            }
+
             VStack(alignment: .leading, spacing: Space.m) {
                 SectionLabel("How much?")
                 FlowLayout {
@@ -99,7 +124,7 @@ struct SlipLogView: View {
                     }
                 }
             }
-            .padding(.top, Space.xl)
+            .padding(.top, canChooseYesterday ? 0 : Space.xl)
 
             VStack(alignment: .leading, spacing: Space.m) {
                 SectionLabel("What set it off?")
@@ -143,15 +168,23 @@ struct SlipLogView: View {
                 // Catch-up slips and older ones have no craving yet; one gives the trigger a home.
                 context.insert(CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger))
             }
+        } else if let sameDay = records.first(where: { $0.day == selectedDay }) {
+            // Yesterday already has a slip: add to it rather than writing a second record.
+            sameDay.intensity = intensity
+            if trigger != nil {
+                context.insert(
+                    CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger)
+                )
+            }
         } else {
-            context.insert(DayRecord(day: day, intensity: intensity))
+            context.insert(DayRecord(day: selectedDay, intensity: intensity))
 
             // A slip is a craving that ended in use, so the trigger belongs in the same
             // place resisted cravings go. That is what lets insights rank triggers across
             // both outcomes rather than only the ones that were survived.
-            if trigger != nil || heldOutSeconds > 0 {
+            if trigger != nil {
                 context.insert(
-                    CravingEvent(heldOutSeconds: heldOutSeconds, resisted: false, triggerRaw: trigger)
+                    CravingEvent(occurredAt: momentOnDay, resisted: false, triggerRaw: trigger)
                 )
             }
         }
@@ -174,8 +207,8 @@ struct SlipLogView: View {
     /// Now for today; midday for an earlier day, so it never lands on the wrong date.
     private var momentOnDay: Date {
         let calendar = Calendar.current
-        if calendar.isDateInToday(day) { return Date() }
-        return calendar.date(byAdding: .hour, value: 12, to: calendar.startOfDay(for: day)) ?? day
+        if calendar.isDateInToday(selectedDay) { return Date() }
+        return calendar.date(byAdding: .hour, value: 12, to: calendar.startOfDay(for: selectedDay)) ?? selectedDay
     }
 }
 

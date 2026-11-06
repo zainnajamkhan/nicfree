@@ -17,6 +17,10 @@ struct PathView: View {
 
     private let milestones = MilestoneScheduler.milestones
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    @State private var sharing: ShareMoment?
+
     private var stats: QuitStats? {
         guard let habit = habits.first else { return nil }
         return QuitStats(
@@ -31,22 +35,47 @@ struct PathView: View {
         Screen {
             if let stats {
                 let free = stats.lifetimeFreeDays
-                let next = milestones.first { $0 > free }
+                let finished = stats.finishedFreeDays
+                let next = milestones.first { $0 > finished }
 
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: Space.m) {
-                            header(free: free)
-                            trail(free: free, next: next)
-                            Text("Milestones count free days, so a slip only moves the next one a little.")
-                                .font(Typeface.voiceSmall)
-                                .foregroundStyle(Palette.inkSoft)
-                                .multilineTextAlignment(.center)
-                                .padding(.vertical, Space.m)
+                        if sizeClass == .regular {
+                            // iPad: the sprout and totals stay on the left, the trail winds
+                            // down the right with room to swing.
+                            HStack(alignment: .top, spacing: Space.xl) {
+                                VStack(spacing: Space.m) {
+                                    header(free: free, finished: finished)
+                                    sproutCard(finished: finished)
+                                    footnote
+                                }
+                                .frame(width: 400)
+
+                                trail(finished: finished, next: next, swing: 2.4)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .padding(.vertical, Space.l)
+                        } else {
+                            VStack(spacing: Space.m) {
+                                sproutCard(finished: finished)
+                                trail(finished: finished, next: next, swing: 1)
+                                footnote
+                            }
+                            .padding(.top, Space.m)
                         }
-                        .padding(.top, Space.m)
                     }
                     .scrollBounceBehavior(.basedOnSize)
+                    // On iPhone the header stays put while the trail scrolls beneath it, on a
+                    // solid ground that also fills the status bar, so nothing shows through
+                    // behind the clock.
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        if sizeClass != .regular {
+                            header(free: free, finished: finished)
+                                .padding(.vertical, Space.s)
+                                .background(Palette.ground.ignoresSafeArea(edges: .top))
+                        }
+                    }
+                    .sheet(item: $sharing) { ShareCardSheet(moment: $0) }
                     .onAppear {
                         // Low on screen rather than centred, so the header stays in view.
                         if let next { proxy.scrollTo(next, anchor: UnitPoint(x: 0.5, y: 0.8)) }
@@ -56,10 +85,18 @@ struct PathView: View {
         }
     }
 
+    private var footnote: some View {
+        Text("Milestones count free days, so a slip only moves the next one a little.")
+            .font(Typeface.voiceSmall)
+            .foregroundStyle(Palette.inkSoft)
+            .multilineTextAlignment(.center)
+            .padding(.vertical, Space.m)
+    }
+
     // MARK: - Pieces
 
-    private func header(free: Int) -> some View {
-        let reached = milestones.filter { $0 <= free }.count
+    private func header(free: Int, finished: Int) -> some View {
+        let reached = milestones.filter { $0 <= finished }.count
 
         return HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -73,6 +110,17 @@ struct PathView: View {
                     .foregroundStyle(Palette.onAccent)
             }
             Spacer()
+            Button {
+                sharing = ShareMoment(days: free, sproutDays: finished, milestone: nil)
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.callout.weight(.heavy))
+                    .foregroundStyle(Palette.onAccent)
+                    .frame(width: 44, height: 44)
+                    .background(Palette.accentDeep, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Share your progress")
             Text("\(reached) of \(milestones.count)")
                 .font(Typeface.label)
                 .foregroundStyle(Palette.onAccent)
@@ -87,10 +135,79 @@ struct PathView: View {
                 .fill(Palette.accentDeep)
                 .offset(y: 4)
         )
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Sprout
+
+    /// Where the sprout is now, and a faded preview of what it turns into next, so this card
+    /// says something Home doesn't: Home is the plant today, this is the road ahead.
+    private func sproutCard(finished: Int) -> some View {
+        let index = Sprout.stageIndex(freeDays: finished)
+        let stage = Sprout.stages[index]
+        let next = index + 1 < Sprout.stages.count ? Sprout.stages[index + 1] : nil
+
+        return VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Your sprout")
+
+            if let next {
+                HStack(alignment: .bottom, spacing: Space.s) {
+                    sproutColumn(Sprout(freeDays: finished), caption: "Now", name: stage.name, size: 96)
+                    Image(systemName: "arrow.right")
+                        .font(.title3.weight(.heavy))
+                        .foregroundStyle(Palette.sun)
+                        .padding(.bottom, 56)
+                    sproutColumn(
+                        Sprout(freeDays: next.day).saturation(0.3).opacity(0.65),
+                        caption: String(inflecting: "Next · ^[\(next.day) day](inflect: true)"),
+                        name: next.name,
+                        size: 96
+                    )
+                }
+                .frame(maxWidth: .infinity)
+
+                ProgressView(value: Double(finished - stage.day), total: Double(max(1, next.day - stage.day)))
+                    .progressViewStyle(LeafProgressStyle())
+            } else {
+                HStack(spacing: Space.m) {
+                    Sprout(freeDays: finished).frame(width: 110, height: 110)
+                    VStack(alignment: .leading, spacing: Space.xs) {
+                        Text(stage.name)
+                            .font(.system(.title3, design: .rounded, weight: .heavy))
+                            .foregroundStyle(Palette.ink)
+                        Text("Fully grown. It stays this way for good.")
+                            .font(Typeface.row)
+                            .foregroundStyle(Palette.inkSoft)
+                    }
+                }
+            }
+        }
+        .padding(Space.m)
+        .background(Palette.sunQuiet.opacity(0.6), in: RoundedRectangle(cornerRadius: Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.card)
+                .strokeBorder(Palette.sun.opacity(0.45), style: StrokeStyle(lineWidth: 2, dash: [7, 6]))
+        )
+    }
+
+    private func sproutColumn(_ sprout: some View, caption: String, name: LocalizedStringResource, size: CGFloat) -> some View {
+        VStack(spacing: Space.xs) {
+            sprout.frame(width: size, height: size)
+            Text(caption)
+                .font(Typeface.label)
+                .textCase(.uppercase)
+                .foregroundStyle(Palette.inkFaint)
+            Text(name)
+                .font(.system(.subheadline, design: .rounded, weight: .heavy))
+                .foregroundStyle(Palette.ink)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 
-    private func trail(free: Int, next: Int?) -> some View {
+    /// `swing` widens the trail's side to side sway, for a wider screen.
+    private func trail(finished free: Int, next: Int?, swing: CGFloat) -> some View {
         let sway: [CGFloat] = [0, 52, 92, 52, 0, 52, 92, 52, 0]
 
         return VStack(alignment: .leading, spacing: Space.m) {
@@ -110,9 +227,19 @@ struct PathView: View {
                         }
                     }
                 }
-                .padding(.leading, sway[index % sway.count])
+                // The next milestone's halo reaches past its circle, so even the first row keeps
+                // a margin or the halo is clipped at the screen's edge.
+                .padding(.leading, sway[index % sway.count] * swing + 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                // A reached milestone opens its own card to share.
+                .onTapGesture {
+                    guard state == .reached else { return }
+                    sharing = ShareMoment(days: milestone, sproutDays: milestone, milestone: milestone)
+                }
                 .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(state == .reached ? .isButton : [])
+                .accessibilityHint(state == .reached ? String(localized: "Share this milestone") : "")
                 .id(milestone)
             }
         }
@@ -165,7 +292,7 @@ struct PathView: View {
     /// Only the reached ones and the next one get a line; the rest just show their number.
     private func subtitle(for state: Stage, milestone: Int, free: Int) -> String? {
         switch state {
-        case .reached: String(localized: "Reached")
+        case .reached: String(localized: "Reached · tap to share")
         case .next: String(inflecting: "Upcoming · ^[\(milestone - free) free day](inflect: true) to go")
         case .later: nil
         }

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B0F1A012302F21E10058E6A3 /* NicFreeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B0F1A001302F21E10058E6A3 /* NicFreeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		AC989D2E302F21E10058E6A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +25,55 @@
 			remoteGlobalIDString = AC989D1D302F21DF0058E6A3;
 			remoteInfo = NicFree;
 		};
+		B0F1A014302F21E10058E6A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AC989D16302F21DF0058E6A3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B0F1A004302F21E10058E6A3;
+			remoteInfo = NicFreeWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B0F1A011302F21E10058E6A3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B0F1A012302F21E10058E6A3 /* NicFreeWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		AC989D1E302F21DF0058E6A3 /* NicFree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NicFree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC989D2D302F21E10058E6A3 /* NicFreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NicFreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC989D37302F21E10058E6A3 /* NicFreeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NicFreeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0F1A001302F21E10058E6A3 /* NicFreeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NicFreeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B0F1A003302F21E10058E6A3 /* Exceptions for "NicFree" folder in "NicFreeWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Stats/QuitStats.swift,
+				Core/Widget/WidgetSnapshot.swift,
+				Design/Sprout.swift,
+				Design/Theme.swift,
+			);
+			target = B0F1A004302F21E10058E6A3 /* NicFreeWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AC989D20302F21DF0058E6A3 /* NicFree */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B0F1A003302F21E10058E6A3 /* Exceptions for "NicFree" folder in "NicFreeWidgetExtension" target */,
+			);
 			path = NicFree;
 			sourceTree = "<group>";
 		};
@@ -43,6 +85,11 @@
 		AC989D3A302F21E10058E6A3 /* NicFreeUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NicFreeUITests;
+			sourceTree = "<group>";
+		};
+		B0F1A002302F21E10058E6A3 /* NicFreeWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = NicFreeWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +116,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B0F1A006302F21E10058E6A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +132,7 @@
 				AC989D20302F21DF0058E6A3 /* NicFree */,
 				AC989D30302F21E10058E6A3 /* NicFreeTests */,
 				AC989D3A302F21E10058E6A3 /* NicFreeUITests */,
+				B0F1A002302F21E10058E6A3 /* NicFreeWidget */,
 				AC989D1F302F21DF0058E6A3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +143,7 @@
 				AC989D1E302F21DF0058E6A3 /* NicFree.app */,
 				AC989D2D302F21E10058E6A3 /* NicFreeTests.xctest */,
 				AC989D37302F21E10058E6A3 /* NicFreeUITests.xctest */,
+				B0F1A001302F21E10058E6A3 /* NicFreeWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +158,12 @@
 				AC989D1A302F21DF0058E6A3 /* Sources */,
 				AC989D1B302F21DF0058E6A3 /* Frameworks */,
 				AC989D1C302F21DF0058E6A3 /* Resources */,
+				B0F1A011302F21E10058E6A3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B0F1A013302F21E10058E6A3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AC989D20302F21DF0058E6A3 /* NicFree */,
@@ -163,6 +221,28 @@
 			productReference = AC989D37302F21E10058E6A3 /* NicFreeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B0F1A004302F21E10058E6A3 /* NicFreeWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B0F1A010302F21E10058E6A3 /* Build configuration list for PBXNativeTarget "NicFreeWidgetExtension" */;
+			buildPhases = (
+				B0F1A005302F21E10058E6A3 /* Sources */,
+				B0F1A006302F21E10058E6A3 /* Frameworks */,
+				B0F1A007302F21E10058E6A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B0F1A002302F21E10058E6A3 /* NicFreeWidget */,
+			);
+			name = NicFreeWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = NicFreeWidgetExtension;
+			productReference = B0F1A001302F21E10058E6A3 /* NicFreeWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +264,9 @@
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = AC989D1D302F21DF0058E6A3;
 					};
+					B0F1A004302F21E10058E6A3 = {
+						CreatedOnToolsVersion = 26.4;
+					};
 				};
 			};
 			buildConfigurationList = AC989D19302F21DF0058E6A3 /* Build configuration list for PBXProject "NicFree" */;
@@ -203,6 +286,7 @@
 				AC989D1D302F21DF0058E6A3 /* NicFree */,
 				AC989D2C302F21E10058E6A3 /* NicFreeTests */,
 				AC989D36302F21E10058E6A3 /* NicFreeUITests */,
+				B0F1A004302F21E10058E6A3 /* NicFreeWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +307,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AC989D35302F21E10058E6A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0F1A007302F21E10058E6A3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +344,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B0F1A005302F21E10058E6A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +363,11 @@
 			isa = PBXTargetDependency;
 			target = AC989D1D302F21DF0058E6A3 /* NicFree */;
 			targetProxy = AC989D38302F21E10058E6A3 /* PBXContainerItemProxy */;
+		};
+		B0F1A013302F21E10058E6A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B0F1A004302F21E10058E6A3 /* NicFreeWidgetExtension */;
+			targetProxy = B0F1A014302F21E10058E6A3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -393,15 +496,17 @@
 		AC989D42302F21E10058E6A3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_GROUP = group.com.zainnajamkhan.nicfree.debug;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = NicFree.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CU82DCKHTL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "NicFree-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = NicFree;
+				INFOPLIST_KEY_CFBundleDisplayName = "NicFree Dev";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -411,8 +516,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.zainnajamkhan.nicfree;
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zainnajamkhan.nicfree.debug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -427,10 +532,12 @@
 		AC989D43302F21E10058E6A3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_GROUP = group.com.zainnajamkhan.nicfree;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = NicFree.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = CU82DCKHTL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -445,7 +552,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zainnajamkhan.nicfree;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -538,6 +645,60 @@
 			};
 			name = Release;
 		};
+		B0F1A008302F21E10058E6A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_GROUP = group.com.zainnajamkhan.nicfree.debug;
+				CODE_SIGN_ENTITLEMENTS = NicFreeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CU82DCKHTL;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "NicFreeWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = NicFree;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zainnajamkhan.nicfree.debug.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B0F1A009302F21E10058E6A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_GROUP = group.com.zainnajamkhan.nicfree;
+				CODE_SIGN_ENTITLEMENTS = NicFreeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CU82DCKHTL;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "NicFreeWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = NicFree;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zainnajamkhan.nicfree.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,6 +734,15 @@
 			buildConfigurations = (
 				AC989D48302F21E10058E6A3 /* Debug */,
 				AC989D49302F21E10058E6A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B0F1A010302F21E10058E6A3 /* Build configuration list for PBXNativeTarget "NicFreeWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0F1A008302F21E10058E6A3 /* Debug */,
+				B0F1A009302F21E10058E6A3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

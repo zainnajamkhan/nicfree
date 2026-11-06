@@ -13,6 +13,7 @@ import Charts
 /// The paid screen. Locked, it says what is inside and offers the unlock once.
 struct InsightsView: View {
     @Environment(PurchaseStore.self) private var store
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @Query(sort: \CravingEvent.occurredAt) private var cravings: [CravingEvent]
 
     @State private var showingPaywall = false
@@ -41,6 +42,20 @@ struct InsightsView: View {
                         ) { showingPaywall = true }
                     } else if insights.count == 0 {
                         empty
+                    } else if sizeClass == .regular {
+                        // iPad: two columns of cards.
+                        HStack(alignment: .top, spacing: Space.l) {
+                            VStack(spacing: Space.l) {
+                                cravingsCard
+                                hourCard
+                                weeklyCard
+                            }
+                            .frame(maxWidth: .infinity)
+                            VStack(spacing: Space.l) {
+                                triggersCard
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
                     } else {
                         cravingsCard
                         triggersCard

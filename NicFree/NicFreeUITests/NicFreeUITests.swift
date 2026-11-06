@@ -111,7 +111,8 @@ final class NicFreeUITests: XCTestCase {
         tap(app, "Yay!")
     }
 
-    /// The unlocked History: the month grid, then the chart, which answers a drag with that day.
+    /// The unlocked History: the month grid, then the chart. Dragging across the chart, as
+    /// when scrolling past it, must not pick a day.
     @MainActor
     func testHistoryChartIsTouchable() throws {
         let app = XCUIApplication()
@@ -122,7 +123,7 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
         snap("History 01 grid")
 
-        let hint = app.staticTexts["So far. Touch the chart to look back."]
+        let hint = app.staticTexts["So far. Tap a dot to look back."]
         for _ in 0..<6 where !hint.isHittable { app.swipeUp() }
         XCTAssertTrue(hint.exists)
         snap("History 02 chart")
@@ -131,12 +132,10 @@ final class NicFreeUITests: XCTestCase {
         XCTAssertTrue(chart.waitForExistence(timeout: 3))
         let from = chart.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
         let to = chart.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
-        from.press(forDuration: 0.3, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.5)
-        XCTAssertTrue(app.buttons["Back to today"].waitForExistence(timeout: 3), "A picked day stays picked")
-        XCTAssertFalse(hint.exists)
+        from.press(forDuration: 0.1, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 0.3)
+        XCTAssertFalse(app.buttons["Back to today"].exists, "A drag across the chart picks nothing")
+        XCTAssertTrue(hint.exists)
         snap("History 03 chart dragged")
-        tap(app, "Back to today")
-        XCTAssertTrue(hint.waitForExistence(timeout: 3))
     }
 
     /// The same walk in dark mode, where contrast problems hide.
@@ -178,9 +177,14 @@ final class NicFreeUITests: XCTestCase {
         snap("02 onboarding amount, pouches")
         tap(app, "Continue")   // when
         tap(app, "Continue")   // why
+        tap(app, "Continue")   // grow
         tap(app, "Continue")   // ready
         snap("03 onboarding ready")
         tap(app, "Let’s go!")
+        // The paywall comes last. Skipping it is one tap.
+        XCTAssertTrue(app.staticTexts["Unlock NicFree"].waitForExistence(timeout: 5), "The paywall closes onboarding")
+        snap("03b onboarding paywall")
+        tap(app, "Not now")
 
         // Home.
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "craving")).firstMatch.waitForExistence(timeout: 5))
@@ -259,5 +263,81 @@ final class NicFreeUITests: XCTestCase {
         openTab(app, "Home")
         sleep(1)
         snap("10 home after a craving and a slip")
+    }
+
+    /// The craving screen can be left without choosing anything, and saves nothing.
+    @MainActor
+    func testCravingScreenCanBeClosedWithTheCross() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        let cravings = app.descendants(matching: .any)["Cravings beaten"]
+        XCTAssertTrue(cravings.waitForExistence(timeout: 8))
+        let before = cravings.value as? String
+
+        tap(app, "craving")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "It passed")).firstMatch.waitForExistence(timeout: 5))
+        tap(app, "Close")
+
+        XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
+        XCTAssertEqual(cravings.value as? String, before, "Closing must not record a craving")
+    }
+
+    /// Last night's slip can be logged this morning, and lands on yesterday.
+    @MainActor
+    func testSlipCanBeLoggedForYesterday() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        let slipLink = app.buttons["Log a slip"]
+        XCTAssertTrue(slipLink.waitForExistence(timeout: 8))
+        slipLink.tap()
+        tap(app, "Yesterday")
+        tap(app, "Just a little")
+        tap(app, "Save")
+        XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
+        tap(app, "Done")
+
+        // Today is untouched, so the link still offers a new slip rather than an edit.
+        XCTAssertTrue(app.buttons["Log a slip"].waitForExistence(timeout: 5))
+        // And the sprout is thirsty, because yesterday now has a slip.
+        XCTAssertTrue(app.staticTexts["Your sprout’s a bit thirsty. A free day will perk it up."].waitForExistence(timeout: 5))
+    }
+
+    /// "I used" is logged the moment it's tapped, so closing the details sheet keeps it.
+    @MainActor
+    func testUsedAfterACravingIsLoggedEvenIfTheSheetIsClosed() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData"]
+        app.launch()
+
+        tap(app, "craving")
+        tap(app, "I used")
+        XCTAssertTrue(app.buttons["Remove this slip"].waitForExistence(timeout: 5), "The details sheet opens on the slip that was just logged")
+        app.swipeDown(velocity: .fast)
+
+        XCTAssertTrue(app.buttons["Edit today's slip"].waitForExistence(timeout: 5), "Closing the sheet must not lose the slip")
+    }
+
+    /// Scrolling through the chart must never pick a day; only a tap on a dot does.
+    @MainActor
+    func testScrollingOverTheChartSelectsNothing() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStoreForUITests", "-seedScreenshotData", "-unlockForScreenshots"]
+        app.launch()
+        let tab = app.tabBars.buttons["History"].exists ? app.tabBars.buttons["History"] : app.buttons["History"].firstMatch
+        XCTAssertTrue(tab.waitForExistence(timeout: 8))
+        tab.tap()
+
+        let hint = app.staticTexts["So far. Tap a dot to look back."]
+        XCTAssertTrue(hint.waitForExistence(timeout: 5))
+        // Drag across the whole screen, through the chart, a few times.
+        for _ in 0..<3 {
+            app.swipeUp(velocity: .slow)
+            app.swipeDown(velocity: .slow)
+        }
+        XCTAssertFalse(app.buttons["Back to today"].exists, "Scrolling must not select a day")
     }
 }

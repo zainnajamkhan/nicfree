@@ -15,6 +15,9 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PurchaseStore.self) private var store
 
+    /// A plain "Not now" under the price, for when this opens at the end of onboarding.
+    var showsSkip = false
+
     var body: some View {
         Screen {
             ScrollView {
@@ -82,6 +85,10 @@ struct PaywallView: View {
                     .foregroundStyle(Palette.inkSoft)
                     .frame(minHeight: 44)
                     .disabled(store.isWorking)
+
+                    if showsSkip {
+                        SecondaryButton("Not now") { dismiss() }
+                    }
                 }
                 .padding(.top, Space.s)
                 .background(Palette.ground)

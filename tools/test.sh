@@ -18,7 +18,7 @@ run() {
     local name=$1; shift
     local bundle="$derived/$name.xcresult"
     rm -rf "$bundle"
-    if xcodebuild test -project "$project" -scheme NicFree -destination "id=$udid" \
+    if xcodebuild test -project "$project" -scheme "NicFree Debug" -destination "id=$udid" \
         -derivedDataPath "$derived" -parallel-testing-enabled NO \
         -test-timeouts-enabled YES -maximum-test-execution-time-allowance 420 \
         -resultBundlePath "$bundle" "$@" > "$derived/$name.log" 2>&1; then

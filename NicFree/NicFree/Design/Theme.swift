@@ -114,9 +114,11 @@ enum Space {
 }
 
 enum ContentWidth {
-    /// Content never grows wider than this. On iPhone it changes nothing; on iPad it
-    /// keeps a phone-shaped column centred instead of buttons a foot wide.
+    /// On iPhone, and in any narrow window, content never grows wider than this.
     static let readable: CGFloat = 560
+    /// In a regular width window, such as an iPad, a foldable's inner screen or a large
+    /// split view. Screens use this room for columns rather than stretching one.
+    static let wide: CGFloat = 1180
 }
 
 enum Radius {
