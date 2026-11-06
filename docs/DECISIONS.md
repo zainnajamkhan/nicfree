@@ -142,6 +142,31 @@ fade to olive, the smile turns down, and Home says "Your sprout's a bit thirsty.
 will perk it up."); a full free day restores it. It never loses a leaf or shrinks, because
 the total never goes down. The thirsty colours are dry greens, never clay or red.
 
+**Milestones count finished free days (2026-11-06).** Today is never included. A milestone is
+announced at 10:00 the morning after its last free day ends, and a slip today moves every note
+a day later. Before this, the 3-day note could arrive at 10:00 on day 3, after a slip not yet
+logged, and a milestone ticked off in the morning could un-tick after an evening slip. The hero
+number still counts today; milestones, Path, the sprout and the review prompt use finished days.
+
+**A slip can be logged for yesterday (2026-11-06).** The slip sheet offers Today / Yesterday,
+but not when it opens from "I used", which is always now.
+
+**The sprout grows up (2026-11-06).** It changes at every milestone: leaves at 3 and 7, a bud at
+14, a flower and rosy cheeks at 30, more flowers at 60 and 90, a painted pot at 180, gold at a
+year. It's drawn from finished free days, so a slip today can't take anything away. A new stage
+grows on screen the next time Home opens, with a swelling haptic that pops as it opens. Tapping
+it pets it (a leafy rustle; a slow, soft bump when thirsty). Path shows the stage, the next one,
+and "Watch it grow", which replays its life so far.
+
+**Share cards, not social (2026-11-06).** A milestone or the total renders as a 1080 by 1350
+image for the share sheet. Nothing is posted by the app.
+
+**Review prompt after milestones of a week or more (2026-11-06)**, never with a slip today or
+yesterday. The first look at Home only records where someone already is.
+
+**Widget reads a snapshot, never the store (2026-11-06).** Moving the SwiftData store into an
+App Group container would be a migration, which rule 10 says not to risk for a widget.
+
 ## Technical
 
 **No third party packages.** Avoids supply chain risk, keeps launch fast, removes third

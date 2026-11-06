@@ -75,11 +75,20 @@ Breaking any of these breaks the product, not just a screen.
   working through `LAUNCH.md`, and he evaluates at the end. Always pass `-derivedDataPath` pointing
   at the scratchpad so a build never fights an open Xcode window. Zain still owns the on-device
   check and every product call.
+- **Two schemes.** `NicFree Debug` runs the Debug build as "NicFree Dev"
+  (`com.zainnajamkhan.nicfree.debug`, local StoreKit file, debug tools). `NicFree Release` runs
+  the Release build (`com.zainnajamkhan.nicfree`, real App Store sandbox) and archives. The two
+  install side by side, each with its own App Group, so their widgets never mix.
+- **The widget** (`NicFreeWidget/`) reads a `WidgetSnapshot` the app writes to the App Group,
+  never the SwiftData store. It compiles four app files through a membership exception:
+  `QuitStats`, `WidgetSnapshot`, `Sprout`, `Theme`. A new file the widget needs goes in that list.
 - **Run tests with `tools/test.sh <simulator-udid>`.** It runs three separate passes (unit,
   the purchase test alone, UI), because the UI tests' paywall leaves StoreKit state that
   breaks the purchase unit test when they share a run.
-- **Screenshots with `tools/screenshots.sh <udid> <folder>`**: iPhone 17 Pro Max for
-  `screenshots/iphone-6.9`, iPad Pro 13-inch for `screenshots/ipad-13`.
+- **Store graphics**, in Pip's style: `tools/store-art.sh <udid> screenshots/source/art` (sprout
+  stages and share cards), `tools/screenshots.sh` for raw captures into `screenshots/source/cap`
+  (`iphone-*`, `ipad-*`), then `tools/store-frames.sh` renders `screenshots/iphone-6.9`,
+  `iphone-6.3`, `ipad-13` and `header/` from `source/frames.html` and `source/header.html`.
 - DEBUG-only launch flags: `-freshStoreForUITests` (UI tests never see each other's data),
   `-simulateDamagedStore`, `-forceDarkForUITests`, `-seedScreenshotData`,
   `-unlockForScreenshots`, `-simulateAwayForUITests`, `-celebrateForUITests`,
