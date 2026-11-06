@@ -6,6 +6,7 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+import WidgetKit
 
 /// Three numbers that only grow, a sprout that grows with them, and one big button.
 ///
@@ -136,6 +137,11 @@ struct HomeView: View {
         .onChange(of: scenePhase, initial: true) { _, phase in
             if phase == .active { checkForMissedDays() }
         }
+        // The widget's copy of the record, rewritten whenever the record changes.
+        .task(id: widgetSnapshot) {
+            guard let widgetSnapshot, widgetSnapshot.save() else { return }
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         .task(id: scheduleKey) {
             guard let stats else { return }
             await MilestoneScheduler.reschedule(
@@ -143,6 +149,11 @@ struct HomeView: View {
                 todayUsed: stats.todayIsUsed
             )
         }
+    }
+
+    private var widgetSnapshot: WidgetSnapshot? {
+        guard let habit else { return nil }
+        return WidgetSnapshot(quitStartedAt: habit.quitStartedAt, usedDays: usedDays.map(\.day).sorted())
     }
 
     /// Changes whenever the milestone schedule has to be rebuilt.
