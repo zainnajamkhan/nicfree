@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<!--
+  NicFree product page art: header.html?w=…&h=…&s=<safe height>&cy=<centre, 0 to 1>
+  No text, so nothing is cropped and it works in every language. The sprouts sit inside
+  the centred safe area. Rendered with headless Chrome by tools/store-frames.sh.
+-->
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { overflow:hidden; background:#FFFFFF; }
+  #scene { position:relative; overflow:hidden;
+    background: linear-gradient(180deg, #FFF0C2 0%, #FFF7E2 34%, #F1FAF2 66%, #E9F5EA 100%); }
+  .abs { position:absolute; }
+  .art { position:absolute; transform:translate(-50%,-50%); filter:drop-shadow(0 calc(var(--s)*0.03) calc(var(--s)*0.04) rgba(34,48,42,.16)); }
+  .hill { position:absolute; border-radius:50%; }
+  .spark { position:absolute; transform:translate(-50%,-50%); color:#E8A800; line-height:1; }
+  .cloud { position:absolute; transform:translate(-50%,-50%); background:#fff; border-radius:999px; opacity:.9; }
+  .cloud::before, .cloud::after { content:""; position:absolute; background:#fff; border-radius:50%; }
+  .cloud::before { width:45%; height:160%; left:15%; top:-75%; }
+  .cloud::after { width:35%; height:130%; left:48%; top:-55%; }
+</style></head>
+<body>
+<div id="scene"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const W = +q.get("w"), H = +q.get("h"), S = +q.get("s"), CY = +(q.get("cy") || 0.5);
+document.body.style.width = W + "px"; document.body.style.height = H + "px";
+const sc = document.getElementById("scene");
+sc.style.width = W + "px"; sc.style.height = H + "px"; sc.style.setProperty("--s", S + "px");
+const cx = W / 2, cy = H * CY;
+const X = u => cx + u * S, Y = u => cy + u * S;
+function add(html) { sc.insertAdjacentHTML("beforeend", html); }
+
+// Sun glow behind the golden sprout.
+add(`<div class="abs" style="left:${X(-1.6)}px; top:${Y(-1.7)}px; width:${3.2*S}px; height:${3.2*S}px; border-radius:50%;
+  background:radial-gradient(circle, rgba(242,193,75,.6) 0, rgba(255,224,150,.3) 38%, rgba(255,240,194,0) 68%);"></div>`);
+
+[[-2.55,-0.55,0.55],[2.35,-0.75,0.7],[-1.35,-0.95,0.38],[3.3,-0.25,0.45],[-3.4,-0.95,0.5]].forEach(([x,y,w]) =>
+  add(`<div class="cloud" style="left:${X(x)}px; top:${Y(y)}px; width:${w*S}px; height:${w*0.32*S}px;"></div>`));
+
+// Rolling hills, back to front.
+[[-5.2,0.28,6.0,2.2,"#D9F0DC"],[0.4,0.34,7.5,2.0,"#CFEBD3"],[-6.0,0.48,7.0,2.2,"#C2E6C8"],
+ [1.2,0.5,8.0,2.2,"#B6E0BD"],[-3.2,0.62,6.4,2.4,"#A6D8AF"],[2.4,0.66,7.2,2.4,"#9BD3A6"]]
+  .forEach(([x,y,w,h,c]) => add(`<div class="hill" style="left:${X(x)}px; top:${Y(y)}px; width:${w*S}px; height:${h*S}px; background:${c};"></div>`));
+
+// The sprout's life, left to right, small to golden: [stage, x, y, size, rotate].
+const stages = [
+  ["sprout-0", -4.2, 0.5, 0.5, -3], ["sprout-3", -3.35, 0.36, 0.58, -2], ["sprout-7", -2.5, 0.26, 0.66, -3],
+  ["sprout-14", -1.55, 0.12, 0.78, -4], ["sprout-60", 1.55, 0.1, 0.8, 4], ["sprout-90", 2.5, 0.26, 0.68, 3],
+  ["sprout-180", 3.35, 0.36, 0.6, 2], ["sprout-30", 4.2, 0.5, 0.52, 3],
+];
+stages.forEach(([img,x,y,s,r]) => {
+  add(`<div class="hill" style="left:${X(x - s*0.38)}px; top:${Y(y + s*0.4)}px; width:${s*0.76*S}px; height:${s*0.14*S}px; background:rgba(46,125,50,.18);"></div>`);
+  add(`<img class="art" src="art/${img}.png" style="left:${X(x)}px; top:${Y(y)}px; width:${s*S}px; transform:translate(-50%,-50%) rotate(${r}deg);">`);
+});
+
+// The hero: a year in, golden, on its own mound in the middle of the safe area.
+add(`<div class="hill" style="left:${X(-0.55)}px; top:${Y(0.4)}px; width:${1.1*S}px; height:${0.18*S}px; background:#8CCB98;"></div>`);
+add(`<img class="art" src="art/sprout-365.png" style="left:${X(0)}px; top:${Y(-0.05)}px; width:${1.05*S}px;">`);
+
+[[-0.75,-0.55,0.12],[0.8,-0.42,0.09],[-1.1,-0.2,0.07],[1.15,-0.75,0.1],[-3.0,-0.35,0.09],[3.0,-0.5,0.11],[-4.3,-0.2,0.08],[4.4,-0.15,0.08]]
+  .forEach(([x,y,s]) => add(`<div class="spark" style="left:${X(x)}px; top:${Y(y)}px; font-size:${s*S}px;">✦</div>`));
+</script>
+</body></html>

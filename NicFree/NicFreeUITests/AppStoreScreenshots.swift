@@ -60,7 +60,10 @@ final class AppStoreScreenshots: XCTestCase {
         // 3. The milestone path.
         XCTAssertTrue(button(app, "Log a slip").waitForExistence(timeout: 5))
         openTab(app, "Path")
-        sleep(2)
+        sleep(1)
+        // From the top, so the sprout card shows under the header.
+        app.swipeDown()
+        sleep(1)
         shot("03-path")
 
         // 4. Insights, unlocked.
