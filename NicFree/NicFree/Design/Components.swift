@@ -244,6 +244,8 @@ struct PinnedActions<Content: View, Actions: View>: View {
 /// Every screen sits on the same ground with the same margins. The craving screen passes
 /// its own calmer ground.
 struct Screen<Content: View>: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     var ground: Color = Palette.ground
     @ViewBuilder var content: Content
 
@@ -251,8 +253,8 @@ struct Screen<Content: View>: View {
         ZStack {
             ground.ignoresSafeArea()
             content
-                .padding(.horizontal, Space.l)
-                .frame(maxWidth: ContentWidth.readable)
+                .padding(.horizontal, sizeClass == .regular ? Space.xl : Space.l)
+                .frame(maxWidth: sizeClass == .regular ? ContentWidth.wide : ContentWidth.readable)
         }
         .tint(Palette.accent)
     }

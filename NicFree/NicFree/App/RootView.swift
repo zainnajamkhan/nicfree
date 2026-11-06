@@ -54,19 +54,22 @@ private struct TemporaryStoreView: View {
 /// Home, the milestone path, the record, and the paid Insights screen.
 private struct MainTabs: View {
     var body: some View {
+        // On iPhone a tab bar; on iPad a tab bar along the top that turns into a sidebar.
         TabView {
-            HomeView()
-                .tabItem { Label("Home", systemImage: "house.fill") }
-
-            PathView()
-                .tabItem { Label("Path", systemImage: "point.topleft.down.to.point.bottomright.curvepath.fill") }
-
-            NavigationStack { HistoryView() }
-                .tabItem { Label("History", systemImage: "calendar") }
-
-            NavigationStack { InsightsView() }
-                .tabItem { Label("Insights", systemImage: "chart.bar.fill") }
+            Tab("Home", systemImage: "house.fill") {
+                HomeView()
+            }
+            Tab("Path", systemImage: "point.topleft.down.to.point.bottomright.curvepath.fill") {
+                PathView()
+            }
+            Tab("History", systemImage: "calendar") {
+                NavigationStack { HistoryView() }
+            }
+            Tab("Insights", systemImage: "chart.bar.fill") {
+                NavigationStack { InsightsView() }
+            }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .tint(Palette.accent)
     }
 }
