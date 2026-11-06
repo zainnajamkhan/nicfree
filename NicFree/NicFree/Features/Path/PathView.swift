@@ -19,6 +19,7 @@ struct PathView: View {
 
     private let milestones = MilestoneScheduler.milestones
 
+    @State private var sharing: ShareMoment?
     /// Set while "Watch it grow" plays the sprout's life from the start.
     @State private var replayDays: Double?
     @State private var replay: Task<Void, Never>?
@@ -55,6 +56,7 @@ struct PathView: View {
                         .padding(.top, Space.m)
                     }
                     .scrollBounceBehavior(.basedOnSize)
+                    .sheet(item: $sharing) { ShareCardSheet(moment: $0) }
                     .onDisappear {
                         replay?.cancel()
                         replayDays = nil
@@ -85,6 +87,17 @@ struct PathView: View {
                     .foregroundStyle(Palette.onAccent)
             }
             Spacer()
+            Button {
+                sharing = ShareMoment(days: free, sproutDays: finished, milestone: nil)
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.callout.weight(.heavy))
+                    .foregroundStyle(Palette.onAccent)
+                    .frame(width: 44, height: 44)
+                    .background(Palette.accentDeep, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Share your progress")
             Text("\(reached) of \(milestones.count)")
                 .font(Typeface.label)
                 .foregroundStyle(Palette.onAccent)
@@ -99,7 +112,7 @@ struct PathView: View {
                 .fill(Palette.accentDeep)
                 .offset(y: 4)
         )
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
     }
 
     // MARK: - Sprout
@@ -183,7 +196,15 @@ struct PathView: View {
                 }
                 .padding(.leading, sway[index % sway.count])
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                // A reached milestone opens its own card to share.
+                .onTapGesture {
+                    guard state == .reached else { return }
+                    sharing = ShareMoment(days: milestone, sproutDays: milestone, milestone: milestone)
+                }
                 .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(state == .reached ? .isButton : [])
+                .accessibilityHint(state == .reached ? String(localized: "Share this milestone") : "")
                 .id(milestone)
             }
         }
@@ -236,7 +257,7 @@ struct PathView: View {
     /// Only the reached ones and the next one get a line; the rest just show their number.
     private func subtitle(for state: Stage, milestone: Int, free: Int) -> String? {
         switch state {
-        case .reached: String(localized: "Reached")
+        case .reached: String(localized: "Reached · tap to share")
         case .next: String(inflecting: "Upcoming · ^[\(milestone - free) free day](inflect: true) to go")
         case .later: nil
         }
