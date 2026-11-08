@@ -85,4 +85,41 @@ final class AppStoreScreenshots: XCTestCase {
         XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
         shot("06-slip-unchanged")
     }
+
+    /// Walks the app at a watchable pace while `tools/app-preview.sh` records the screen:
+    /// a milestone celebration, Home, a craving ridden out, then a slip that keeps every
+    /// free day. Skipped unless PREVIEW is set.
+    @MainActor
+    func testWalkForAppPreview() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["PREVIEW"] == "1", "Run through tools/app-preview.sh")
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-seedScreenshotData", "-celebrateMilestoneForUITests", "-unlockForScreenshots",
+            "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+        ]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Two months free!"].waitForExistence(timeout: 10))
+        sleep(4)
+        button(app, "Yay!").tap()
+
+        XCTAssertTrue(button(app, "craving").waitForExistence(timeout: 5))
+        sleep(2)
+        button(app, "craving").tap()
+        sleep(7)
+        button(app, "It passed").tap()
+        XCTAssertTrue(button(app, "Done").waitForExistence(timeout: 5))
+        sleep(2)
+        button(app, "Done").tap()
+        if app.buttons["Not now"].waitForExistence(timeout: 5) { app.buttons["Not now"].tap() }
+
+        XCTAssertTrue(button(app, "Log a slip").waitForExistence(timeout: 5))
+        sleep(1)
+        button(app, "Log a slip").tap()
+        sleep(1)
+        button(app, "Just a little").tap()
+        button(app, "Save").tap()
+        XCTAssertTrue(app.staticTexts["Every free day you’ve already had is still there."].waitForExistence(timeout: 3))
+        sleep(4)
+    }
 }

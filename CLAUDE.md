@@ -89,6 +89,11 @@ Breaking any of these breaks the product, not just a screen.
   stages and share cards), `tools/screenshots.sh` for raw captures into `screenshots/source/cap`
   (`iphone-*`, `ipad-*`), then `tools/store-frames.sh` renders `screenshots/iphone-6.9`,
   `iphone-6.3`, `ipad-13` and `header/` from `source/frames.html` and `source/header.html`.
+- **Videos**: `tools/app-preview.sh <udid> <raw.mov>` records the app walking through
+  `testWalkForAppPreview`, then `tools/app-preview-edit.sh <raw.mov>` cuts
+  `screenshots/preview/app-preview-iphone.mp4` (App Store, 15 to 30 s) and `teaser-6s.mp4`
+  from `source/preview.html`. Cut points are seconds into the raw take, so a new take needs
+  them checked. Needs ffmpeg (Homebrew), a local tool only.
 - DEBUG-only launch flags: `-freshStoreForUITests` (UI tests never see each other's data),
   `-simulateDamagedStore`, `-forceDarkForUITests`, `-seedScreenshotData`,
   `-unlockForScreenshots`, `-simulateAwayForUITests`, `-celebrateForUITests`,
