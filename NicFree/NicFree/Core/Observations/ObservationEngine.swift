@@ -142,7 +142,12 @@ enum ObservationEngine {
 
             if let top = cravings.topTrigger, top.count >= 3 {
                 // A listed trigger reads in lower case; the person's own words stay as typed.
-                let name = CravingTrigger(rawValue: top.trigger).map { String(localized: $0.title).lowercased() } ?? top.trigger
+                // German capitalises nouns, so there it keeps its case ("am Handy", not "am handy").
+                let keepsCase = Bundle.main.preferredLocalizations.first == "de"
+                let name = CravingTrigger(rawValue: top.trigger).map {
+                    let title = String(localized: $0.title)
+                    return keepsCase ? title : title.lowercased()
+                } ?? top.trigger
                 result.append(
                     DailyObservation(
                         id: "topTrigger",

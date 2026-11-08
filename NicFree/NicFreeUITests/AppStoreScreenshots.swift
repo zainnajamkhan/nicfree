@@ -86,6 +86,26 @@ final class AppStoreScreenshots: XCTestCase {
         shot("06-slip-unchanged")
     }
 
+    /// Captures each tab in one language, for checking a translation's layout by eye. Tabs are
+    /// found by position, so it works whatever the labels say. Run with TEST_RUNNER_L10N=<code>.
+    @MainActor
+    func testTourInLanguage() throws {
+        let language = try XCTUnwrap(ProcessInfo.processInfo.environment["L10N"], "Set L10N to a language code")
+        let app = XCUIApplication()
+        app.launchArguments = ["-seedScreenshotData", "-unlockForScreenshots", "-AppleLanguages", "(\(language))"]
+        app.launch()
+
+        let tabs = app.tabBars.buttons
+        XCTAssertTrue(tabs.element(boundBy: 0).waitForExistence(timeout: 10))
+        sleep(1)
+        shot("\(language)-1-home")
+        for (index, name) in [(1, "path"), (2, "history"), (3, "insights")] {
+            tabs.element(boundBy: index).tap()
+            sleep(2)
+            shot("\(language)-\(index + 1)-\(name)")
+        }
+    }
+
     /// Walks the app at a watchable pace while `tools/app-preview.sh` records the screen:
     /// a milestone celebration, Home, a craving ridden out, then a slip that keeps every
     /// free day. Skipped unless PREVIEW is set.

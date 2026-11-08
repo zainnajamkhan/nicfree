@@ -89,7 +89,7 @@ struct InsightsView: View {
         return card("Your cravings") {
             HStack(alignment: .firstTextBaseline, spacing: Space.l) {
                 figure(duration(insights.averageHeldOutSeconds), "average length")
-                figure("\(recent.resisted) of \(recent.total)", "recent ones ridden out")
+                figure(String(localized: "\(recent.resisted) of \(recent.total)"), "recent ones ridden out")
             }
             Text("Average length counts the ones you rode out.")
                 .font(.caption)

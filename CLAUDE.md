@@ -64,8 +64,13 @@ Breaking any of these breaks the product, not just a screen.
 - Design tokens come from `Design/Theme.swift`. Never a literal colour, font size or
   spacing value in a feature file.
 - Every user facing string is a `Text` literal or `String(localized:)`. Never a hardcoded
-  display string. Arabic and RTL ship after launch, so the catalog is populated from day
-  one rather than retrofitted.
+  display string, and never a `String` built by interpolation and handed to `Text`, which
+  skips the catalog ("11 of 12" stayed English that way).
+- **The app ships in English, Swedish, German, Spanish, French and Arabic** (since 1.1.1).
+  A new string needs all six before it ships. The widget has its own catalog
+  (`NicFreeWidget/Localizable.xcstrings`), including the sprout stage names it shows.
+  `ToneTests` checks a banned list per language. Arabic is right to left: check new layouts
+  with `TEST_RUNNER_L10N=ar` and `AppStoreScreenshots.testTourInLanguage`.
 - `os.Logger`, never `print`.
 - Enums persist as raw strings with a typed accessor, never as `Codable` properties.
 
@@ -122,5 +127,9 @@ Breaking any of these breaks the product, not just a screen.
 - If UI tests start timing out ("Timed out while fetching snapshot from testmanagerd", tests
   taking many minutes), the simulator is wedged, not the app. Shut it down, boot it, rerun.
   Recording video with `simctl io` on the test simulator before a run caused this once.
+- A String Catalog plural variation must contain the number, or the build fails. A label
+  shown beside a separately drawn number uses two keys ("free day", "free days") instead.
+- Counts with a number use plural variations, not `inflect: true`: automatic grammar
+  agreement doesn't cover Swedish or Arabic, and Arabic needs six forms.
 - `SectionLabel` uppercases its text, and so does its accessibility label. UI tests match it
   with `BEGINSWITH` or `CONTAINS`, never an exact string.
