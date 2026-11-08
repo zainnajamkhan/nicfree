@@ -18,7 +18,7 @@ shoot() { # url width height out
 }
 
 mkdir -p "$root/iphone-6.9" "$root/iphone-6.3" "$root/ipad-13" "$root/header"
-for f in 1 2 3 4 5 6; do
+for f in 1 2 3 4 5 6 7; do
     shoot "file://$src/frames.html?f=$f" 1320 2868 "$root/iphone-6.9/0$f.png"
     cp "$root/iphone-6.9/0$f.png" "$root/iphone-6.3/0$f.png"
     sips -z 2622 1206 "$root/iphone-6.3/0$f.png" > /dev/null

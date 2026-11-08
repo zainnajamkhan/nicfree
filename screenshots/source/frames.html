@@ -2,8 +2,8 @@
 <html><head><meta charset="utf-8">
 <!--
   NicFree App Store screenshots. One frame per render:
-    frames.html?f=1..6            iPhone, 1320 x 2868 (6.9"); render at 1206 x 2622 with zoom for 6.3"
-    frames.html?f=1..6&d=ipad     iPad, 2064 x 2752 (13")
+    frames.html?f=1..7            iPhone, 1320 x 2868 (6.9"); render at 1206 x 2622 with zoom for 6.3"
+    frames.html?f=1..7&d=ipad     iPad, 2064 x 2752 (13")
   Captures come from tools/screenshots.sh (cap/iphone-*.png, cap/ipad-*.png); art from
   tools/store-art.sh (art/*.png). Rendered with headless Chrome by tools/store-frames.sh.
 -->
@@ -41,11 +41,11 @@
 </style></head>
 <body>
 
-<!-- 1. The hero number -->
+<!-- 1. Pouch first: matches the search, then the promise -->
 <div class="frame" id="f1" style="background:radial-gradient(circle at 50% 70%, #DDF3E2 0, #EEF8F0 36%, #FFFFFF 64%);">
   <div class="head">
-    <h1>Every free day<br><em>counts. Forever.</em></h1>
-    <div class="sub">A slip never wipes out<br>the days you've already had.</div>
+    <h1>Quit Zyn &amp;<br><em>nicotine pouches.</em></h1>
+    <div class="sub">Vapes and cigarettes too.<br>Every free day counts, forever.</div>
   </div>
   <div class="phone" style="top:1010px;"><img src="cap/PREFIX-01-home.png"></div>
   <span class="spark" style="top:930px; left:120px;">✦</span>
@@ -62,8 +62,35 @@
   <div class="phone" style="top:1010px;"><img src="cap/PREFIX-02-craving.png"></div>
 </div>
 
-<!-- 3. The sprout grows -->
-<div class="frame" id="f3" style="background:radial-gradient(circle at 50% 46%, #DDF3E2 0, #EEF8F0 40%, #FFFFFF 75%);">
+<!-- 3. One purchase, no subscription: in the first three, where search results show it -->
+<div class="frame" id="f3" style="background:linear-gradient(180deg, #17301F 0%, #1F4029 100%); color:#fff;">
+  <div class="head">
+    <h1 style="color:#fff;">One purchase.<br><em style="color:#8FD694;">No subscription.</em></h1>
+    <div class="sub" style="color:#BFD8C4;">The core app is free.<br>Everything stays on your phone.</div>
+  </div>
+  <div style="position:absolute; width:1000px; height:1000px; top:860px; left:50%; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle, rgba(242,193,75,.35) 0, rgba(242,193,75,0) 65%);"></div>
+  <img class="art" src="art/sprout-365.png" style="width:760px; top:900px; left:50%; transform:translateX(-50%); filter:drop-shadow(0 40px 60px rgba(0,0,0,.35));">
+  <div class="card histcard" style="top:1760px; left:62px; width:1196px; height:520px; box-shadow:0 50px 100px rgba(0,0,0,.35);">
+    <img src="cap/PREFIX-05-history.png" class="histimg" style="width:1320px; margin:-430px 0 0 -62px;">
+  </div>
+  <div style="position:absolute; top:2420px; left:0; right:0; display:flex; justify-content:center; gap:28px; z-index:4;">
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No account</div>
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No tracking</div>
+    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No ads</div>
+  </div>
+</div>
+
+<!-- 4. A slip keeps every free day already had -->
+<div class="frame" id="f4" style="background:radial-gradient(circle at 50% 70%, #F6EDE6 0, #FBF6F2 40%, #FFFFFF 70%);">
+  <div class="head">
+    <h1>Slipped?<br><em>Free days stay.</em></h1>
+    <div class="sub">A slip adds a used day.<br>It never takes the ones you've had.</div>
+  </div>
+  <div class="phone" style="top:1010px;"><img src="cap/PREFIX-06-slip-unchanged.png"></div>
+</div>
+
+<!-- 5. The sprout grows -->
+<div class="frame" id="f5" style="background:radial-gradient(circle at 50% 46%, #DDF3E2 0, #EEF8F0 40%, #FFFFFF 75%);">
   <div class="head">
     <h1>Grow a sprout,<br><em>bloom by bloom.</em></h1>
     <div class="sub">New leaves, a bud, then flowers.<br>It never loses one.</div>
@@ -78,8 +105,8 @@
   <div class="phone stagephone" style="top:1620px;"><img src="cap/PREFIX-03-path.png"></div>
 </div>
 
-<!-- 4. Share a milestone -->
-<div class="frame" id="f4" style="background:radial-gradient(circle at 50% 62%, #FFF0C2 0, #FFF7E2 40%, #FFFFFF 72%);">
+<!-- 6. Share a milestone -->
+<div class="frame" id="f6" style="background:radial-gradient(circle at 50% 62%, #FFF0C2 0, #FFF7E2 40%, #FFFFFF 72%);">
   <div class="head">
     <h1>Hit a milestone?<br><em style="color:var(--sun);">Share it.</em></h1>
     <div class="sub">A card for every milestone,<br>made to send to a friend.</div>
@@ -92,31 +119,13 @@
   <span class="spark" style="top:1900px; right:100px; font-size:90px;">✦</span>
 </div>
 
-<!-- 5. Insights -->
-<div class="frame" id="f5" style="background:linear-gradient(180deg, #F3F6F4 0%, #E6EFE9 100%);">
+<!-- 7. Insights -->
+<div class="frame" id="f7" style="background:linear-gradient(180deg, #F3F6F4 0%, #E6EFE9 100%);">
   <div class="head">
     <h1>Know your<br><em>triggers.</em></h1>
     <div class="sub">See what sets off your cravings,<br>and when they show up.</div>
   </div>
   <div class="phone" style="top:1010px;"><img src="cap/PREFIX-04-insights.png"></div>
-</div>
-
-<!-- 6. Private, no subscription -->
-<div class="frame" id="f6" style="background:linear-gradient(180deg, #17301F 0%, #1F4029 100%); color:#fff;">
-  <div class="head">
-    <h1 style="color:#fff;">Yours alone.<br><em style="color:#8FD694;">No subscription.</em></h1>
-    <div class="sub" style="color:#BFD8C4;">Everything stays on your phone.<br>One purchase unlocks the rest.</div>
-  </div>
-  <div style="position:absolute; width:1000px; height:1000px; top:860px; left:50%; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle, rgba(242,193,75,.35) 0, rgba(242,193,75,0) 65%);"></div>
-  <img class="art" src="art/sprout-365.png" style="width:760px; top:900px; left:50%; transform:translateX(-50%); filter:drop-shadow(0 40px 60px rgba(0,0,0,.35));">
-  <div class="card histcard" style="top:1760px; left:62px; width:1196px; height:520px; box-shadow:0 50px 100px rgba(0,0,0,.35);">
-    <img src="cap/PREFIX-05-history.png" class="histimg" style="width:1320px; margin:-430px 0 0 -62px;">
-  </div>
-  <div style="position:absolute; top:2420px; left:0; right:0; display:flex; justify-content:center; gap:28px; z-index:4;">
-    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No account</div>
-    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No tracking</div>
-    <div class="pill" style="background:#2A5236; color:#fff; box-shadow:none;">No ads</div>
-  </div>
 </div>
 
 <script>
