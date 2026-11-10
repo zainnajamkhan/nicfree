@@ -17,10 +17,10 @@ struct OnboardingView: View {
     @Environment(PurchaseStore.self) private var store
 
     @State private var step: Step = .form
-    @State private var unit: ConsumptionUnit = .disposable
+    @State private var unit: ConsumptionUnit = .pouch
     /// Per week for vaping, per day for pouches and cigarettes. Each is how people actually
     /// describe it.
-    @State private var amount: Double = 3
+    @State private var amount: Double = 8
     /// What a week of it costs, in the user's own currency. Asked as a weekly total
     /// because nobody knows the price of one pouch, and no default works in every
     /// currency. Empty means no money estimate, which Home simply leaves out.
@@ -139,13 +139,13 @@ struct OnboardingView: View {
             question("What do you use?")
 
             VStack(alignment: .leading, spacing: Space.s) {
+                SectionLabel("Pouches")
+                choice("Nicotine pouches", unit: .pouch)
+
                 SectionLabel("Vape")
+                    .padding(.top, Space.s)
                 choice("Disposables", unit: .disposable)
                 choice("Pods or cartridges", unit: .pod)
-
-                SectionLabel("Pouches")
-                    .padding(.top, Space.s)
-                choice("Nicotine pouches", unit: .pouch)
 
                 SectionLabel("Cigarettes")
                     .padding(.top, Space.s)

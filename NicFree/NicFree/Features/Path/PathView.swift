@@ -103,7 +103,7 @@ struct PathView: View {
                 Text("Your path")
                     .font(Typeface.label)
                     .textCase(.uppercase)
-                    .tracking(1.0)
+                    .letterSpacing(1.0)
                     .foregroundStyle(Palette.onAccent.opacity(0.8))
                 Text(String(inflecting: "^[\(free) free day](inflect: true)"))
                     .font(Typeface.title)

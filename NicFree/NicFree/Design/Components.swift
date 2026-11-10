@@ -18,9 +18,28 @@ struct SectionLabel: View {
     var body: some View {
         Text(text)
             .font(Typeface.label)
-            .tracking(1.0)
+            .letterSpacing(1.0)
             .textCase(.uppercase)
             .foregroundStyle(Palette.inkFaint)
+    }
+}
+
+// MARK: - Letter spacing
+
+/// Letter spacing that switches itself off for right to left text. Arabic letters join, and
+/// tracking pulls them apart ("ا للغة"), so Arabic gets none.
+private struct LetterSpacing: ViewModifier {
+    @Environment(\.layoutDirection) private var direction
+    let amount: CGFloat
+
+    func body(content: Content) -> some View {
+        content.tracking(direction == .rightToLeft ? 0 : amount)
+    }
+}
+
+extension View {
+    func letterSpacing(_ amount: CGFloat) -> some View {
+        modifier(LetterSpacing(amount: amount))
     }
 }
 
@@ -39,7 +58,7 @@ private struct ChunkyStyle: ButtonStyle {
         configuration.label
             .font(Typeface.button)
             .textCase(.uppercase)
-            .tracking(0.4)
+            .letterSpacing(0.4)
             .foregroundStyle(foreground)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 58)

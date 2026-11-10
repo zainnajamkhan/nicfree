@@ -21,6 +21,9 @@ can be rejected under guideline 2.3.7.
 
 ## Description
 
+*Promotional text for the 1.1.1 launch, changeable any time without review (161/170):* Now in English, Svenska, Deutsch, Español, Français and العربية. Your free days only ever add up, and a slip never wipes them out. One purchase, no subscription.
+
+
 Quit vaping, nicotine pouches or cigarettes without the guilt trip.
 
 Most quit apps count a streak, and a streak resets to zero the moment you slip. NicFree
@@ -48,6 +51,9 @@ No account. No tracking. No data collected. Everything stays on your iPhone.
 ONE PURCHASE, NO SUBSCRIPTION
 The core app is free. One purchase unlocks Insights (what sets your cravings off, when
 they come, how long they last) and your full history.
+
+IN YOUR LANGUAGE
+NicFree is in English, Svenska, Deutsch, Español, Français and العربية. Switch any time in the app's Settings, without changing your iPhone's language.
 
 NicFree is not a medical device and does not give medical advice. If you are worried
 about nicotine withdrawal, talk to a doctor or pharmacist.
@@ -125,6 +131,9 @@ Inget konto. Ingen spårning. Allt stannar på din iPhone.
 ETT KÖP, INGEN PRENUMERATION
 Grundappen är gratis. Ett köp låser upp Insikter och hela din historik.
 
+PÅ DITT SPRÅK
+NicFree finns på svenska, engelska, tyska, spanska, franska och arabiska. Byt när du vill i appens inställningar, utan att ändra språket på din iPhone.
+
 NicFree är ingen medicinteknisk produkt och ger inga medicinska råd.
 
 **German**
@@ -146,6 +155,9 @@ Kein Konto. Kein Tracking. Alles bleibt auf deinem iPhone.
 
 EIN KAUF, KEIN ABO
 Die App ist kostenlos. Ein Kauf schaltet Einblicke und deinen ganzen Verlauf frei.
+
+IN DEINER SPRACHE
+NicFree gibt es auf Deutsch, Englisch, Schwedisch, Spanisch, Französisch und Arabisch. Wechsle jederzeit in den Einstellungen der App, ohne die Sprache deines iPhones zu ändern.
 
 NicFree ist kein Medizinprodukt und gibt keinen medizinischen Rat.
 
@@ -169,7 +181,10 @@ Sin cuenta. Sin rastreo. Todo se queda en tu iPhone.
 UN SOLO PAGO, SIN SUSCRIPCIÓN
 La app es gratis. Un pago desbloquea Análisis y tu historial completo.
 
-La app está en español. NicFree no es un dispositivo médico y no da consejos médicos.
+EN TU IDIOMA
+NicFree está en español, inglés, sueco, alemán, francés y árabe. Cámbialo cuando quieras en los ajustes de la app, sin cambiar el idioma de tu iPhone.
+
+NicFree no es un dispositivo médico y no da consejos médicos.
 
 **French**
 
@@ -190,6 +205,9 @@ Pas de compte. Pas de suivi. Tout reste sur ton iPhone.
 
 UN SEUL ACHAT, SANS ABONNEMENT
 L’app est gratuite. Un achat débloque les Analyses et tout ton historique.
+
+DANS TA LANGUE
+NicFree existe en français, anglais, suédois, allemand, espagnol et arabe. Change quand tu veux dans les réglages de l’app, sans changer la langue de ton iPhone.
 
 NicFree n’est pas un dispositif médical et ne donne pas de conseils médicaux.
 
@@ -212,5 +230,8 @@ NicFree n’est pas un dispositif médical et ne donne pas de conseils médicaux
 
 شراء واحد، بلا اشتراك
 التطبيق مجاني. شراء واحد يفتح الرؤى وسجلك الكامل.
+
+بلغتك
+NicFree متوفر بالعربية والإنجليزية والسويدية والألمانية والإسبانية والفرنسية. غيّر اللغة متى شئت من إعدادات التطبيق، دون تغيير لغة iPhone.
 
 NicFree ليس جهازًا طبيًا ولا يقدّم نصائح طبية.

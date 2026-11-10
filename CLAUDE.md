@@ -67,7 +67,8 @@ Breaking any of these breaks the product, not just a screen.
   display string, and never a `String` built by interpolation and handed to `Text`, which
   skips the catalog ("11 of 12" stayed English that way).
 - **The app ships in English, Swedish, German, Spanish, French and Arabic** (since 1.1.1).
-  A new string needs all six before it ships. The widget has its own catalog
+  A new string needs all six before it ships. A new language also goes in `AppLanguage.codes`
+  (the Settings picker). The widget has its own catalog
   (`NicFreeWidget/Localizable.xcstrings`), including the sprout stage names it shows.
   `ToneTests` checks a banned list per language. Arabic is right to left: check new layouts
   with `TEST_RUNNER_L10N=ar` and `AppStoreScreenshots.testTourInLanguage`.

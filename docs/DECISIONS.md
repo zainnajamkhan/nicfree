@@ -38,6 +38,18 @@ day someone relapsed, it does not ship. This is what separates evidence from enc
 and it is why the daily line is factual rather than cheerful. Cheer is allowed only where it
 can't land on a bad day: the free day celebration, which only follows a finished free day.
 
+**Pouches come first in onboarding (2026-11-10).** The listing, screenshots and video lead with
+Zyn and nicotine pouches, so the first answer someone sees matches why they downloaded it.
+Pouches is also the preselected choice, with 8 a day as the starting amount. Vapes and
+cigarettes keep full support.
+
+**A language picker in Settings (2026-11-10).** It writes the same `AppleLanguages` key as
+iPhone Settings → NicFree → Language, so the two never disagree. iOS hides that row unless the
+iPhone already has more than one language added, which is most people, so the app offers it
+itself. The change shows on next launch; switching live would need every `String(localized:)`
+and the layout direction swapped in place, and a half-switched screen is worse than a reopen.
+The widget follows the iPhone's language.
+
 ## Design
 
 **Calm, not Kwit.** The references given were Kwit and QuitNow, both competitors. Kwit's

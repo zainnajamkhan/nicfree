@@ -158,7 +158,7 @@ struct CravingView: View {
                 Text(label)
                     .font(Typeface.label)
                     .textCase(.uppercase)
-                    .tracking(0.8)
+                    .letterSpacing(0.8)
                     .foregroundStyle(Palette.skyInk)
                     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     .minimumScaleFactor(0.7)

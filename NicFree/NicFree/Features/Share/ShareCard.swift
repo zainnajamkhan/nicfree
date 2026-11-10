@@ -156,7 +156,7 @@ private struct ShareButtonStyle: ButtonStyle {
         configuration.label
             .font(Typeface.button)
             .textCase(.uppercase)
-            .tracking(0.4)
+            .letterSpacing(0.4)
             .foregroundStyle(Palette.onAccent)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 58)

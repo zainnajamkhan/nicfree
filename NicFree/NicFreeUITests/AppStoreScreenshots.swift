@@ -104,6 +104,14 @@ final class AppStoreScreenshots: XCTestCase {
             sleep(2)
             shot("\(language)-\(index + 1)-\(name)")
         }
+
+        // Settings, scrolled to the language picker.
+        tabs.element(boundBy: 0).tap()
+        app.buttons["settings"].firstMatch.tap()
+        sleep(1)
+        app.swipeUp()
+        sleep(1)
+        shot("\(language)-5-settings")
     }
 
     /// Walks the app at a watchable pace while `tools/app-preview.sh` records the screen:

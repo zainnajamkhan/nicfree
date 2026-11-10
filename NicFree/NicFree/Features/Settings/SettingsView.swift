@@ -23,6 +23,8 @@ struct SettingsView: View {
     @State private var weeklySpend: Double?
     @State private var notifications: UNAuthorizationStatus = .notDetermined
     @State private var reminderNote: String?
+    /// "" follows the iPhone.
+    @State private var language = AppLanguage.chosen ?? ""
     #if DEBUG
     @AppStorage("debugPetStyle") private var petStyle = ""
     @AppStorage(DebugLaunch.key) private var startFresh = true
@@ -37,6 +39,7 @@ struct SettingsView: View {
                 reasonsSection
                 useSection
                 notificationsSection
+                languageSection
                 aboutSection
                 #if DEBUG
                 debugSection
@@ -143,6 +146,28 @@ struct SettingsView: View {
             SectionLabel("Notifications")
         } footer: {
             Text("Little notes at 1 day, 3 days, a week, a month and beyond. The evening check-in is off unless you turn it on. You never need to do anything on a free day.")
+        }
+    }
+
+    private var languageSection: some View {
+        Section {
+            Picker("Language", selection: $language) {
+                Text("Same as iPhone").tag("")
+                ForEach(AppLanguage.codes, id: \.self) { code in
+                    Text(verbatim: AppLanguage.name(of: code)).tag(code)
+                }
+            }
+            .onChange(of: language) { _, code in
+                AppLanguage.chosen = code.isEmpty ? nil : code
+            }
+        } header: {
+            SectionLabel("Language")
+        } footer: {
+            if AppLanguage.nextLaunch != AppLanguage.showing {
+                Text("Close and reopen NicFree to switch.")
+            } else {
+                Text("You can use NicFree in a different language from your iPhone.")
+            }
         }
     }
 
